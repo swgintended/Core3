@@ -3202,21 +3202,29 @@ bool CreatureObjectImplementation::isHealableBy(CreatureObject* object) {
 	uint32 targetFactionStatus = targetCreo->getFactionStatus();
 	uint32 currentFactionStatus = object->getFactionStatus();
 
-	if (getFaction() != object->getFaction() && !(targetFactionStatus == FactionStatus::ONLEAVE))
-		return false;
+	//if (getFaction() != object->getFaction() && !(targetFactionStatus == FactionStatus::ONLEAVE))
+	//if (getFaction() != object->getFaction() && (targetFactionStatus == FactionStatus::COVERT))
+	//	return false;
 
 	//if ((targetFactionStatus == FactionStatus::OVERT) && !(currentFactionStatus == FactionStatus::OVERT))
 	//	return false;
 
-	if (!(targetFactionStatus == FactionStatus::ONLEAVE) && (currentFactionStatus == FactionStatus::ONLEAVE))
-		return false;
+	//if (!(targetFactionStatus == FactionStatus::ONLEAVE) && (currentFactionStatus == FactionStatus::ONLEAVE))
+	//	return false;
 
 	if(targetCreo->isPlayerCreature()) {
 		PlayerObject* targetGhost = targetCreo->getPlayerObject();
-		if(targetGhost != nullptr && (targetGhost->hasPvpTef() || ghost->hasPvpTef()))
+		if(targetGhost != nullptr){
+			if(getFaction() != object->getFaction() && targetFactionStatus == FactionStatus::COVERT && targetGhost->hasPvpTef())
+				return false;
+		}
+		/*if(targetGhost != nullptr && getFaction() != object->getFaction() && object-> getFaction() == Factions::FACTIONNEUTRAL && targetFactionStatus == FactionStatus::COVERT && !(targetGhost->hasPvpTef()))
 			return true;
-		if(targetGhost != nullptr && targetGhost->hasBhTef())
-			return false;
+		if(targetGhost != nullptr && (targetGhost->hasPvpTef() || ghost->hasPvpTef()) && object-> getFaction() != Factions::FACTIONNEUTRAL)
+			return true;*/
+		//if(targetGhost != nullptr && (Factions::FACTIONNEUTRAL))
+		//if(targetGhost != nullptr && targetGhost->hasBhTef())
+		//	return false;
 	}
 
 	return true;
