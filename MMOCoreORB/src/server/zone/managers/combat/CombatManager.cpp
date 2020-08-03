@@ -1539,7 +1539,8 @@ float CombatManager::calculateDamage(CreatureObject* attacker, WeaponObject* wea
 
 	if (attacker->isPlayerCreature()) {
 		if (data.isForceAttack() && !defender->isPlayerCreature())
-			damage *= 2 + System::random(1);
+			//damage *= 2 + System::random(1);
+			damage *= 6;
 		else if (!data.isForceAttack())
 			damage *= 1.5;
 	}
@@ -1571,8 +1572,8 @@ float CombatManager::calculateDamage(CreatureObject* attacker, WeaponObject* wea
 	}
 
 	// PvP Damage Reduction.
-	//if (attacker->isPlayerCreature() && defender->isPlayerCreature() && !data.isForceAttack())
-	if (attacker->isPlayerCreature() && defender->isPlayerCreature())
+	if (attacker->isPlayerCreature() && defender->isPlayerCreature() && !data.isForceAttack())
+	//if (attacker->isPlayerCreature() && defender->isPlayerCreature())
 		damage *= 0.25;
 
 	if (damage < 1) damage = 1;
