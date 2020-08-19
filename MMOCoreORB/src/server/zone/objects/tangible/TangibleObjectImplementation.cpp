@@ -522,6 +522,16 @@ void TangibleObjectImplementation::fillAttributeList(AttributeListMessage* alm, 
 		StringBuffer cond;
 		cond << (maxCondition-(int)conditionDamage) << "/" << maxCondition;
 
+		auto config = ConfigManager::instance();
+
+		if (isForceNoTrade()) {
+			cond << config->getForceNoTradeMessage();
+		} else if (antiDecayKitObject != nullptr && antiDecayKitObject->isForceNoTrade()) {
+			cond << config->getForceNoTradeADKMessage();
+		} else if (isNoTrade() || containsNoTradeObjectRecursive()) {
+			cond << config->getNoTradeMessage();
+		}
+
 		alm->insertAttribute("condition", cond);
 	}
 
