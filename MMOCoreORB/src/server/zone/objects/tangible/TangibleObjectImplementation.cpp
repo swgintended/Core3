@@ -117,6 +117,27 @@ void TangibleObjectImplementation::notifyLoadFromDatabase() {
 	}
 }
 
+void TangibleObjectImplementation::destroyObjectFromDatabase(bool destroyContainedObjects) {
+	if (hasAntiDecayKit()) {
+		AntiDecayKit* adk = antiDecayKitObject.castTo<AntiDecayKit*>();
+
+		if (adk != nullptr) {
+			auto strongAdkParent = adk->getParent().get();
+			error()
+				<< "destroyObjectFromDatabase oid: " << getObjectID()
+				<< " has AntiDecayKit(" << adk->getObjectID()
+				<< ") with parent: " << (strongAdkParent != nullptr ? strongAdkParent->getObjectID() : 0)
+				<< ", removing adk from database."
+				;
+			Locker lock(adk);
+			adk->destroyObjectFromDatabase(true);
+			antiDecayKitObject = nullptr;
+		}
+	}
+
+	SceneObjectImplementation::destroyObjectFromDatabase(destroyContainedObjects);
+}
+
 void TangibleObjectImplementation::sendBaselinesTo(SceneObject* player) {
 	debug("sending tano baselines");
 
@@ -1084,11 +1105,11 @@ bool TangibleObjectImplementation::isAttackableBy(CreatureObject* object) {
 	} else if (isRebel() && !(object->isImperial())) {
 		return false;
 	} else if (object->isPlayerCreature()) {
-		if (isImperial() && object->getFactionStatus() == 0) {
+		if (isImperial() && (!object->isRebel() || object->getFactionStatus() == 0)) {
 			return false;
 		}
 
-		if (isRebel() && object->getFactionStatus() == 0) {
+		if (isRebel() && (!object->isImperial() || object->getFactionStatus() == 0)) {
 			return false;
 		}
 
