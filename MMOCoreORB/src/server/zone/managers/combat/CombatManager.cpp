@@ -457,6 +457,7 @@ int CombatManager::doTargetCombatAction(CreatureObject* attacker, WeaponObject* 
 			PlayerObject* ghost = attacker->getPlayerObject();
 			if (tano->isTurret()) {// && defender->getFaction() != attacker->getFaction() && (defender->getFaction() == Factions::FACTIONREBEL || defender->getFaction() == Factions::FACTIONIMPERIAL)) {
 				ghost->updateLastPvpCombatActionTimestamp(false,false,true, false);
+				//attacker->broadcastPvpStatusBitmask();
 			}
 		}
 	}
