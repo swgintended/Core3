@@ -290,7 +290,7 @@ void CraftingSessionImplementation::selectDraftSchematic(int index) {
 		return;
 	}
 
-	SharedObjectTemplate* templateData = TemplateManager::instance()->getTemplate(draftschematic->getTanoCRC());
+	/*SharedObjectTemplate* templateData = TemplateManager::instance()->getTemplate(draftschematic->getTanoCRC());
 	if (templateData != nullptr) {
 		std::vector<sys::lang::String> denylist{
 			"armor_composite_bicep_l",
@@ -311,7 +311,7 @@ void CraftingSessionImplementation::selectDraftSchematic(int index) {
 			cancelSession();
 			return;
 		}
-	}
+	}*/
 
 	clearSession();
 
