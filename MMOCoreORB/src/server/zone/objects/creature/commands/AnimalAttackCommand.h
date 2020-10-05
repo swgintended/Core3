@@ -5,13 +5,16 @@
 #ifndef ANIMALATTACKCOMMAND_H_
 #define ANIMALATTACKCOMMAND_H_
 
-#include "server/zone/objects/creature/commands/JediQueueCommand.h"
+//#include "server/zone/objects/creature/commands/JediQueueCommand.h"
+#include "ForcePowersQueueCommand.h"
+#include "server/zone/objects/creature/ai/Creature.h"
+#include "server/zone/managers/combat/CombatManager.h"
 
-class AnimalAttackCommand : public JediQueueCommand {
+class AnimalAttackCommand : public ForcePowersQueueCommand {
 public:
 
 	AnimalAttackCommand(const String& name, ZoneProcessServer* server)
-		: JediQueueCommand(name, server) {
+		: ForcePowersQueueCommand(name, server) {
 
 	}
 
@@ -23,7 +26,55 @@ public:
 		if (!checkInvalidLocomotions(creature))
 			return INVALIDLOCOMOTION;
 
-		return SUCCESS;
+		if (isWearingArmor(creature)) {
+			return NOJEDIARMOR;
+		}
+
+		ManagedReference<SceneObject*> targetObject = server->getZoneServer()->getObject(target);
+
+		Creature* targetCreature = cast<Creature*>(targetObject.get());
+
+		if (targetCreature == nullptr)
+			return INVALIDTARGET;
+
+		if (targetCreature->getDistanceTo(creature) > 32.f){
+			creature->sendSystemMessage("@error_message:target_out_of_range");
+			return false;
+		}
+
+		TangibleObject* defender = cast<TangibleObject*>(creature->getMainDefender());
+		if (defender == nullptr) {
+			return INVALIDTARGET;
+		}
+
+		if (defender == targetCreature) {
+			creature->sendSystemMessage("@error_message:targetting_error");
+			return false;
+		}
+
+		int res = doCombatAction(creature, target);
+
+		if (res == SUCCESS) {
+			Locker clocker(targetCreature, creature);
+			CombatManager::instance()->forcePeace(targetCreature);
+			{
+				Locker clocker(defender, creature);
+				if (!defender->isAttackableBy(targetCreature)) {
+					return INVALIDTARGET;
+				}
+			}
+			targetCreature->setDefender(defender);
+			creature->doCombatAnimation(targetCreature, STRING_HASHCODE("mind_trick_1"), 1, 0);
+			creature->sendSystemMessage("@jedi_spam:animal_attack_success");
+
+			CombatManager::instance()->broadcastCombatSpam(creature, targetCreature, NULL, 0, "cbt_spam", combatSpam + "_hit", 1);
+
+			return SUCCESS;
+		} else {
+			creature->sendSystemMessage("@jedi_spam:animal_attack_fail");
+		}
+
+		return res;
 	}
 
 };
