@@ -39,17 +39,26 @@ public:
 		GroupManager* groupManager = GroupManager::instance();
 
 		ManagedReference<SceneObject*> object = server->getZoneServer()->getObject(target);
+		ManagedReference<CreatureObject*> targetPlayer = nullptr;
+		StringTokenizer args(arguments.toString());
+		if (object == nullptr || !object->isPlayerCreature()) {
+			String firstName;
+			if (args.hasMoreTokens()) {
+				args.getStringToken(firstName);
+				targetPlayer = server->getZoneServer()->getPlayerManager()->getPlayer(firstName);
+				if (targetPlayer != nullptr && !targetPlayer->isOnline()) {
+					targetPlayer = nullptr;
+				}
+			}
+		} else {
+			targetPlayer = cast<CreatureObject*>(object.get());
+		}
 
-		if (object == nullptr)
+		if (targetPlayer == nullptr)
 			return GENERALERROR;
 
-
-		if (object->isPlayerCreature()) {
-			CreatureObject* player = cast<CreatureObject*>( object.get());
-
-			if (!player->getPlayerObject()->isIgnoring(creature->getFirstName().toLowerCase()) || godMode)
-				groupManager->inviteToGroup(creature, player);
-		}
+		if (!targetPlayer->getPlayerObject()->isIgnoring(creature->getFirstName().toLowerCase()) || godMode)
+			groupManager->inviteToGroup(creature, targetPlayer);
 
 		return SUCCESS;
 	}
@@ -57,4 +66,3 @@ public:
 };
 
 #endif //INVITECOMMAND_H_
-

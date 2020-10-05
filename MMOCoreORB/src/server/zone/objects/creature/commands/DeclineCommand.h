@@ -38,7 +38,7 @@ public:
 
 		StringIdChatParameter stringId;
 		stringId.setStringId("group", "decline_leader");
-		stringId.setTT(creature->getObjectID());
+		stringId.setTT(creature->getDisplayedName());
 
 		inviter->sendSystemMessage(stringId);
 		creature->sendSystemMessage("@group:decline_self");
@@ -56,4 +56,3 @@ public:
 };
 
 #endif //DECLINECOMMAND_H_
-
