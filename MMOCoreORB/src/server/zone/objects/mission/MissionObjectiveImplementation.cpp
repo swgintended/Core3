@@ -221,13 +221,16 @@ void MissionObjectiveImplementation::awardReward() {
 		players.add(owner);
 	}
 
-	int divisor = mission->getRewardCreditsDivisor();
+	// int divisor = mission->getRewardCreditsDivisor();
+	// Distribute credits to nearby group members only, regardless of original
+	// (or expanded) group size at time of accepting mission.
+	int divisor = players.size();
 	bool expanded = false;
 
-	if (playerCount > divisor) {
-		divisor = playerCount;
-		expanded = true;
-	}
+	// if (playerCount > divisor) {
+	// 	divisor = playerCount;
+	// 	expanded = true;
+	// }
 
 	if (playerCount > players.size()) {
 		owner->sendSystemMessage("@mission/mission_generic:group_too_far"); // Mission Alert! Some group members are too far away from the group to receive their reward and and are not eligible for reward.
