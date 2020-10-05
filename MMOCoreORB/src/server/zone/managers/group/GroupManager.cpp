@@ -72,7 +72,7 @@ void GroupManager::inviteToGroup(CreatureObject* leader, CreatureObject* target)
 	if (target->isGrouped()) {
 		StringIdChatParameter stringId;
 		stringId.setStringId("group", "already_grouped");
-		stringId.setTT(target->getObjectID());
+		stringId.setTT(target->getDisplayedName());
 		leader->sendSystemMessage(stringId);
 		//leader->sendSystemMessage("group", "already_grouped", player->getObjectID());
 
@@ -82,7 +82,7 @@ void GroupManager::inviteToGroup(CreatureObject* leader, CreatureObject* target)
 	if (target->getGroupInviterID() == leader->getObjectID()) {
 		StringIdChatParameter stringId;
 		stringId.setStringId("group", "considering_your_group");
-		stringId.setTT(target->getObjectID());
+		stringId.setTT(target->getDisplayedName());
 		leader->sendSystemMessage(stringId);
 		//leader->sendSystemMessage("group", "considering_your_group", player->getObjectID());
 
@@ -90,7 +90,7 @@ void GroupManager::inviteToGroup(CreatureObject* leader, CreatureObject* target)
 	} else if (target->getGroupInviterID() != 0) {
 		StringIdChatParameter stringId;
 		stringId.setStringId("group", "considering_other_group"); // %TT is considering joining another group.
-		stringId.setTT(target->getObjectID());
+		stringId.setTT(target->getDisplayedName());
 		leader->sendSystemMessage(stringId);
 
 		return;
@@ -181,9 +181,15 @@ void GroupManager::joinGroup(CreatureObject* player) {
 
 		//Inform new member who the Master Looter is.
 		if (group->getLootRule() == MASTERLOOTER) {
-			StringIdChatParameter masterLooter("group","set_new_master_looter");
-			masterLooter.setTT(group->getMasterLooterID());
-			player->sendSystemMessage(masterLooter);
+			StringIdChatParameter masterLooterNotification("group","set_new_master_looter");
+			Reference<SceneObject*> masterLooter = player->getZoneServer()->getObject(group->getMasterLooterID());
+			if (masterLooter != nullptr) {
+				masterLooterNotification.setTU(masterLooter->getDisplayedName());
+			} else {
+				masterLooterNotification.setTU(group->getMasterLooterID());
+			}
+
+			player->sendSystemMessage(masterLooterNotification);
 		}
 
 		// clear invitee's LFG setting once a group is joined
@@ -521,7 +527,7 @@ void GroupManager::makeLeader(GroupObject* group, CreatureObject* player, Creatu
 
 		StringIdChatParameter message;
 		message.setStringId("group", "new_leader"); // %TU is now the group leader.
-		message.setTU(newLeader->getObjectID());
+		message.setTU(newLeader->getDisplayedName());
 
 		for (int i = 0; i < group->getGroupSize(); i++) {
 			Reference<CreatureObject*> play = group->getGroupMember(i);
@@ -677,11 +683,17 @@ void GroupManager::makeLeader(GroupObject* group, CreatureObject* player, Creatu
 		if (group == nullptr)
 			return;
 
+		CreatureObject* groupLeader = group->getLeader();
+
 		StringIdChatParameter notificationLeader("group","new_master_looter"); //"%TU is now the master looter."
-		notificationLeader.setTU(group->getMasterLooterID());
+		Reference<SceneObject*> masterLooter = groupLeader->getZoneServer()->getObject(group->getMasterLooterID());
+		if (masterLooter != nullptr) {
+			notificationLeader.setTU(masterLooter->getDisplayedName());
+		} else {
+			notificationLeader.setTU(group->getMasterLooterID());
+		}
 
 		//Send system message to leader.
-		CreatureObject* groupLeader = group->getLeader();
 		groupLeader->sendSystemMessage(notificationLeader);
 
 		//Send system message to members.
@@ -689,7 +701,12 @@ void GroupManager::makeLeader(GroupObject* group, CreatureObject* player, Creatu
 			group->sendSystemMessage(notificationLeader, false);
 		else {
 			StringIdChatParameter notificationOther("group","set_new_master_looter"); //"The Group Leader has set %TT as the master looter."
-			notificationOther.setTT(group->getMasterLooterID());
+			if (masterLooter != nullptr) {
+				notificationOther.setTT(masterLooter->getDisplayedName());
+			} else {
+				notificationOther.setTT(group->getMasterLooterID());
+			}
+
 			group->sendSystemMessage(notificationOther, false);
 		}
 	}
@@ -843,8 +860,8 @@ void GroupManager::makeLeader(GroupObject* group, CreatureObject* player, Creatu
 
 			if (stillGrouped && group != nullptr) {
 				StringIdChatParameter unable("group", "unable_to_transfer"); //"Unable to transfer %TO to %TT.  The item is available on the corpse for %TT to retrieve.
-				unable.setTO(object->getObjectID());
-				unable.setTT(winner->getObjectID());
+				unable.setTO(object->getDisplayedName());
+				unable.setTT(winner->getDisplayedName());
 				group->sendSystemMessage(unable, winner);
 			}
 
@@ -856,4 +873,3 @@ void GroupManager::makeLeader(GroupObject* group, CreatureObject* player, Creatu
 		}
 
 	}
-

@@ -28,26 +28,42 @@ public:
 			return INVALIDLOCOMOTION;
 
 		ManagedReference<SceneObject*> object = server->getZoneServer()->getObject(target);
+		ManagedReference<CreatureObject*> targetPlayer = nullptr;
+		StringTokenizer args(arguments.toString());
+		if (object == nullptr || !object->isPlayerCreature()) {
+			String firstName;
+			if (args.hasMoreTokens()) {
+				args.getStringToken(firstName);
+				targetPlayer = server->getZoneServer()->getPlayerManager()->getPlayer(firstName);
+				if (targetPlayer != nullptr && !targetPlayer->isOnline()) {
+					targetPlayer = nullptr;
+				}
+			}
+		} else {
+			targetPlayer = cast<CreatureObject*>(object.get());
+		}
 
-		if (object == nullptr || !object->isPlayerCreature())
+		if (targetPlayer == nullptr)
 			return GENERALERROR;
 
-		CreatureObject* play = cast<CreatureObject*>( object.get());
-
 		try {
-			Locker clocker(play, creature);
+			Locker clocker(targetPlayer, creature);
 
-			if (play->getGroupInviterID() != creature->getObjectID()) {
+			if (targetPlayer->getGroupInviterID() != creature->getObjectID()) {
 				creature->sendSystemMessage("@group:must_be_leader");
 				return GENERALERROR;
 			} else {
-				play->updateGroupInviterID(0);
-				play->sendSystemMessage("@group:uninvite_self");
+				targetPlayer->updateGroupInviterID(0);
 
-				StringIdChatParameter stringId;
-				stringId.setStringId("group", "uninvite_target");
-				stringId.setTT(play->getObjectID());
-				creature->sendSystemMessage(stringId);
+				StringIdChatParameter playerStringId;
+				playerStringId.setStringId("group", "uninvite_self"); // You cancel %TT's invitation.
+				playerStringId.setTT(targetPlayer->getDisplayedName());
+				creature->sendSystemMessage(playerStringId);
+
+				StringIdChatParameter targetStringId;
+				targetStringId.setStringId("group", "uninvite_target"); // %TT cancels the invitation.
+				targetStringId.setTT(creature->getDisplayedName());
+				targetPlayer->sendSystemMessage(targetStringId);
 			}
 
 		} catch (Exception& e) {
@@ -61,4 +77,3 @@ public:
 };
 
 #endif //UNINVITECOMMAND_H_
-
