@@ -2424,6 +2424,8 @@ bool PlayerObjectImplementation::hasGroupTefTowards(unsigned int groupID) const 
 }
 
 bool PlayerObjectImplementation::hasGroupTef() const {
+	//saving just in case we have issues with group tef
+	//return !lastGroupTefPvpCombatActionTimestamp.isPast();// && groupTefCrc != 0;
 	return !lastGroupTefPvpCombatActionTimestamp.isPast() && groupTefCrc != 0;
 }
 
