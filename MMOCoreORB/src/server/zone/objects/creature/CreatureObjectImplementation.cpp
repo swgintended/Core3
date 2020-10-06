@@ -3272,7 +3272,7 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 			return false;
 		else if (isPlayerCreature() && getFactionStatus() == FactionStatus::ONLEAVE)
 			return false;
-		else if (isPlayerCreature() && getFactionStatus() == FactionStatus::COVERT && !ghost->hasRealGcwTef())
+		else if (isPlayerCreature() && getFactionStatus() == FactionStatus::COVERT && !ghost->hasRealGcwTef() && ghost != nullptr)
 			return false;
 
 		return true;
