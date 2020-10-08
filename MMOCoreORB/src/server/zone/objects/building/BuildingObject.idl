@@ -55,7 +55,10 @@ class BuildingObject extends StructureObject {
 
 	public boolean publicStructure;
 
-	public static final int MAXPLAYERITEMS = 800;
+	// Change this multiplier to increase or decrease the maximum number of items
+	// allowed in structures.
+	public static final int MAXITEMS_MULTIPLIER = 2;
+	public static final int MAXPLAYERITEMS = 400;
 
 	protected unicode signName;
 
