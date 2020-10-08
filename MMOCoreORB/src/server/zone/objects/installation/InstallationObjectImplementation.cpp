@@ -29,6 +29,7 @@
 #include "templates/params/OptionBitmask.h"
 #include "templates/params/creature/CreatureFlag.h"
 #include "server/zone/objects/creature/ai/AiAgent.h"
+#include "templates/faction/Factions.h"
 
 void InstallationObjectImplementation::loadTemplateData(SharedObjectTemplate* templateData) {
 	StructureObjectImplementation::loadTemplateData(templateData);
@@ -731,12 +732,13 @@ bool InstallationObjectImplementation::isAttackableBy(CreatureObject* object) {
 	unsigned int thisFaction = getFaction();
 	unsigned int otherFaction = object->getFaction();
 
-	if (otherFaction != 0 && thisFaction != 0) {
-		if (otherFaction == thisFaction) {
-			return false;
-		}
+	//if (otherFaction != 0 && thisFaction != 0) {
+	//	if (otherFaction == thisFaction) {
+	//		return false;
+	//	}
 
-	}
+	//}
+
 
 	if (object->isPet()) {
 		ManagedReference<CreatureObject*> owner = object->getLinkedCreature().get();
@@ -748,10 +750,15 @@ bool InstallationObjectImplementation::isAttackableBy(CreatureObject* object) {
 
 	} else if (object->isPlayerCreature()) {
 		if (thisFaction != 0) {
-			Reference<PlayerObject*> ghost = object->getPlayerObject();
+			//Reference<PlayerObject*> ghost = object->getPlayerObject();
 			//if (ghost != nullptr && ghost->hasRealGcwTef()) {
 			//	return true;
 			//}
+			//if (object->getFaction() != Factions::FACTIONREBEL || object->getFaction() != Factions::FACTIONIMPERIAL)
+			//	return false;
+			if (otherFaction != 0 && otherFaction == thisFaction){
+				return false;
+			}
 
 			if (object->getFactionStatus() == 0) {
 				return false;
@@ -760,6 +767,12 @@ bool InstallationObjectImplementation::isAttackableBy(CreatureObject* object) {
 			if ((getPvpStatusBitmask() & CreatureFlag::OVERT) && object->getFactionStatus() != FactionStatus::COVERT) {
 				return false;
 			}
+		}
+	}
+
+	if (otherFaction != 0 && thisFaction != 0) {
+		if (otherFaction == thisFaction) {
+			return false;
 		}
 	}
 
