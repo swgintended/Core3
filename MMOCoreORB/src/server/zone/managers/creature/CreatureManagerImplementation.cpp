@@ -544,6 +544,12 @@ int CreatureManagerImplementation::notifyDestruction(TangibleObject* destructor,
 
 			if (player->isPlayerCreature()) {
 				if (!destructedObject->isEventMob()) {
+					const CreatureTemplate* creatureTemplate = destructedObject->getCreatureTemplate();
+					int killBadge = -1;
+					if (creatureTemplate != nullptr) {
+						killBadge = creatureTemplate->getBadge();
+					}
+
 					if (player->isGrouped()) {
 						ManagedReference<GroupObject*> group = player->getGroup();
 
@@ -554,12 +560,24 @@ int CreatureManagerImplementation::notifyDestruction(TangibleObject* destructor,
 								if (groupMember->isPlayerCreature()) {
 									Locker locker(groupMember, destructedObject);
 									groupMember->notifyObservers(ObserverEventType::KILLEDCREATURE, destructedObject);
+									if (killBadge > -1) {
+										ManagedReference<PlayerObject*> groupPlayer = groupMember->getPlayerObject();
+										if (groupPlayer != nullptr && !groupPlayer->hasBadge(killBadge)) {
+											groupPlayer->awardBadge(killBadge);
+										}
+									}
 								}
 							}
 						}
 					} else {
 						Locker locker(player, destructedObject);
 						player->notifyObservers(ObserverEventType::KILLEDCREATURE, destructedObject);
+						if (killBadge > -1) {
+							ManagedReference<PlayerObject*> playerObject = player->getPlayerObject();
+							if (playerObject != nullptr && !playerObject->hasBadge(killBadge)) {
+								playerObject->awardBadge(killBadge);
+							}
+						}
 					}
 				}
 

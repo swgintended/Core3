@@ -1220,7 +1220,7 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 			if (attackerCreature->isPlayerCreature()) {
 				if (!CombatManager::instance()->areInDuel(attackerCreature, player)) {
 					FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
-					
+
 					if (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player)) {
 						StringBuffer bhDeathBroadcast;
 						if (attackerCreature->hasBountyMissionFor(player)) {
@@ -2039,6 +2039,34 @@ void PlayerManagerImplementation::awardBadge(PlayerObject* ghost, const Badge* b
 			break;
 		}
 	}
+}
+
+void PlayerManagerImplementation::revokeBadge(PlayerObject* ghost, uint32 badgeId) {
+	const Badge* badge = BadgeList::instance()->get(badgeId);
+	if (badge != nullptr)
+		revokeBadge(ghost, badge);
+}
+
+void PlayerManagerImplementation::revokeBadge(PlayerObject* ghost, const Badge* badge) {
+	if (badge == nullptr) {
+		ghost->error("Failed to revoke null badge.");
+		return;
+	}
+
+
+	ManagedReference<CreatureObject*> player = dynamic_cast<CreatureObject*>(ghost->getParent().get().get());
+	const unsigned int badgeId = badge->getIndex();
+	if (!ghost->hasBadge(badgeId)) {
+		return;
+	}
+
+	ghost->unsetBadge(badgeId);
+	StringIdChatParameter stringId("badge_n", "");
+	stringId.setTO("badge_n", badge->getKey());
+	stringId.setStringId("badge_n", "prose_revoke");
+	player->sendSystemMessage(stringId);
+
+	// player->notifyObservers(ObserverEventType::BADGEREVOKED, player, badgeId);
 }
 
 void PlayerManagerImplementation::setExperienceMultiplier(float globalMultiplier) {
@@ -5838,10 +5866,10 @@ void PlayerManagerImplementation::doPvpDeathRatingUpdate(CreatureObject* player,
 
 
 
-	
+
 	//if (result == nullptr) {
 	//	error("ERROR INSERTING INTO DEATH INTO DATABASE!");
-	//} 
+	//}
 	//if (result != nullptr && result->next()){
 	//	deathID = result->getLastAffectedRow();
 		//deathID = result->getInt(0);
@@ -5851,7 +5879,7 @@ void PlayerManagerImplementation::doPvpDeathRatingUpdate(CreatureObject* player,
 //} catch (const Exception& e) {
 //	fatal(e.getMessage());
 	//}
-	
+
 
 
 	for (int i = 0; i < threatMap->size(); ++i) {

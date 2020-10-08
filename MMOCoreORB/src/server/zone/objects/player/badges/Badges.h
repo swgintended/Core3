@@ -17,14 +17,14 @@
 
 class Badges : public Serializable, public ReadWriteLock {
 	uint32 badgeBitmask[5];
-	uint8 badgeTypeCounts[6];
+	uint8 badgeTypeCounts[7];
 	uint8 badgeTotal;
 public:
 	Badges() {
 		for (int i = 0; i < 5; ++i)
 			badgeBitmask[i] = 0;
 
-		for (int i = 0; i < 6; ++i)
+		for (int i = 0; i < 7; ++i)
 			badgeTypeCounts[i] = 0;
 
 		badgeTotal = 0;
@@ -37,7 +37,7 @@ public:
 			badgeBitmask[i] = badges.badgeBitmask[i];
 		}
 
-		for (int i = 0; i < 6; ++i)
+		for (int i = 0; i < 7; ++i)
 			badgeTypeCounts[i] = badges.badgeTypeCounts[i];
 
 		badgeTotal = badges.badgeTotal;
@@ -71,6 +71,7 @@ public:
 		addSerializableVariable("badgeTypeCount4", &badgeTypeCounts[3]);
 		addSerializableVariable("badgeTypeCount5", &badgeTypeCounts[4]);
 		addSerializableVariable("badgeTypeCount6", &badgeTypeCounts[5]);
+		addSerializableVariable("badgeTypeCount7", &badgeTypeCounts[6]);
 
 		addSerializableVariable("badgeTotal", &badgeTotal);
 	}
@@ -88,7 +89,7 @@ public:
 
 		auto array2 = nlohmann::json::array();
 
-		for (int i = 0; i < 6; ++i) {
+		for (int i = 0; i < 7; ++i) {
 			array2.push_back(b.badgeTypeCounts[i]);
 		}
 
@@ -127,7 +128,12 @@ public:
 		}
 	}
 
-	void unsetBadge(Badge* badge) {
+	void unsetBadge(const uint32 badgeid) {
+		const Badge* badge = BadgeList::instance()->get(badgeid);
+		unsetBadge(badge);
+	}
+
+	void unsetBadge(const Badge* badge) {
 		if (badge == nullptr) return;
 		Locker locker(this);
 
@@ -200,7 +206,7 @@ public:
 	}
 
 	void setTypeCount(uint8 index, uint8 value) {
-		if (index > 5)
+		if (index > 6)
 			return;
 
 		Locker locker(this);

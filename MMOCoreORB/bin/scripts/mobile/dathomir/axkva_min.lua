@@ -48,6 +48,7 @@ axkva_min = Creature:new {
 			lootChance = 5000000
 		}
 	},
+	badge = 141,
 	weapons = {"mixed_force_weapons"},
 	conversationTemplate = "",
 	attacks = merge(fencermaster,swordsmanmaster,tkamaster,pikemanmaster,brawlermaster,forcepowermaster)
