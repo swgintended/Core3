@@ -1446,6 +1446,12 @@ void GuildManagerImplementation::sponsorPlayer(CreatureObject* player, const Str
 		return;
 	}
 
+	if (target->getPlayerObject()->isIgnoring(player->getFirstName().toLowerCase())) {
+		player->sendSystemMessage("The specified person is ignoring you.");
+		return;
+	}
+
+
 	Locker _lock(target, player);
 
 	/*if (!target->isOnline() || !player->isInRange(target, 32)) {
