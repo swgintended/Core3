@@ -884,7 +884,7 @@ void GuildManagerImplementation::sendGuildTransferTo(CreatureObject* player, Gui
 	suiBox->setPromptText("@guild:make_leader_d"); // You are about to transfer leadership of this Player Association!  Once you take this action you will be made a normal member and your leader permissions will be revoked.
 	suiBox->setCancelButton(true, "@cancel");
 	suiBox->setUsingObject(guildTerminal);
-	suiBox->setForceCloseDistance(32);
+	suiBox->setForceCloseDistance(0);
 
 	player->getPlayerObject()->addSuiBox(suiBox);
 	player->sendMessage(suiBox->generateMessage());
@@ -931,9 +931,10 @@ void GuildManagerImplementation::sendTransferAckTo(CreatureObject* player, const
 	}
 
 	// make sure player transferring to is nearby
-	if (!target->isOnline() || !target->isInRange(sceoTerminal, 32)) {
-		StringIdChatParameter params("@guild:ml_not_loaded");  // That person is not loaded or is too far away.
-		player->sendSystemMessage(params);
+	if (!target->isOnline()/* || !target->isInRange(sceoTerminal, 32)*/) {
+		/*StringIdChatParameter params("@guild:ml_not_loaded");  // That person is not loaded or is too far away.
+		player->sendSystemMessage(params);*/
+		player->sendSystemMessage("That player is not currently online.");
 		return;
 	}
 
@@ -955,7 +956,7 @@ void GuildManagerImplementation::sendTransferAckTo(CreatureObject* player, const
 	suiBox->setPromptTitle("@guild:make_leader_t"); // Transfer PA leadership
 	suiBox->setPromptText("@guild:make_leader_p");  // The leader of this PA wants to transfer leadership to you. Do you accept?
 	suiBox->setUsingObject(sceoTerminal);
-	suiBox->setForceCloseDistance(32);
+	suiBox->setForceCloseDistance(0);
 	suiBox->setCancelButton(true, "@no");
 	suiBox->setOkButton(true, "@yes");
 
@@ -1405,7 +1406,8 @@ void GuildManagerImplementation::sendGuildSponsorTo(CreatureObject* player, Guil
 	ManagedReference<SuiInputBox*> suiBox = new SuiInputBox(player, SuiWindowType::GUILD_SPONSOR);
 	suiBox->setCallback(new GuildSponsorSuiCallback(server));
 	suiBox->setPromptTitle("@guild:sponsor_title"); // Sponsor for Membership
-	suiBox->setPromptText("@guild:sponsor_prompt"); // Enter the name of the person to sponsor for membership. The person must be nearby.
+	//suiBox->setPromptText("@guild:sponsor_prompt"); // Enter the name of the person to sponsor for membership. The person must be nearby.
+	suiBox->setPromptText("Enter the name of the person to sponsor for membership.");
 	suiBox->setUsingObject(guildTerminal);
 	suiBox->setForceCloseDistance(32);
 	suiBox->setCancelButton(true, "@cancel");
@@ -1434,16 +1436,25 @@ void GuildManagerImplementation::sponsorPlayer(CreatureObject* player, const Str
 
 	ManagedReference<CreatureObject*> target = playerManager->getPlayer(playerName);
 
-	if (target == nullptr) {
+	/*if (target == nullptr) {
 		player->sendSystemMessage("@guild:sponsor_not_found"); // The specified person to sponsor could not be found nearby.
+		return;
+	}*/
+
+	if (target ==  nullptr) {
+		player->sendSystemMessage("The specified person with that name does not exist.");
 		return;
 	}
 
 	Locker _lock(target, player);
 
-	if (!target->isOnline() || !player->isInRange(target, 32)) {
+	/*if (!target->isOnline() || !player->isInRange(target, 32)) {
 		player->sendSystemMessage("@guild:sponsor_not_found"); // The specified person to sponsor could not be found nearby.
 		return;
+	}*/
+
+	if (!target->isOnline()) {
+		player->sendSystemMessage("The specified person to sponsor is not online.");
 	}
 
 	if (target->isInGuild()) {
@@ -1456,9 +1467,11 @@ void GuildManagerImplementation::sponsorPlayer(CreatureObject* player, const Str
 
 	StringIdChatParameter params;
 	params.setStringId("@guild:sponsor_self"); // You sponsor %TU for membership in %TT.
-	params.setTU(target->getObjectID());
+	params.setTU(target->getDisplayedName());
 	params.setTT(guild->getGuildName());
 	player->sendSystemMessage(params);
+
+	//player->sendSystemMessage("You sponsor " + target->getDisplayedName() + " for membership in " + guild->getDisplayedName() + ".");
 
 	target->getPlayerObject()->closeSuiWindowType(SuiWindowType::GUILD_SPONSOR_VERIFY);
 
@@ -1472,7 +1485,7 @@ void GuildManagerImplementation::sponsorPlayer(CreatureObject* player, const Str
 
 	suiBox->setPromptText(text.toString());
 	suiBox->setUsingObject(player);
-	suiBox->setForceCloseDistance(32);
+	suiBox->setForceCloseDistance(0);
 	suiBox->setCancelButton(true, "@no");
 	suiBox->setOkButton(true, "@yes");
 
@@ -1492,13 +1505,13 @@ void GuildManagerImplementation::acceptSponsorshipRequest(CreatureObject* player
 
 	StringIdChatParameter params;
 	params.setStringId("@guild:sponsor_accept"); // %TU has accepted your sponsorship
-	params.setTU(targetID);
+	params.setTU(target->getDisplayedName());
 	player->sendSystemMessage(params);
 
 	params.clear();
 
 	params.setStringId("@guild:sponsor_target"); // %TU has sponsored you for membership in %TT.
-	params.setTU(player->getObjectID());
+	params.setTU(player->getDisplayedName());
 	params.setTT(guild->getGuildName());
 	target->sendSystemMessage(params);
 
