@@ -1461,6 +1461,7 @@ void GuildManagerImplementation::sponsorPlayer(CreatureObject* player, const Str
 
 	if (!target->isOnline()) {
 		player->sendSystemMessage("The specified person to sponsor is not online.");
+		return;
 	}
 
 	if (target->isInGuild()) {
