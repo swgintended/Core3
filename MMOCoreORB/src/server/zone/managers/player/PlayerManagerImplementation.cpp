@@ -1229,6 +1229,7 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 			}
 
 			if (attackerCreature->isPlayerCreature()) {
+
 				if (!CombatManager::instance()->areInDuel(attackerCreature, player)) {
 
 					FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
@@ -1272,8 +1273,6 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 			}
 		}
 	}
-
-
 
 	CombatManager::instance()->freeDuelList(player, false);
 
