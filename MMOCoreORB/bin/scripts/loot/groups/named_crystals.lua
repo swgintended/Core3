@@ -23,4 +23,4 @@ named_crystals = {
 	}
 }
 
-addLootGroupTemplate("color_crystals", color_crystals)
+addLootGroupTemplate("named_crystals", named_crystals)
