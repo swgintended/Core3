@@ -60,7 +60,7 @@ public:
 		FORCEARMOR,					// ManagedObject arg1 = player, long arg2 = damage amount absorbed.
 		FORCESHIELD,				// ManagedObject arg1 = player, long arg2 = damage amount absorbed.
 		FORCEFEEDBACK,				// ManagedObject arg1 = player, long arg2 = damage amount absorbed.
-		FORCEABSORB,				// ManagedObject arg1 = player, long arg2 = force cost of attack
+		FORCEABSORB,				// ManagedObject arg1 = player, long arg2 = force attack damage absorbed
 		SPATIALCHATSENT,			// ManagedObject arg1 = ChatMessage containing string text, long arg2 = 0
 		OBJECTINSERTED,				// ManagedObject arg1 = inserted object, long arg2 = 0
 		OBJECTDISAPPEARED,			// ManagedObject arg1 = disappeared object, long arg2 = 0
