@@ -426,7 +426,7 @@ bool FactoryObjectImplementation::startFactory() {
 			return false;
 	}
 
-	timer = ((int)schematic->getComplexity()) * 8;
+	timer = ((int)schematic->getComplexity()) * 6; //Originally * 8, lowered for 25% boost to factory run speeds.
 
 	if(!populateSchematicBlueprint(schematic))
 		return false;
@@ -566,7 +566,7 @@ void FactoryObjectImplementation::createNewObject() {
 		return;
 	}
 
-	int crateSize = schematic->getFactoryCrateSize();
+	int crateSize = (schematic->getFactoryCrateSize() * 2); // All factory crates will be 2x their schematics given size.
 
 	if (crateSize <= 0) {
 		stopFactory("manf_error", "", "", -1);
