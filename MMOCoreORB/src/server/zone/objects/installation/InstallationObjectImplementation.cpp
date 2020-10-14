@@ -670,6 +670,13 @@ bool InstallationObjectImplementation::isAggressiveTo(CreatureObject* target) {
 		return false;
 
 	if (target->isPlayerCreature()) {
+		Reference<PlayerObject*> ghost = target->getPlayerObject();
+		if (ghost != nullptr && ghost->hasRealGcwTef()){
+			return true;
+		}
+	}
+
+	/*if (target->isPlayerCreature()) {
 		if (getFaction() != 0 && target->getFaction() != 0 && getFaction() != target->getFaction()) {
 			Reference<PlayerObject*> ghost = target->getPlayerObject();
 			if (ghost != nullptr && target->getFactionStatus() == FactionStatus::OVERT)// || ghost->hasPvpTef()) //target->getPvpStatusBitmask() & CreatureFlag::TEF)
@@ -681,7 +688,7 @@ bool InstallationObjectImplementation::isAggressiveTo(CreatureObject* target) {
 			//if (ghost->hasPvpTef() && target->getFactionStatus() == FactionStatus::COVERT)
 			//	return true;
 		}
-	}
+	}*/
 
 	if (getFaction() != 0 && target->getFaction() != 0 && getFaction() != target->getFaction())
 		return true;
@@ -750,12 +757,11 @@ bool InstallationObjectImplementation::isAttackableBy(CreatureObject* object) {
 
 	} else if (object->isPlayerCreature()) {
 		if (thisFaction != 0) {
-			//Reference<PlayerObject*> ghost = object->getPlayerObject();
-			//if (ghost != nullptr && ghost->hasRealGcwTef()) {
-			//	return true;
-			//}
-			//if (object->getFaction() != Factions::FACTIONREBEL || object->getFaction() != Factions::FACTIONIMPERIAL)
-			//	return false;
+			Reference<PlayerObject*> ghost = object->getPlayerObject();
+			if (ghost == nullptr) {
+				return false;
+			}
+
 			if (otherFaction != 0 && otherFaction == thisFaction){
 				return false;
 			}
@@ -763,10 +769,18 @@ bool InstallationObjectImplementation::isAttackableBy(CreatureObject* object) {
 			if (object->getFactionStatus() == 0) {
 				return false;
 			}
+			//if ((getPvpStatusBitmask() & CreatureFlag::OVERT) && (object->getFactionStatus() != FactionStatus::COVERT || object->getFactionStatus() != FactionStatus::OVERT)){// && (ghost->hasRealGcwTef() || !ghost->hasRealGcwTef())) {
+			//	return false;
+			//}
+			//if (object->getFaction() != Factions::FACTIONREBEL || object->getFaction() != Factions::FACTIONIMPERIAL)
+			//	return false;
 
-			if ((getPvpStatusBitmask() & CreatureFlag::OVERT) && object->getFactionStatus() != FactionStatus::COVERT) {
-				return false;
-			}
+
+			//if ((getPvpStatusBitmask() & CreatureFlag::OVERT) && object->getFactionStatus() != FactionStatus::COVERT) {
+			//	return false;
+			//}
+
+
 		}
 	}
 
