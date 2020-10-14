@@ -566,7 +566,7 @@ void FactoryObjectImplementation::createNewObject() {
 		return;
 	}
 
-	int crateSize = (schematic->getFactoryCrateSize() * 2); // All factory crates will be 2x their schematics given size.
+	int crateSize = schematic->getFactoryCrateSize();
 
 	if (crateSize <= 0) {
 		stopFactory("manf_error", "", "", -1);
