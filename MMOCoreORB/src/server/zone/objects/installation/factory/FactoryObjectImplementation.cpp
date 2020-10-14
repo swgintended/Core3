@@ -426,7 +426,7 @@ bool FactoryObjectImplementation::startFactory() {
 			return false;
 	}
 
-	timer = ((int)schematic->getComplexity()) * 8;
+	timer = ((int)schematic->getComplexity()) * 6; //Originally * 8, lowered for 25% boost to factory run speeds.
 
 	if(!populateSchematicBlueprint(schematic))
 		return false;
@@ -575,6 +575,8 @@ void FactoryObjectImplementation::createNewObject() {
 
 	if (crateSize > 1) {
 		ManagedReference<FactoryCrate*> crate = locateCrateInOutputHopper(prototype);
+
+		crateSize *= 2; //Factory crate sizes greater than 1 are doubled.
 
 		if (crate == nullptr)
 			crate = createNewFactoryCrate(prototype, crateSize);
