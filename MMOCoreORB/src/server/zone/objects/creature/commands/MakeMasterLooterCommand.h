@@ -44,9 +44,24 @@ public:
 		GroupManager* manager = GroupManager::instance();
 
 		//Check if current target is valid to be Master Looter. If not, send the list of potential Master Looters.
-		ManagedReference<CreatureObject*> object = server->getZoneServer()->getObject(target).castTo<CreatureObject*>();
-		if (object != nullptr && object->isPlayerCreature() && group->hasMember(object)) {
-			manager->changeMasterLooter(group, object, true);
+		ManagedReference<SceneObject*> object = server->getZoneServer()->getObject(target);
+		ManagedReference<CreatureObject*> targetPlayer = nullptr;
+		StringTokenizer args(arguments.toString());
+		if (object == nullptr || !object->isPlayerCreature()) {
+			String firstName;
+			if (args.hasMoreTokens()) {
+				args.getStringToken(firstName);
+				targetPlayer = server->getZoneServer()->getPlayerManager()->getPlayer(firstName);
+				if (targetPlayer != nullptr && !targetPlayer->isOnline()) {
+					targetPlayer = nullptr;
+				}
+			}
+		} else {
+			targetPlayer = cast<CreatureObject*>(object.get());
+		}
+
+		if (targetPlayer != nullptr && group->hasMember(targetPlayer)) {
+			manager->changeMasterLooter(group, targetPlayer, true);
 			return SUCCESS;
 		} else
 			manager->sendMasterLooterList(group, creature);

@@ -30,18 +30,30 @@ public:
 		GroupManager* groupManager = GroupManager::instance();
 
 		ManagedReference<SceneObject*> object = server->getZoneServer()->getObject(target);
+		ManagedReference<CreatureObject*> targetPlayer = nullptr;
+		StringTokenizer args(arguments.toString());
+		if (object == nullptr || !object->isPlayerCreature()) {
+			String firstName;
+			if (args.hasMoreTokens()) {
+				args.getStringToken(firstName);
+				targetPlayer = server->getZoneServer()->getPlayerManager()->getPlayer(firstName);
+				if (targetPlayer != nullptr && !targetPlayer->isOnline()) {
+					targetPlayer = nullptr;
+				}
+			}
+		} else {
+			targetPlayer = cast<CreatureObject*>(object.get());
+		}
 
-		if (object == nullptr || !object->isPlayerCreature())
+		if (targetPlayer == nullptr)
 			return GENERALERROR;
-
-		CreatureObject* targetObject = cast<CreatureObject*>( object.get());
 
 		GroupObject* group = creature->getGroup();
 
 		if (group == nullptr)
 			return GENERALERROR;
 
-		groupManager->makeLeader(group, creature, targetObject);
+		groupManager->makeLeader(group, creature, targetPlayer);
 
 		return SUCCESS;
 	}
@@ -49,4 +61,3 @@ public:
 };
 
 #endif //MAKELEADERCOMMAND_H_
-

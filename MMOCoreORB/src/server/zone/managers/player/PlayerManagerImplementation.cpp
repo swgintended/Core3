@@ -1205,9 +1205,20 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 
 	ThreatMap* threatMap = player->getThreatMap();
 
-	if (attacker->getFaction() != 0) {
+	CreatureObject* attackerCreature = attacker->asCreatureObject();
+
+	if (attacker->isPlayerCreature() && (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player))) {
+		StringBuffer bhDeathBroadcast;
+		if (attackerCreature->hasBountyMissionFor(player)) {
+			bhDeathBroadcast << "!! IMPERIAL COMMUNICATION !! Bounty Hunter " << attackerCreature->getFirstName() <<" has collected the bounty placed on the Jedi scum " << player->getFirstName() << ".";
+		} else {
+			bhDeathBroadcast << attackerCreature->getFirstName() << " has successfully fought off and slain the Bounty Hunter " << player->getFirstName() << ".";
+		}
+		player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, bhDeathBroadcast.toString());
+
+	} else if (attacker->getFaction() != 0) {
+
 		if (attacker->isPlayerCreature() || attacker->isPet()) {
-			CreatureObject* attackerCreature = attacker->asCreatureObject();
 
 			if (attackerCreature->isPet()) {
 				CreatureObject* owner = attackerCreature->getLinkedCreature().get();
@@ -1218,19 +1229,12 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 			}
 
 			if (attackerCreature->isPlayerCreature()) {
+
 				if (!CombatManager::instance()->areInDuel(attackerCreature, player)) {
+
 					FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
 					
-					if (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player)) {
-						StringBuffer bhDeathBroadcast;
-						if (attackerCreature->hasBountyMissionFor(player)) {
-							bhDeathBroadcast << "Bounty Hunter " << attackerCreature->getFirstName() <<" has killed it's mark " << player->getFirstName() << ".";
-						} else {
-							bhDeathBroadcast << attackerCreature->getFirstName() << " has killed the Bounty Hunter " << player->getFirstName() << ".";
-						}
-						player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, bhDeathBroadcast.toString());
-
-					} else if (attacker->getFaction() == Factions::FACTIONREBEL) {
+					if (attacker->getFaction() == Factions::FACTIONREBEL) {
 						attacker->playEffect("clienteffect/holoemote_rebel.cef", "head");
 						StringBuffer factionDeathBroadcast;
 						factionDeathBroadcast << "A Rebel named " << attackerCreature->getFirstName() << " has murdered " << player->getFirstName() << ", an Empire Loyalist.";

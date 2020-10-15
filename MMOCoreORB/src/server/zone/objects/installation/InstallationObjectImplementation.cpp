@@ -29,6 +29,7 @@
 #include "templates/params/OptionBitmask.h"
 #include "templates/params/creature/CreatureFlag.h"
 #include "server/zone/objects/creature/ai/AiAgent.h"
+#include "templates/faction/Factions.h"
 
 void InstallationObjectImplementation::loadTemplateData(SharedObjectTemplate* templateData) {
 	StructureObjectImplementation::loadTemplateData(templateData);
@@ -669,6 +670,13 @@ bool InstallationObjectImplementation::isAggressiveTo(CreatureObject* target) {
 		return false;
 
 	if (target->isPlayerCreature()) {
+		Reference<PlayerObject*> ghost = target->getPlayerObject();
+		if (ghost != nullptr && ghost->hasRealGcwTef()){
+			return true;
+		}
+	}
+
+	/*if (target->isPlayerCreature()) {
 		if (getFaction() != 0 && target->getFaction() != 0 && getFaction() != target->getFaction()) {
 			Reference<PlayerObject*> ghost = target->getPlayerObject();
 			if (ghost != nullptr && target->getFactionStatus() == FactionStatus::OVERT)// || ghost->hasPvpTef()) //target->getPvpStatusBitmask() & CreatureFlag::TEF)
@@ -680,7 +688,7 @@ bool InstallationObjectImplementation::isAggressiveTo(CreatureObject* target) {
 			//if (ghost->hasPvpTef() && target->getFactionStatus() == FactionStatus::COVERT)
 			//	return true;
 		}
-	}
+	}*/
 
 	if (getFaction() != 0 && target->getFaction() != 0 && getFaction() != target->getFaction())
 		return true;
@@ -731,12 +739,13 @@ bool InstallationObjectImplementation::isAttackableBy(CreatureObject* object) {
 	unsigned int thisFaction = getFaction();
 	unsigned int otherFaction = object->getFaction();
 
-	if (otherFaction != 0 && thisFaction != 0) {
-		if (otherFaction == thisFaction) {
-			return false;
-		}
+	//if (otherFaction != 0 && thisFaction != 0) {
+	//	if (otherFaction == thisFaction) {
+	//		return false;
+	//	}
 
-	}
+	//}
+
 
 	if (object->isPet()) {
 		ManagedReference<CreatureObject*> owner = object->getLinkedCreature().get();
@@ -749,17 +758,35 @@ bool InstallationObjectImplementation::isAttackableBy(CreatureObject* object) {
 	} else if (object->isPlayerCreature()) {
 		if (thisFaction != 0) {
 			Reference<PlayerObject*> ghost = object->getPlayerObject();
-			//if (ghost != nullptr && ghost->hasRealGcwTef()) {
-			//	return true;
-			//}
+			if (ghost == nullptr) {
+				return false;
+			}
+
+			if (otherFaction != 0 && otherFaction == thisFaction){
+				return false;
+			}
 
 			if (object->getFactionStatus() == 0) {
 				return false;
 			}
+			//if ((getPvpStatusBitmask() & CreatureFlag::OVERT) && (object->getFactionStatus() != FactionStatus::COVERT || object->getFactionStatus() != FactionStatus::OVERT)){// && (ghost->hasRealGcwTef() || !ghost->hasRealGcwTef())) {
+			//	return false;
+			//}
+			//if (object->getFaction() != Factions::FACTIONREBEL || object->getFaction() != Factions::FACTIONIMPERIAL)
+			//	return false;
 
-			if ((getPvpStatusBitmask() & CreatureFlag::OVERT) && object->getFactionStatus() != FactionStatus::COVERT) {
-				return false;
-			}
+
+			//if ((getPvpStatusBitmask() & CreatureFlag::OVERT) && object->getFactionStatus() != FactionStatus::COVERT) {
+			//	return false;
+			//}
+
+
+		}
+	}
+
+	if (otherFaction != 0 && thisFaction != 0) {
+		if (otherFaction == thisFaction) {
+			return false;
 		}
 	}
 

@@ -457,7 +457,7 @@ int CombatManager::doTargetCombatAction(CreatureObject* attacker, WeaponObject* 
 		if (attacker->isPlayerCreature()){
 			//info("shouldRealGcwTefpvpdtca1", true);
 			PlayerObject* ghost = attacker->getPlayerObject();
-			if (tano->isTurret()) {// && defender->getFaction() != attacker->getFaction() && (defender->getFaction() == Factions::FACTIONREBEL || defender->getFaction() == Factions::FACTIONIMPERIAL)) {
+			if (ghost != nullptr && tano->isTurret() && (tano->getFaction() == Factions::FACTIONREBEL || tano->getFaction() == Factions::FACTIONIMPERIAL)) {// && defender->getFaction() != attacker->getFaction() && (defender->getFaction() == Factions::FACTIONREBEL || defender->getFaction() == Factions::FACTIONIMPERIAL)) {
 				ghost->updateLastPvpCombatActionTimestamp(false,false,true, false);
 				//attacker->broadcastPvpStatusBitmask();
 			}
@@ -1426,7 +1426,7 @@ int CombatManager::getArmorReduction(TangibleObject* attacker, WeaponObject* wea
 
 		// Force Absorb
 		if (defender->getSkillMod("force_absorb") > 0 && defender->isPlayerCreature()) {
-			defender->notifyObservers(ObserverEventType::FORCEABSORB, attacker, data.getForceCost());
+			defender->notifyObservers(ObserverEventType::FORCEABSORB, attacker, damage);
 		}
 	}
 

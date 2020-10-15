@@ -952,13 +952,14 @@ void ChatManagerImplementation::broadcastGalaxy(const String& message, const Str
 }
 
 void ChatManagerImplementation::broadcastGalaxy(CreatureObject* player, const String& message) {
-	String firstName = "SKYNET";
+	/*String firstName = "SKYNET";
 
 	if (player != nullptr)
-		firstName = player->getFirstName();
+		firstName = player->getFirstName();*/
 
 	StringBuffer fullMessage;
-	fullMessage << "[" << firstName << "] " << message;
+	//fullMessage << "[" << firstName << "] " << message;
+	fullMessage << message;
 
 	const auto stringMessage = fullMessage.toString();
 
