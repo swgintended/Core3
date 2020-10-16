@@ -5,7 +5,7 @@ gcwCheckTimer = 3600
 vulnerabilityDuration = 10800
 
 -- Amount of time in seconds between base vulnerabilities.
-vulnerabilityFrequency = 172800
+vulnerabilityFrequency = 594000 --6 days, 21 hours
 
 powerSwitchCount = 7
 
@@ -26,7 +26,7 @@ dnaStrandLength = 23
 destructionTimer = 600
 
 -- maximum bases per planet
-maxBases = 25
+maxBases = 3
 
 -- time in seconds that a player must be overt before aborting a facility shutdown
 overtCooldown = 300
@@ -41,7 +41,7 @@ reactivationTimer = 300
 -- X seconds after the last manual activity the turret will be able to auto fire
 turretAutoFireTimeout = 20
 
-maxBasesPerPlayer = 3
+maxBasesPerPlayer = 1
 
 -- xp bonus for faction controlling a planet
 bonusXP = 15

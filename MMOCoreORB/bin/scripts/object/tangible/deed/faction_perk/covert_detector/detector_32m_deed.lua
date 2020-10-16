@@ -42,7 +42,10 @@
 
 
 object_tangible_deed_faction_perk_covert_detector_detector_32m_deed = object_tangible_deed_faction_perk_covert_detector_shared_detector_32m_deed:new {
-
+	templateType = STRUCTUREDEED,
+ 	--placeStructureComponent = "PlaceStructureComponent",
+	gameObjectType = 8388609,
+	generatedObjectTemplate = "object/installation/faction_perk/covert_detector/detector_base.iff",
 }
 
 ObjectTemplates:addTemplate(object_tangible_deed_faction_perk_covert_detector_detector_32m_deed, "object/tangible/deed/faction_perk/covert_detector/detector_32m_deed.iff")
