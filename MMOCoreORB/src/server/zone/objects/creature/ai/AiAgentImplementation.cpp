@@ -2830,9 +2830,9 @@ bool AiAgentImplementation::isAggressiveTo(CreatureObject* target) {
 		if (target->isPlayerCreature() && ghost != nullptr && !(getOptionsBitmask() & CreatureFlag::IGNORE_FACTION_STANDING)) {
 			float targetsStanding = ghost->getFactionStanding(factionString);
 
-			if (targetsStanding <= -3000)
+			if (getFaction() == 0 && targetsStanding <= -3000)
 				return true;
-			else if (targetsStanding >= 3000)
+			else if (getFaction() == 0 && targetsStanding >= 3000)
 				return false;
 
 		// AI can check the enemy strings directly vs other AI (since they don't have a
