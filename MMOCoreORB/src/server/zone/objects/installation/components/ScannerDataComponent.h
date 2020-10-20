@@ -11,20 +11,21 @@
 #include "engine/engine.h"
 #include "server/zone/objects/creature/CreatureObject.h"
 #include "server/zone/objects/scene/components/DataObjectComponent.h"
+#include "templates/installation/SharedInstallationObjectTemplate.h"
 
 
 class ScannerDataComponent : public DataObjectComponent, public Logger {
 protected:
-	int maxrange;
 	Time nextScanTime;
 	ManagedWeakReference<CreatureObject*> lastScanTarget;
 	Reference<Task*> scannerScanTask;
+	SharedInstallationObjectTemplate* templateData;
 	AtomicInteger numberOfPlayersInRange;
 
 public:
 	ScannerDataComponent()  {
-		maxrange = 0;
 		nextScanTime = Time();
+		templateData = nullptr;
 		this->setLoggingName("ScannerData");
 
 	}
@@ -32,10 +33,11 @@ public:
 	void writeJSON(nlohmann::json& j) const {
 		DataObjectComponent::writeJSON(j);
 
-		SERIALIZE_JSON_MEMBER(maxrange);
 		SERIALIZE_JSON_MEMBER(nextScanTime);
 		SERIALIZE_JSON_MEMBER(numberOfPlayersInRange);
 	}
+
+	void initializeTransientMembers();
 
 	int getRescheduleDelay() {
 		int delay = 0;

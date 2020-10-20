@@ -274,6 +274,7 @@ void GCWManagerImplementation::performGCWTasks(bool initial) {
 		}
 
 		verifyTurrets(building);
+		verifyScanners(building);
 	}
 
 	setRebelBaseCount(rebelCheck);
@@ -322,6 +323,40 @@ void GCWManagerImplementation::verifyTurrets(BuildingObject* building) {
 	}
 
 	baseData->setDefense(turretCount != 0);
+
+	if (!(hasDefense == baseData->hasDefense())) {
+		building->broadcastCellPermissions();
+	}
+}
+
+void GCWManagerImplementation::verifyScanners(BuildingObject* building) {
+	DestructibleBuildingDataComponent* baseData = getDestructibleBuildingData(building);
+
+	if (baseData == nullptr)
+		return;
+
+	ZoneServer* zoneServer = zone->getZoneServer();
+
+	if (zoneServer == nullptr)
+		return;
+
+	int scannerCount = 0;
+
+	Locker blocker(building);
+
+	bool hasDefense = baseData->hasDefense();
+
+	for (int i = 0; i < baseData->getTotalScannerCount(); ++i) {
+		uint64 turretID = baseData->getScannerOID(i);
+		ManagedReference<SceneObject*> scanner = zoneServer->getObject(baseData->getScannerOID(i));
+
+		if (scanner != nullptr)
+			scannerCount++;
+		else
+			baseData->setScannerID(i, 0);
+	}
+
+	baseData->setDefense(scannerCount != 0);
 
 	if (!(hasDefense == baseData->hasDefense())) {
 		building->broadcastCellPermissions();
@@ -2073,8 +2108,7 @@ void GCWManagerImplementation::sendSelectDeedToDonate(BuildingObject* building, 
 
 				Reference<SharedObjectTemplate* > generatedTemplate = TemplateManager::instance()->getTemplate(deed->getGeneratedObjectTemplate().hashCode());
 
-				if (generatedTemplate != nullptr &&
-						(generatedTemplate->getGameObjectType() == SceneObjectType::MINEFIELD || generatedTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE)) {
+				if (generatedTemplate != nullptr && (generatedTemplate->getGameObjectType() == SceneObjectType::MINEFIELD || generatedTemplate->getGameObjectType() == SceneObjectType::COVERTSCANNER || generatedTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE)) {
 
 					donate->addMenuItem(inventoryObject->getDisplayedName(), inventoryObject->getObjectID());
 				}
@@ -2326,9 +2360,9 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 	String serverTemplatePath = scannerDeed->getGeneratedObjectTemplate();
 	TemplateManager* templateManager = TemplateManager::instance();
 	Reference<SharedObjectTemplate*> baseServerTemplate = building->getObjectTemplate();
+
 	Reference<SharedObjectTemplate*> scannerTemplate = nullptr;
 	const ChildObject* child = nullptr;
-
 	int currentScannerIndex = 0;
 
 	Locker block(building,creature);
@@ -2338,20 +2372,13 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 	if (baseData == nullptr)
 		return;
 
-	int totalScannersNow = baseData->getTotalScannerCount();
-
-
-	creature->sendSystemMessage("Total Current Scanners: " + String::valueOf(totalScannersNow));
-	creature->sendSystemMessage("Template: " + serverTemplatePath);
-	//if (totalScannersNow >)
-
-	/*	if (baseData->getScannerOID(scannerIndex) == 0 )
-			break;
-	}
-
 	int nextAvailableScanner = 0;
-	for (nextAvailableScanner = 0; nextAvailableScanner < baseData->getTotalScannerCount(); nextAvailableScanner++) {
-		if (baseData->getScannerOID(nextAvailableScanner) == 0)			break;
+
+	for (nextAvailableScanner = 0; nextAvailableScanner < baseData->getTotalTurretCount(); nextAvailableScanner++) {
+		uint64 scannerID = baseData->getScannerOID(nextAvailableScanner);
+
+		if (scannerID == 0 )
+			break;
 	}
 
 	if (nextAvailableScanner >= baseData->getTotalScannerCount()) {
@@ -2362,7 +2389,6 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 		return;
 	}
 
-	// now find the coords of the nth turret
 	for (int i = 0; i < baseServerTemplate->getChildObjectsSize(); ++i) {
 		child = baseServerTemplate->getChildObject(i);
 		scannerTemplate = nullptr;
@@ -2378,10 +2404,11 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 				}
 			}
 		}
-	}*/
+	}
 
-	if (child == nullptr || scannerTemplate == nullptr || scannerTemplate->getGameObjectType() != SceneObjectType::COVERTSCANNER)
+	if (child == nullptr || scannerTemplate == nullptr || scannerTemplate->getGameObjectType() != SceneObjectType::COVERTSCANNER) {
 		return;
+	}
 
 	uint64 scannerID = addChildInstallationFromDeed(building, child, creature, scannerDeed);
 

@@ -42,6 +42,7 @@
 
 
 object_installation_faction_perk_covert_detector_detector_base = object_installation_faction_perk_covert_detector_shared_detector_base:new {
+	gameObjectType = COVERSCANNER;
 	pvpStatusBitmask = ATTACKABLE,
 	optionsBitmask = 0,
 	maxCondition = 7500,

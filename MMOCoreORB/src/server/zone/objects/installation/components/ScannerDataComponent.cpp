@@ -16,8 +16,19 @@
 #include "server/zone/objects/player/PlayerObject.h"
 #include "server/zone/objects/player/FactionStatus.h"
 #include "server/zone/objects/scene/SceneObject.h"
-
+#include "templates/installation/SharedInstallationObjectTemplate.h"
 #include "server/zone/Zone.h"
+
+void ScannerDataComponent::initializeTransientMembers() {
+	ManagedReference<SceneObject*> scanner = getParent();
+
+	if (scanner == nullptr) {
+		return;
+	}
+
+	templateData = dynamic_cast<SharedInstallationObjectTemplate*>(scanner->getObjectTemplate());
+
+}
 
 Vector<CreatureObject*> ScannerDataComponent::getAvailableTargets() {
 	Vector<CreatureObject*> targets;

@@ -18,6 +18,7 @@ import server.zone.objects.tangible.deed.Deed;
 include server.zone.objects.building.BuildingObject;
 include server.zone.managers.gcw.TerminalSpawn;
 include server.zone.objects.building.components.DestructibleBuildingDataComponent;
+include server.zone.objects.installation.components.ScannerDataComponent;
 include server.zone.objects.installation.components.TurretDataComponent;
 include server.zone.objects.tangible.terminal.components.TurretControlTerminalDataComponent;
 include templates.ChildObject;
@@ -172,6 +173,7 @@ class GCWManager extends ManagedService implements Logger {
 
 	public native void performGCWTasks(boolean initial);
 	private native void verifyTurrets(BuildingObject building);
+	private native void verifyScanners(BuildingObject building);
 
 	public native boolean canPlaceMoreBases(CreatureObject creature);
 	public native int getBaseCount(CreatureObject creature);
@@ -248,7 +250,7 @@ class GCWManager extends ManagedService implements Logger {
 	public native void notifyInstallationDestruction(InstallationObject installation);
 	public native void notifyTurretDestruction(BuildingObject building, InstallationObject turret);
 	public native void notifyMinefieldDestruction(BuildingObject building, InstallationObject turret);
-	public native void notifyScannerDestruction(BuildingObject building, InstallationObject turret);
+	public native void notifyScannerDestruction(BuildingObject building, InstallationObject scanner);
 
 	public native void sendSelectDeedToDonate(BuildingObject building, CreatureObject creature);
 	public native void performDefenseDonation(BuildingObject building, CreatureObject creature, unsigned long deedOID);
@@ -261,6 +263,7 @@ class GCWManager extends ManagedService implements Logger {
 	public native boolean canUseTurret(TangibleObject turret, SceneObject terminal, CreatureObject creature);
 	private native TurretControlTerminalDataComponent getTurretControlDataComponent(SceneObject terminal);
 	private native TurretDataComponent getTurretDataComponent(SceneObject turret);
+	private native ScannerDataComponent getScannerDataComponent(SceneObject scanner);
 	private native void generateTurretControlBoxTo(CreatureObject creature, TangibleObject turret, SceneObject terminal);
 
 	public native float getGCWDiscount(CreatureObject creature);
