@@ -194,12 +194,20 @@ public:
 		return minefieldSlots.elementAt(indx);
 	}
 
+	uint64 getScannerOID(int indx) {
+		return scannerSlots.elementAt(indx);
+	}
+
 	bool hasTurret(uint64 turretID) {
 		return turretSlots.contains(turretID);
 	}
 
 	bool hasMinefield(uint64 minefieldOID) {
 		return minefieldSlots.contains(minefieldOID);
+	}
+
+	bool hasScanner(uint64 scannerOID) {
+		return scannerSlots.contains(scannerOID);
 	}
 
 	bool hasDefense(uint64 defenseOID) {
@@ -218,6 +226,15 @@ public:
 	int getIndexOfMinefield(uint64 minefieldOID) {
 		for (int i = 0; i < minefieldSlots.size(); i++) {
 			if (minefieldSlots.elementAt(i) == minefieldOID)
+				return i;
+		}
+
+		return -1;
+	}
+
+	int getIndexOfScanner(uint64 scannerOID) {
+		for (int i = 0; i < scannerSlots.size(); i++) {
+			if (scannerSlots.elementAt(i) == scannerOID)
 				return i;
 		}
 

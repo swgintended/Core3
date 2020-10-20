@@ -89,6 +89,8 @@ class GCWManager extends ManagedService implements Logger {
 	public transient int overtCooldown;
 	public transient int reactivationTimer;
 	public transient int turretAutoFireTimeout;
+	public transient int covertScannerRadius;
+	public transient int covertScannerDelay;
 	public transient int maxBasesPerPlayer;
 	public transient int bonusXP;
 	public transient int winnerBonus;
@@ -131,6 +133,8 @@ class GCWManager extends ManagedService implements Logger {
 		overtCooldown = 300;
 		reactivationTimer = 300;
 		turretAutoFireTimeout = 20;
+		covertScannerDelay = 30;
+		covertScannerRadius = 32;
 		maxBasesPerPlayer = 3;
 		bonusXP = 15;
 		loserBonus = 0;
@@ -244,11 +248,13 @@ class GCWManager extends ManagedService implements Logger {
 	public native void notifyInstallationDestruction(InstallationObject installation);
 	public native void notifyTurretDestruction(BuildingObject building, InstallationObject turret);
 	public native void notifyMinefieldDestruction(BuildingObject building, InstallationObject turret);
+	public native void notifyScannerDestruction(BuildingObject building, InstallationObject turret);
 
 	public native void sendSelectDeedToDonate(BuildingObject building, CreatureObject creature);
 	public native void performDefenseDonation(BuildingObject building, CreatureObject creature, unsigned long deedOID);
 	private native void performDonateMinefield(BuildingObject building, CreatureObject creature, Deed deed);
 	private native void performDonateTurret(BuildingObject building, CreatureObject creature, Deed deed);
+	private native void performDonateScanner(BuildingObject building, CreatureObject creature, Deed deed);
 	private native unsigned long addChildInstallationFromDeed(BuildingObject building, final ChildObject child, CreatureObject creature, Deed deed);
 
 	public native void sendTurretAttackListTo(CreatureObject creature, SceneObject turretControlTerminal);
@@ -361,7 +367,7 @@ class GCWManager extends ManagedService implements Logger {
 	public int getRebelBaseCount() {
 		return rebelBases;
 	}
-
+		
 	@local
 	@read
 	public int getRebelScore() {
@@ -460,6 +466,16 @@ class GCWManager extends ManagedService implements Logger {
 	@read
 	public int getTurretAutoFireTimeout() {
 		return turretAutoFireTimeout;
+	}
+
+	@read
+	public int getCovertScannerRadius() {
+		return covertScannerRadius;
+	}
+	
+	@read
+	public int getCovertScannerDelay() {
+		return covertScannerDelay;
 	}
 
 	@read

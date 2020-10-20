@@ -41,6 +41,12 @@ reactivationTimer = 300
 -- X seconds after the last manual activity the turret will be able to auto fire
 turretAutoFireTimeout = 20
 
+-- Scanning Radius of Cover Faction Scanners
+covertScannerRadius = 32;
+
+-- Delay between scans on  players
+covertScannerDelay = 30;
+
 maxBasesPerPlayer = 1
 
 -- xp bonus for faction controlling a planet

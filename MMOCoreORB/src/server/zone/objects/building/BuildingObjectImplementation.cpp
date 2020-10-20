@@ -1348,12 +1348,12 @@ void BuildingObjectImplementation::createChildObjects() {
 				}
 
 			} else {
-				if ((obj->isTurret() || obj->isMinefield() || obj->isDetector()) && gcwMan != nullptr && !gcwMan->shouldSpawnDefenses()) {
+				if ((obj->isTurret() || obj->isMinefield() || obj->isScanner()) && gcwMan != nullptr && !gcwMan->shouldSpawnDefenses()) {
 					if (obj->isTurret())
 						gcwMan->addTurret(asBuildingObject(), nullptr);
 					else if (obj->isMinefield())
 						gcwMan->addMinefield(asBuildingObject(), nullptr);
-					else if (obj->isDetector())
+					else if (obj->isScanner())
 						gcwMan->addScanner(asBuildingObject(), nullptr);
 
 					obj->destroyObjectFromDatabase(true);
@@ -1397,7 +1397,7 @@ void BuildingObjectImplementation::createChildObjects() {
 			permissions->setDefaultDenyPermission(ContainerPermissions::MOVECONTAINER);
 			permissions->setDenyPermission("owner", ContainerPermissions::MOVECONTAINER);
 
-			if (obj->isTurret() || obj->isMinefield() || obj->isDetector()) {
+			if (obj->isTurret() || obj->isMinefield() || obj->isScanner()) {
 				TangibleObject* tano = cast<TangibleObject*>(obj.get());
 				if (tano != nullptr) {
 					tano->setFaction(getFaction());
@@ -1415,7 +1415,7 @@ void BuildingObjectImplementation::createChildObjects() {
 						gcwMan->addTurret(asBuildingObject(), obj);
 					else if (obj->isMinefield())
 						gcwMan->addMinefield(asBuildingObject(), obj);
-					else if (obj->isDetector())
+					else if (obj->isScanner())
 						gcwMan->addScanner(asBuildingObject(), obj);
 
 				} else {
