@@ -1374,7 +1374,7 @@ void BuildingObjectImplementation::createChildObjects() {
 				obj->initializePosition(x, z, y);
 				obj->setDirection(dir.rotate(Vector3(0, 1, 0), degrees));
 
-				if (obj->isTurret() || obj->isMinefield())
+				if (obj->isTurret() || obj->isMinefield() || obj->isScanner())
 					obj->createChildObjects();
 
 				thisZone->transferObject(obj, -1, false);
@@ -1403,8 +1403,12 @@ void BuildingObjectImplementation::createChildObjects() {
 					tano->setFaction(getFaction());
 					tano->setDetailedDescription("DEFAULT BASE TURRET");
 					tano->setPvpStatusBitmask(getPvpStatusBitmask() | tano->getPvpStatusBitmask());
-				}
+			} else if (obj->isScanner()) {
+					tano->setFaction(getFaction());
+					tano->setDetailedDescription("DEFAULT SCANNER");
+					tano->setPvpStatusBitmask(getPvpStatusBitmask() | tano->getPvpStatusBitmask());
 
+			}
 				InstallationObject* installation = cast<InstallationObject*>(obj.get());
 				if (installation != nullptr) {
 					installation->setOwner(getObjectID());

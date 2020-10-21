@@ -24,14 +24,24 @@ protected:
 
 public:
 	ScannerDataComponent()  {
-		nextScanTime = Time();
+		nextScanTime = Time(0);
 		templateData = nullptr;
 		this->setLoggingName("ScannerData");
 
 	}
 
+	~ScannerDataComponent() {
+
+	}
+
 	void writeJSON(nlohmann::json& j) const {
 		DataObjectComponent::writeJSON(j);
+
+		if (templateData) {
+			j["templateData"] = templateData->getTemplateFileName();
+		} else {
+			j["templateData"] = "";
+		}
 
 		SERIALIZE_JSON_MEMBER(nextScanTime);
 		SERIALIZE_JSON_MEMBER(numberOfPlayersInRange);
@@ -39,28 +49,23 @@ public:
 
 	void initializeTransientMembers();
 
-	int getRescheduleDelay() {
-		int delay = 0;
-
-		if (nextScanTime.isFuture())
-			delay = Time().miliDifference(nextScanTime);
-
-		return delay;
-	}
-
-	bool checkTarget(CreatureObject* creature, TangibleObject* scanner);
-
-	void updateScanCooldown(float secondsToAdd);
-
 	bool isScannerData(){
 		return true;
 	}
 
+	Task* getScanTask() {
+		return scannerScanTask;
+	}
+
+	bool canScan();
+	bool checkTarget(CreatureObject* creature, TangibleObject* scanner);
+
+	void updateScanCooldown();
+
 	Vector<CreatureObject*> getAvailableTargets();
 	CreatureObject* selectTarget();
 
-	void scheduleScanTask(CreatureObject* target, TangibleObject* scanner, int delay = 0);
-	void rescheduleScanTask();
+	void scheduleScanTask(CreatureObject* target);
 
 	int getCovertScannerRadius();
 	int getCovertScannerDelay();

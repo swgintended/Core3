@@ -164,6 +164,9 @@ public:
 		minefieldSlots.get(indx) = minefieldOID;
 	}
 
+	void setActiveScanner(int indx, uint64 scannerOID) {
+		scannerSlots.get(indx) = scannerOID;
+	}
 	void initializeTransientMembers();
 
 	int getTotalTurretCount() {
@@ -184,6 +187,10 @@ public:
 
 	bool isMinefieldSlotOccupied(int indx) {
 		return (minefieldSlots.get(indx) > 0);
+	}
+
+	bool isScannerSlotOccupied(int indx) {
+		return (scannerSlots.get(indx) > 0);
 	}
 
 	uint64 getTurretID(int indx) {
@@ -211,7 +218,7 @@ public:
 	}
 
 	bool hasDefense(uint64 defenseOID) {
-		return hasTurret(defenseOID) || hasMinefield(defenseOID);
+		return hasTurret(defenseOID) || hasMinefield(defenseOID) || hasScanner(defenseOID);
 	}
 
 	int getIndexOfTurret(uint64 turretID) {
@@ -253,7 +260,7 @@ public:
 		turretSlots.add(indx, turretOID);
 	}
 
-	void setScannerID(int indx, uint64 scannerOID) {
+	void setScannerOID(int indx, uint64 scannerOID) {
 		scannerSlots.elementAt(indx) = scannerOID;
 	}
 

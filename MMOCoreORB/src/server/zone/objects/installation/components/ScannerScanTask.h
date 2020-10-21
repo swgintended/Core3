@@ -8,6 +8,7 @@
 #ifndef SCANNERSCANTASK_H_
 #define SCANNERSCANTASK_H_
 
+#include "ScannerDataComponent.h"
 #include "engine/engine.h"
 #include "server/zone/managers/combat/CombatManager.h"
 #include "server/zone/objects/creature/CreatureObject.h"
@@ -26,7 +27,7 @@ class ScannerScanTask : public Task {
 
 public:
 
-	ScannerScanTask(CreatureObject* target, TangibleObject* scanner, int delay) {
+	ScannerScanTask(TangibleObject* scanner) {
 		scannerObject = scanner;
 	}
 
@@ -38,26 +39,20 @@ public:
 			return;
 		}
 
-		DataObjectComponentReference* ref = scanner->getDataObjectComponent();
+		ScannerDataComponent* scannerData = cast<ScannerDataComponent*>(scanner->getDataObjectComponent()->get());
 
-		if (ref == nullptr) {
+		if (scannerData == nullptr) {
 			return;
 		}
-
-		ScannerDataComponent* scannerData = cast<ScannerDataComponent*>(ref->get());
-
-		if (scannerData == nullptr)
-			return;
 
 		Locker lock(scanner);
 
 		ManagedReference<CreatureObject*> target = scannerData->selectTarget();
 
-		if (checkTarget(scanner, target)) {
+		if (checkTarget(target, scanner)) {
 
 			PlayClientEffectLoc* explodeLoc = new PlayClientEffectLoc("clienteffect/survey_effect.cef", scanner->getZone()->getZoneName(), scanner->getPositionX(), scanner->getPositionZ(), scanner->getPositionY());
 			scanner->broadcastMessage(explodeLoc, false);
-
 
 			ManagedReference<PlayerObject*> playerObject = target->getPlayerObject();
 
@@ -65,10 +60,11 @@ public:
 				return;
 			}
 
+			target = scannerData->selectTarget();
+
 			int revealChance = 90;
 
 			if (System::random(100) < revealChance)  {
-				scannerData->rescheduleScanTask();
 
 				if (target->getFaction() == Factions::FACTIONREBEL) {
 					target->sendSystemMessage("The Faction Scanner has revealed you as a Covert Member of Rebel Alliance!");
@@ -81,34 +77,45 @@ public:
 
 				target->sendSystemMessage("The Faction Scanner has failed to detect your Covert Faction status.");
 			}
+			scannerData->updateScanCooldown();
 		}
 	}
 
-	bool checkTarget(TangibleObject* scanner, CreatureObject* player) {
-		if (scanner == nullptr || player == nullptr)
+	bool checkTarget(CreatureObject* creature,  TangibleObject* scanner) {
+
+		if (creature == nullptr || scanner == nullptr) {
 			return false;
+		}
 
 		ScannerDataComponent* scannerData = cast<ScannerDataComponent*>(scanner->getDataObjectComponent()->get());
 
-		if (!CollisionManager::checkLineOfSight(player, scanner) || !scanner->isInRange(player, scannerData->getCovertScannerRadius())) {
+		if (scannerData == nullptr) {
 			return false;
 		}
 
-		if (!player->isPlayerCreature() || !scanner->isScanner()) {
+		if (/*!scannerData->canScan() || */!scanner->isInRange(creature, scannerData->getCovertScannerRadius())) {
 			return false;
 		}
 
-		if (player->isIncapacitated() || player->isDead()) {
+		if (!creature->isPlayerCreature()) {
 			return false;
 		}
 
-		ManagedReference<PlayerObject*> playerObject = player->getPlayerObject();
+		if (creature->isIncapacitated() || creature->isDead() || !creature->isOnline()) {
+			return false;
+		}
+
+		if (!CollisionManager::checkLineOfSight(creature, scanner)) {
+			return false;
+		}
+
+		ManagedReference<PlayerObject*> playerObject = creature->getPlayerObject();
 
 		if (playerObject == nullptr) {
 			return false;
 		}
 
-		if (playerObject->isPrivileged() || scanner->getFaction() == player->getFaction() || player->getFaction() == 0 || player->getFactionStatus() != FactionStatus::COVERT) {
+		if (playerObject->isPrivileged() || scanner->getFaction() == creature->getFaction() || creature->getFaction() == 0 || creature->getFactionStatus() != FactionStatus::COVERT) {
 			return false;
 		}
 

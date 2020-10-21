@@ -8,19 +8,14 @@
 #include "ScannerDataComponent.h"
 #include "ScannerZoneComponent.h"
 
-#include "server/zone/objects/building/BuildingObject.h"
 #include "server/zone/objects/creature/CreatureObject.h"
 #include "server/zone/objects/installation/components/ScannerObserver.h"
 #include "server/zone/objects/installation/InstallationObject.h"
-#include "server/zone/objects/player/PlayerObject.h"
-#include "server/zone/objects/player/FactionStatus.h"
-#include "server/zone/objects/scene/SceneObject.h"
 #include "server/zone/Zone.h"
-#include "templates/faction/Factions.h"
 
 
-void ScannerZoneComponent::notifyInsertToZone(SceneObject* sceneObject, Zone* zone) const {
-	if (zone == nullptr) {
+void ScannerZoneComponent::notifyInsertToZone(SceneObject* sceneObject, Zone* zne) const {
+	if (zne == nullptr) {
 		return;
 	}
 
@@ -31,7 +26,6 @@ void ScannerZoneComponent::notifyInsertToZone(SceneObject* sceneObject, Zone* zo
 	}
 
 	SortedVector<ManagedReference<Observer*> > destructionObservers = installation->getObservers(ObserverEventType::OBJECTDESTRUCTION);
-
 
 	for (int i = 0; i < destructionObservers.size(); i++) {
 		ScannerObserver* scannerObserver = destructionObservers.get(i).castTo<ScannerObserver*>();
@@ -68,8 +62,12 @@ void ScannerZoneComponent::notifyInsert(SceneObject* sceneObject, QuadTreeEntry*
 
 			ScannerDataComponent* data = cast<ScannerDataComponent*>(scanner->getDataObjectComponent()->get());
 
+			if (data == nullptr) {
+				return;
+			}
+
 			if (data) {
-				data->scheduleScanTask(nullptr, nullptr, System::random(1000));
+				data->scheduleScanTask(nullptr);
 			}
 		}, "ScheduleScannerScanTaskLambda");
 	}
@@ -78,7 +76,7 @@ void ScannerZoneComponent::notifyInsert(SceneObject* sceneObject, QuadTreeEntry*
 void ScannerZoneComponent::notifyDissapear(SceneObject* sceneObject, QuadTreeEntry* entry) const {
 	ManagedReference<SceneObject*> target = cast<SceneObject*>(entry);
 
-	if (!sceneObject->isTurret() || target == nullptr || !target->isPlayerCreature())
+	if (!sceneObject->isScanner() || target == nullptr || !target->isPlayerCreature())
 		return;
 
 	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(sceneObject);

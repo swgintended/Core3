@@ -76,7 +76,7 @@ void GCWManagerImplementation::loadLuaConfig() {
 	reactivationTimer = lua->getGlobalInt("reactivationTimer");
 	turretAutoFireTimeout = lua->getGlobalInt("turretAutoFireTimeout");
 	covertScannerRadius = lua->getGlobalInt("covertScannerRadius");
-	covertScannerDelay = lua->getGlobalInt("covertScannerDelay");
+	covertScannerDelay = lua->getGlobalInt("covertScannerDelay") * 1000;
 	maxBasesPerPlayer = lua->getGlobalInt("maxBasesPerPlayer");
 	bonusXP = lua->getGlobalInt("bonusXP");
 	winnerBonus = lua->getGlobalInt("winnerBonus");
@@ -347,13 +347,13 @@ void GCWManagerImplementation::verifyScanners(BuildingObject* building) {
 	bool hasDefense = baseData->hasDefense();
 
 	for (int i = 0; i < baseData->getTotalScannerCount(); ++i) {
-		uint64 turretID = baseData->getScannerOID(i);
+		uint64 scannerOID = baseData->getScannerOID(i);
 		ManagedReference<SceneObject*> scanner = zoneServer->getObject(baseData->getScannerOID(i));
 
 		if (scanner != nullptr)
 			scannerCount++;
 		else
-			baseData->setScannerID(i, 0);
+			baseData->setScannerOID(i, 0);
 	}
 
 	baseData->setDefense(scannerCount != 0);
@@ -1859,6 +1859,15 @@ void GCWManagerImplementation::sendBaseDefenseStatus(CreatureObject* creature, B
 		}
 	}
 
+	for (int i = 0; i < baseData->getTotalScannerCount(); i++) {
+		ManagedReference<SceneObject*> sceno = zoneServer->getObject(baseData->getScannerOID(i));
+
+		if (sceno != nullptr && sceno->isScanner()) {
+
+			status->addMenuItem(sceno->getDisplayedName(), sceno->getObjectID());
+		}
+	}
+
 	ghost->addSuiBox(status);
 	creature->sendMessage(status->generateMessage());
 }
@@ -1926,14 +1935,26 @@ void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureO
 
 	ManagedReference<SceneObject*> defense = zoneServer->getObject(deedOID);
 
-	if (defense == nullptr || !defense->isTurret())
+	if (defense == nullptr) {
 		return;
+	}
 
-	InstallationObject* turret = cast<InstallationObject*>(defense.get());
+	if (!defense->isTurret()) {
 
-	creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
+		InstallationObject* turret = cast<InstallationObject*>(defense.get());
 
-	notifyInstallationDestruction(turret);
+		creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
+
+		notifyInstallationDestruction(turret);
+
+	} else if (!defense->isScanner()) {
+
+		InstallationObject* scanner = cast<InstallationObject*>(defense.get());
+
+		creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
+
+		notifyInstallationDestruction(scanner);
+	}
 }
 
 void GCWManagerImplementation::notifyInstallationDestruction(InstallationObject* installation) {
@@ -2055,7 +2076,7 @@ void GCWManagerImplementation::notifyScannerDestruction(BuildingObject* building
 	if (indx < 0 )
 		return;
 
-	baseData->setScannerID(indx, 0);
+	baseData->setScannerOID(indx, 0);
 
 	int defensecount = 0;
 
@@ -2374,10 +2395,10 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 
 	int nextAvailableScanner = 0;
 
-	for (nextAvailableScanner = 0; nextAvailableScanner < baseData->getTotalTurretCount(); nextAvailableScanner++) {
-		uint64 scannerID = baseData->getScannerOID(nextAvailableScanner);
+	for (nextAvailableScanner = 0; nextAvailableScanner < baseData->getTotalScannerCount(); nextAvailableScanner++) {
+		uint64 scannerOID = baseData->getScannerOID(nextAvailableScanner);
 
-		if (scannerID == 0 )
+		if (scannerOID == 0)
 			break;
 	}
 
@@ -2410,10 +2431,10 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 		return;
 	}
 
-	uint64 scannerID = addChildInstallationFromDeed(building, child, creature, scannerDeed);
+	uint64 scannerOID = addChildInstallationFromDeed(building, child, creature, scannerDeed);
 
-	if (scannerID > 0) {
-		baseData->setScannerID(currentScannerIndex, scannerID);
+	if (scannerOID > 0) {
+		baseData->setScannerOID(currentScannerIndex, scannerOID);
 
 		if (isBaseVulnerable(building))
 			baseData->setDefenseAddedThisVuln(true);
@@ -2470,15 +2491,18 @@ uint64 GCWManagerImplementation::addChildInstallationFromDeed(BuildingObject* bu
 
 	tano->setPvpStatusBitmask(building->getPvpStatusBitmask() | tano->getPvpStatusBitmask());
 
-	if (tano->isTurret())
+	if (tano->isTurret()) {
 		tano->setDetailedDescription("Donated Turret");
+	} else if (tano->isScanner()) {
+		tano->setDetailedDescription("Donated Scanner");
+	}
 
 	if (tano->isInstallationObject()) {
-		InstallationObject* turret = cast<InstallationObject*>(tano);
-		if (turret != nullptr) {
-			turret->setOwner(building->getObjectID());
-			turret->createChildObjects();
-			turret->setDeedObjectID(deed->getObjectID());
+		InstallationObject* iObject = cast<InstallationObject*>(tano);
+		if (iObject != nullptr) {
+			iObject->setOwner(building->getObjectID());
+			iObject->createChildObjects();
+			iObject->setDeedObjectID(deed->getObjectID());
 		}
 	}
 

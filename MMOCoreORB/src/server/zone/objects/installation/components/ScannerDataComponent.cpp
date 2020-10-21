@@ -6,17 +6,11 @@
  */
 
 #include "ScannerDataComponent.h"
-
 #include "server/zone/managers/collision/CollisionManager.h"
 #include "server/zone/managers/gcw/GCWManager.h"
-#include "server/zone/objects/building/BuildingObject.h"
-#include "server/zone/objects/installation/components/ScannerObserver.h"
 #include "server/zone/objects/installation/components/ScannerScanTask.h"
 #include "server/zone/objects/installation/InstallationObject.h"
-#include "server/zone/objects/player/PlayerObject.h"
 #include "server/zone/objects/player/FactionStatus.h"
-#include "server/zone/objects/scene/SceneObject.h"
-#include "templates/installation/SharedInstallationObjectTemplate.h"
 #include "server/zone/Zone.h"
 
 void ScannerDataComponent::initializeTransientMembers() {
@@ -27,7 +21,6 @@ void ScannerDataComponent::initializeTransientMembers() {
 	}
 
 	templateData = dynamic_cast<SharedInstallationObjectTemplate*>(scanner->getObjectTemplate());
-
 }
 
 Vector<CreatureObject*> ScannerDataComponent::getAvailableTargets() {
@@ -45,8 +38,6 @@ Vector<CreatureObject*> ScannerDataComponent::getAvailableTargets() {
 
 	vec->safeCopyReceiversTo(closeObjects, CloseObjectsVector::CREOTYPE);
 
-	int targetTotal = 0;
-
 	for (int i = 0; i < closeObjects.size(); ++i) {
 		CreatureObject* creo = cast<CreatureObject*>(closeObjects.get(i));
 
@@ -54,15 +45,15 @@ Vector<CreatureObject*> ScannerDataComponent::getAvailableTargets() {
 			targets.add(creo);
 		}
 	}
-
 	return targets;
 }
 
 CreatureObject* ScannerDataComponent::selectTarget() {
 	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(getParent());
 
-	if (scanner == nullptr)
+	if (scanner == nullptr) {
 		return nullptr;
+	}
 
 	ManagedReference<CreatureObject*> lastTarget = lastScanTarget.get();
 
@@ -71,8 +62,9 @@ CreatureObject* ScannerDataComponent::selectTarget() {
 
 		Vector<CreatureObject*> targets = getAvailableTargets();
 
-		if (targets.size() == 0)
+		if (targets.size() == 0) {
 			return nullptr;
+		}
 
 		lastTarget = targets.get(System::random(targets.size() - 1));
 		lastScanTarget = lastTarget;
@@ -81,20 +73,32 @@ CreatureObject* ScannerDataComponent::selectTarget() {
 	return lastTarget;
 }
 
+bool ScannerDataComponent::canScan() {
+	int canScanDelay = Time().miliDifference(nextScanTime);
+	return canScanDelay;
+}
+
 bool ScannerDataComponent::checkTarget(CreatureObject* creature,  TangibleObject* scanner) {
 
-	if (creature == nullptr || scanner == nullptr)
-		return false;
-
-	if (!CollisionManager::checkLineOfSight(creature, scanner) || !scanner->isInRange(creature, getCovertScannerRadius())) {
+	if (creature == nullptr || scanner == nullptr) {
 		return false;
 	}
 
-	if (!creature->isPlayerCreature() || !scanner->isScanner()) {
+	int radius = getCovertScannerRadius();
+
+	if (!scanner->isInRange(creature, radius)) {
 		return false;
 	}
 
-	if (creature->isIncapacitated() || creature->isDead()) {
+	if (!creature->isPlayerCreature()) {
+		return false;
+	}
+
+	if (creature->isIncapacitated() || creature->isDead() || !creature->isOnline()) {
+		return false;
+	}
+
+	if (!CollisionManager::checkLineOfSight(creature, scanner)) {
 		return false;
 	}
 
@@ -111,10 +115,8 @@ bool ScannerDataComponent::checkTarget(CreatureObject* creature,  TangibleObject
 	return true;
 }
 
-void ScannerDataComponent::updateScanCooldown(float secondsToAdd) {
-	int milisecondsToAdd = secondsToAdd*1000;
-	nextScanTime = Time();
-	nextScanTime.addMiliTime(milisecondsToAdd);
+void ScannerDataComponent::updateScanCooldown() {
+	nextScanTime.addMiliTime(getCovertScannerDelay());
 }
 
 
@@ -138,7 +140,7 @@ int ScannerDataComponent::getCovertScannerRadius() {
 }
 
 int ScannerDataComponent::getCovertScannerDelay() {
-	int delay = 15;
+	int delay = 2000;
 
 	ManagedReference<InstallationObject*> scanner = cast<InstallationObject*>(getParent());
 
@@ -156,38 +158,7 @@ int ScannerDataComponent::getCovertScannerDelay() {
 	return delay;
 }
 
-void ScannerDataComponent::scheduleScanTask(CreatureObject* target, TangibleObject* scanner, int delay) {
-
-	if (numberOfPlayersInRange.get() < 1)
-		return;
-
-	//ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(getParent());
-
-	if (scanner->getZone() == nullptr)
-		return;
-
-	if (scannerScanTask == nullptr) {
-		scannerScanTask = new ScannerScanTask(target, scanner, delay);
-	}
-
-	ScannerScanTask* task = scannerScanTask.castTo<ScannerScanTask*>();
-
-	if (task == nullptr)
-		return;
-
-	if (target == nullptr) {
-		delay += getRescheduleDelay();
-	}
-
-	if (!task->isScheduled()) {
-		if (delay == 0)
-			task->execute();
-	} else {
-			task->schedule(delay);
-	}
-}
-
-void ScannerDataComponent::rescheduleScanTask() {
+void ScannerDataComponent::scheduleScanTask(CreatureObject* target) {
 
 	if (numberOfPlayersInRange.get() < 1) {
 		return;
@@ -195,16 +166,30 @@ void ScannerDataComponent::rescheduleScanTask() {
 
 	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(getParent());
 
-	if (scanner == nullptr || scanner->getZone() == nullptr) {
+	if (scanner->getZone() == nullptr) {
 		return;
 	}
 
+	if (scannerScanTask == nullptr) {
+		scannerScanTask = new ScannerScanTask(scanner);
+	}
+
 	ScannerScanTask* task = scannerScanTask.castTo<ScannerScanTask*>();
+	info("Scan Task Cast");
 
 	if (task == nullptr) {
 		return;
 	}
 
-	task->reschedule(getRescheduleDelay());
-}
+	if (target == nullptr) {
+		return;
+	}
 
+	if (task->isScheduled()) {
+		if (canScan()) {
+			task->execute();
+		}
+	} else {
+		task->schedule(canScan());
+	}
+}

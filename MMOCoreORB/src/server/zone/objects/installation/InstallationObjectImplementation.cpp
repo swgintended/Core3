@@ -25,6 +25,7 @@
 #include "templates/installation/SharedInstallationObjectTemplate.h"
 #include "SyncrhonizedUiListenInstallationTask.h"
 #include "components/TurretDataComponent.h"
+#include "components/ScannerDataComponent.h"
 #include "server/zone/objects/player/FactionStatus.h"
 #include "templates/params/OptionBitmask.h"
 #include "templates/params/creature/CreatureFlag.h"
@@ -834,7 +835,13 @@ void InstallationObjectImplementation::createChildObjects() {
 				}
 			}
 		}
+	} else if (isScanner()) {
+
+		this->setContainerDefaultAllowPermission(ContainerPermissions::MOVEIN);
+		this->setContainerDefaultDenyPermission(ContainerPermissions::MOVEOUT);
+
 	} else if (isMinefield()) {
+
 		this->setContainerDefaultAllowPermission(ContainerPermissions::MOVEIN);
 		this->setContainerDefaultDenyPermission(ContainerPermissions::MOVEOUT);
 		this->setContainerDefaultAllowPermission(ContainerPermissions::OPEN);

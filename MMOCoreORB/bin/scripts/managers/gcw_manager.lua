@@ -45,7 +45,7 @@ turretAutoFireTimeout = 20
 covertScannerRadius = 32;
 
 -- Delay between scans on players in scanning radius
-covertScannerDelay = 30;
+covertScannerDelay = 5;
 
 maxBasesPerPlayer = 1
 
