@@ -75,8 +75,9 @@ void GCWManagerImplementation::loadLuaConfig() {
 	overtCooldown = lua->getGlobalInt("overtCooldown");
 	reactivationTimer = lua->getGlobalInt("reactivationTimer");
 	turretAutoFireTimeout = lua->getGlobalInt("turretAutoFireTimeout");
-	covertScannerRadius = lua->getGlobalInt("covertScannerRadius");
-	covertScannerDelay = lua->getGlobalInt("covertScannerDelay") * 1000;
+	covertScannerRadius = lua->getGlobalFloat("covertScannerRadius");
+	covertScannerDelay = lua->getGlobalInt("covertScannerDelay");
+	covertScannerRevealChance = lua->getGlobalInt("covertScannerRevealChance");
 	maxBasesPerPlayer = lua->getGlobalInt("maxBasesPerPlayer");
 	bonusXP = lua->getGlobalInt("bonusXP");
 	winnerBonus = lua->getGlobalInt("winnerBonus");
@@ -1935,11 +1936,11 @@ void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureO
 
 	ManagedReference<SceneObject*> defense = zoneServer->getObject(deedOID);
 
-	if (defense == nullptr) {
+	if (defense == nullptr || !defense->isTurret() || !defense->isScanner()) {
 		return;
 	}
 
-	if (!defense->isTurret()) {
+	if (defense->isTurret()) {
 
 		InstallationObject* turret = cast<InstallationObject*>(defense.get());
 
@@ -1947,7 +1948,7 @@ void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureO
 
 		notifyInstallationDestruction(turret);
 
-	} else if (!defense->isScanner()) {
+	} else if (defense->isScanner()) {
 
 		InstallationObject* scanner = cast<InstallationObject*>(defense.get());
 
@@ -2129,7 +2130,7 @@ void GCWManagerImplementation::sendSelectDeedToDonate(BuildingObject* building, 
 
 				Reference<SharedObjectTemplate* > generatedTemplate = TemplateManager::instance()->getTemplate(deed->getGeneratedObjectTemplate().hashCode());
 
-				if (generatedTemplate != nullptr && (generatedTemplate->getGameObjectType() == SceneObjectType::MINEFIELD || generatedTemplate->getGameObjectType() == SceneObjectType::COVERTSCANNER || generatedTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE)) {
+				if (generatedTemplate != nullptr && (generatedTemplate->getGameObjectType() == SceneObjectType::MINEFIELD || generatedTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE)) {
 
 					donate->addMenuItem(inventoryObject->getDisplayedName(), inventoryObject->getObjectID());
 				}
@@ -2191,23 +2192,26 @@ void GCWManagerImplementation::performDefenseDonation(BuildingObject* building, 
 		ManagedReference<Deed*> deed = dynamic_cast<Deed*>(defenseObj.get());
 		if (deed != nullptr) {
 
-			Reference<SharedObjectTemplate* > generatedTemplate = TemplateManager::instance()->getTemplate(deed->getGeneratedObjectTemplate().hashCode());
+			//Reference<SharedObjectTemplate* > generatedTemplate = TemplateManager::instance()->getTemplate(deed->getGeneratedObjectTemplate().hashCode());
+			//ManagedReference<SceneObject*> defenseDeed = zoneServer->getObject(deedOID);
 
-			if (generatedTemplate == nullptr) {
-				return;
-			}
+		//	if (defenseDeed == nullptr) {
+		//		return;
+		//	}
 
-			if (generatedTemplate->getGameObjectType() == SceneObjectType::MINEFIELD) {
+			//if (generatedTemplate->getGameObjectType() == SceneObjectType::MINEFIELD) {
+			if (defenseObj->isMinefield())	{
 				performDonateMinefield(building, creature, deed);
-				creature->sendSystemMessage("Minefield: " + String::valueOf(generatedTemplate));
+				creature->sendSystemMessage("Minefield: " );
 				return;
-			} else if (generatedTemplate->getGameObjectType() == SceneObjectType::COVERTSCANNER) {
+			} else if (defenseObj->isScanner()) {
 				performDonateScanner(building, creature, deed);
-				creature->sendSystemMessage("Covert Scanner: " + String::valueOf(generatedTemplate));
+				creature->sendSystemMessage("Covert Scanner: " );
 				return;
-			} else if (generatedTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE) {
+			//} else if (generatedTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE) {
+			} else if (defenseObj->isTurret()) {
 				performDonateTurret(building, creature, deed);
-				creature->sendSystemMessage("Turret / Destructible: " + String::valueOf(generatedTemplate));
+				creature->sendSystemMessage("Turret / Destructible: " );
 				return;
 			}
 		}
@@ -2410,24 +2414,8 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 		return;
 	}
 
-	for (int i = 0; i < baseServerTemplate->getChildObjectsSize(); ++i) {
-		child = baseServerTemplate->getChildObject(i);
-		scannerTemplate = nullptr;
 
-		if (child != nullptr) {
-			scannerTemplate = TemplateManager::instance()->getTemplate(child->getTemplateFile().hashCode());
-
-			if (scannerTemplate != nullptr && scannerTemplate->getGameObjectType() == SceneObjectType::COVERTSCANNER) {
-				if (currentScannerIndex == nextAvailableScanner) {
-					break;
-				} else {
-					currentScannerIndex++;
-				}
-			}
-		}
-	}
-
-	if (child == nullptr || scannerTemplate == nullptr || scannerTemplate->getGameObjectType() != SceneObjectType::COVERTSCANNER) {
+	if (child == nullptr || scannerTemplate == nullptr) {
 		return;
 	}
 

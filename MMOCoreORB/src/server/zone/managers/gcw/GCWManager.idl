@@ -90,8 +90,9 @@ class GCWManager extends ManagedService implements Logger {
 	public transient int overtCooldown;
 	public transient int reactivationTimer;
 	public transient int turretAutoFireTimeout;
-	public transient int covertScannerRadius;
 	public transient int covertScannerDelay;
+	public transient int covertScannerRadius;
+	public transient int covertScannerRevealChance;
 	public transient int maxBasesPerPlayer;
 	public transient int bonusXP;
 	public transient int winnerBonus;
@@ -134,8 +135,9 @@ class GCWManager extends ManagedService implements Logger {
 		overtCooldown = 300;
 		reactivationTimer = 300;
 		turretAutoFireTimeout = 20;
-		covertScannerDelay = 30;
+		covertScannerDelay = 5;
 		covertScannerRadius = 32;
+		covertScannerRevealChance = 90;
 		maxBasesPerPlayer = 3;
 		bonusXP = 15;
 		loserBonus = 0;
@@ -479,6 +481,11 @@ class GCWManager extends ManagedService implements Logger {
 	@read
 	public int getCovertScannerDelay() {
 		return covertScannerDelay;
+	}
+	
+	@read
+	public int getCovertScannerRevealChance() {
+		return covertScannerRevealChance;
 	}
 
 	@read

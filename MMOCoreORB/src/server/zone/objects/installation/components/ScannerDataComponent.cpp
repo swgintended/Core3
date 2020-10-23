@@ -6,11 +6,9 @@
  */
 
 #include "ScannerDataComponent.h"
-#include "server/zone/managers/collision/CollisionManager.h"
+
 #include "server/zone/managers/gcw/GCWManager.h"
-#include "server/zone/objects/installation/components/ScannerScanTask.h"
 #include "server/zone/objects/installation/InstallationObject.h"
-#include "server/zone/objects/player/FactionStatus.h"
 #include "server/zone/Zone.h"
 
 void ScannerDataComponent::initializeTransientMembers() {
@@ -23,102 +21,20 @@ void ScannerDataComponent::initializeTransientMembers() {
 	templateData = dynamic_cast<SharedInstallationObjectTemplate*>(scanner->getObjectTemplate());
 }
 
-Vector<CreatureObject*> ScannerDataComponent::getAvailableTargets() {
-	Vector<CreatureObject*> targets;
-
-	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(getParent());
-
-	if (scanner == nullptr) {
-		return targets;
-	}
-
-	CloseObjectsVector* vec = (CloseObjectsVector*)scanner->getCloseObjects();
-
-	SortedVector<QuadTreeEntry*> closeObjects;
-
-	vec->safeCopyReceiversTo(closeObjects, CloseObjectsVector::CREOTYPE);
-
-	for (int i = 0; i < closeObjects.size(); ++i) {
-		CreatureObject* creo = cast<CreatureObject*>(closeObjects.get(i));
-
-		if (creo != nullptr && checkTarget(creo, scanner)) {
-			targets.add(creo);
-		}
-	}
-	return targets;
-}
-
-CreatureObject* ScannerDataComponent::selectTarget() {
-	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(getParent());
-
-	if (scanner == nullptr) {
-		return nullptr;
-	}
-
-	ManagedReference<CreatureObject*> lastTarget = lastScanTarget.get();
-
-	if (lastTarget == nullptr || !checkTarget(lastTarget, scanner)) {
-		lastScanTarget = nullptr;
-
-		Vector<CreatureObject*> targets = getAvailableTargets();
-
-		if (targets.size() == 0) {
-			return nullptr;
-		}
-
-		lastTarget = targets.get(System::random(targets.size() - 1));
-		lastScanTarget = lastTarget;
-	}
-
-	return lastTarget;
+void ScannerDataComponent::updateScanCooldown(float cooldownSeconds) {
+	int miliNextScan = cooldownSeconds * 1000;
+	nextScanTime = Time();
+	nextScanTime.addMiliTime(miliNextScan);
 }
 
 bool ScannerDataComponent::canScan() {
-	int canScanDelay = Time().miliDifference(nextScanTime);
-	return canScanDelay;
+	int delay = 0;
+
+	if (nextScanTime.isFuture()) {
+		delay = Time().miliDifference(nextScanTime);
+	}
+	return delay;
 }
-
-bool ScannerDataComponent::checkTarget(CreatureObject* creature,  TangibleObject* scanner) {
-
-	if (creature == nullptr || scanner == nullptr) {
-		return false;
-	}
-
-	int radius = getCovertScannerRadius();
-
-	if (!scanner->isInRange(creature, radius)) {
-		return false;
-	}
-
-	if (!creature->isPlayerCreature()) {
-		return false;
-	}
-
-	if (creature->isIncapacitated() || creature->isDead() || !creature->isOnline()) {
-		return false;
-	}
-
-	if (!CollisionManager::checkLineOfSight(creature, scanner)) {
-		return false;
-	}
-
-	ManagedReference<PlayerObject*> playerObject = creature->getPlayerObject();
-
-	if (playerObject == nullptr) {
-		return false;
-	}
-
-	if (playerObject->isPrivileged() || scanner->getFaction() == creature->getFaction() || creature->getFaction() == 0 || creature->getFactionStatus() != FactionStatus::COVERT) {
-		return false;
-	}
-
-	return true;
-}
-
-void ScannerDataComponent::updateScanCooldown() {
-	nextScanTime.addMiliTime(getCovertScannerDelay());
-}
-
 
 int ScannerDataComponent::getCovertScannerRadius() {
 	int radius = 5;
@@ -135,7 +51,6 @@ int ScannerDataComponent::getCovertScannerRadius() {
 				radius = gcwMan->getCovertScannerRadius();
 		}
 	}
-
 	return radius;
 }
 
@@ -150,46 +65,29 @@ int ScannerDataComponent::getCovertScannerDelay() {
 		if (zone != nullptr) {
 			GCWManager* gcwMan = zone->getGCWManager();
 
-			if (gcwMan != nullptr)
+			if (gcwMan != nullptr) {
 				delay = gcwMan->getCovertScannerDelay();
+			}
 		}
 	}
-
 	return delay;
 }
 
-void ScannerDataComponent::scheduleScanTask(CreatureObject* target) {
+int ScannerDataComponent::getCovertScannerRevealChance() {
+	int chance = 10;
 
-	if (numberOfPlayersInRange.get() < 1) {
-		return;
-	}
+	ManagedReference<InstallationObject*> scanner = cast<InstallationObject*>(getParent());
 
-	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(getParent());
+	if (scanner != nullptr) {
+		Zone* zone = scanner->getZone();
 
-	if (scanner->getZone() == nullptr) {
-		return;
-	}
+		if (zone != nullptr) {
+			GCWManager* gcwMan = zone->getGCWManager();
 
-	if (scannerScanTask == nullptr) {
-		scannerScanTask = new ScannerScanTask(scanner);
-	}
-
-	ScannerScanTask* task = scannerScanTask.castTo<ScannerScanTask*>();
-	info("Scan Task Cast");
-
-	if (task == nullptr) {
-		return;
-	}
-
-	if (target == nullptr) {
-		return;
-	}
-
-	if (task->isScheduled()) {
-		if (canScan()) {
-			task->execute();
+			if (gcwMan != nullptr) {
+				chance = gcwMan->getCovertScannerRevealChance();
+			}
 		}
-	} else {
-		task->schedule(canScan());
 	}
+	return chance;
 }

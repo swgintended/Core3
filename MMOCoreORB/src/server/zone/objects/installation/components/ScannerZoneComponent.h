@@ -18,10 +18,10 @@ class ScannerZoneComponent : public ZoneComponent {
 public:
 
 	void notifyInsertToZone(SceneObject* sceneObject, Zone* zne) const;
-
+	void notifyPositionUpdate(SceneObject* sceneObject, QuadTreeEntry* entry) const;
 	void notifyInsert(SceneObject* sceneObject, QuadTreeEntry* entry) const;
-
 	void notifyDissapear(SceneObject* sceneObject, QuadTreeEntry* entry) const;
+
 };
 
 #endif /* SCANNERZONECOMPONENT_H_ */

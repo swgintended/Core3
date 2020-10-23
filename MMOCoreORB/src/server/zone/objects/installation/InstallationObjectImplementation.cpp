@@ -835,10 +835,6 @@ void InstallationObjectImplementation::createChildObjects() {
 				}
 			}
 		}
-	} else if (isScanner()) {
-
-		this->setContainerDefaultAllowPermission(ContainerPermissions::MOVEIN);
-		this->setContainerDefaultDenyPermission(ContainerPermissions::MOVEOUT);
 
 	} else if (isMinefield()) {
 

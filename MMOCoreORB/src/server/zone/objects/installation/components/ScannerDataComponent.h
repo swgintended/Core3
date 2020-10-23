@@ -12,22 +12,20 @@
 #include "server/zone/objects/creature/CreatureObject.h"
 #include "server/zone/objects/scene/components/DataObjectComponent.h"
 #include "templates/installation/SharedInstallationObjectTemplate.h"
+#include "server/zone/QuadTreeEntry.h"
 
 
 class ScannerDataComponent : public DataObjectComponent, public Logger {
 protected:
 	Time nextScanTime;
-	ManagedWeakReference<CreatureObject*> lastScanTarget;
-	Reference<Task*> scannerScanTask;
 	SharedInstallationObjectTemplate* templateData;
 	AtomicInteger numberOfPlayersInRange;
 
 public:
 	ScannerDataComponent()  {
-		nextScanTime = Time(0);
+		nextScanTime = Time();
 		templateData = nullptr;
 		this->setLoggingName("ScannerData");
-
 	}
 
 	~ScannerDataComponent() {
@@ -52,23 +50,17 @@ public:
 	bool isScannerData(){
 		return true;
 	}
-
-	Task* getScanTask() {
-		return scannerScanTask;
-	}
-
 	bool canScan();
-	bool checkTarget(CreatureObject* creature, TangibleObject* scanner);
 
-	void updateScanCooldown();
-
-	Vector<CreatureObject*> getAvailableTargets();
-	CreatureObject* selectTarget();
-
-	void scheduleScanTask(CreatureObject* target);
+	void updateScanCooldown(float cooldownSeconds);
 
 	int getCovertScannerRadius();
 	int getCovertScannerDelay();
+	int getCovertScannerRevealChance();
+
+	Time getNextScanTime() {
+		return nextScanTime;
+	}
 
 	uint32 getNumberOfPlayersInRange() {
 		return numberOfPlayersInRange.get();
@@ -87,6 +79,4 @@ public:
 	}
 
 };
-
-
 #endif /* SCANNERDATACOMPONENT_H_ */

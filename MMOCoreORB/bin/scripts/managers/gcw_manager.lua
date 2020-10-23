@@ -47,6 +47,9 @@ covertScannerRadius = 32;
 -- Delay between scans on players in scanning radius
 covertScannerDelay = 5;
 
+-- % out of 100 to reveal a covert player
+covertScannerRevealChance = 90;
+
 maxBasesPerPlayer = 1
 
 -- xp bonus for faction controlling a planet
@@ -63,7 +66,7 @@ crackdownScanPrivilegedPlayers = false
 winnerBonus = 0
 loserBonus = -30
 
--- Spawn turrets and minefields when base is placed 1=true 0=false
+-- Spawn turrets, cover stanner and minefields when base is placed 1=true 0=false
 spawnDefenses = 1
 
 -- Amount of time to delay vulnerability in seconds afer placing base

@@ -42,12 +42,13 @@
 
 
 object_installation_faction_perk_covert_detector_detector_base = object_installation_faction_perk_covert_detector_shared_detector_base:new {
-	gameObjectType = COVERTSCANNER,
+	lotSize = 1,
 	pvpStatusBitmask = ATTACKABLE,
 	optionsBitmask = 0,
 	maxCondition = 7500,
 	dataObjectComponent = "ScannerDataComponent",
 	zoneComponent = "ScannerZoneComponent",	
+
 }
 
 ObjectTemplates:addTemplate(object_installation_faction_perk_covert_detector_detector_base, "object/installation/faction_perk/covert_detector/detector_base.iff")
