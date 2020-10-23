@@ -464,11 +464,19 @@ int ForceHealQueueCommand::doQueueCommand(CreatureObject* creature, const uint64
 		creature->sendSystemMessage("@healing:pvp_no_help");
 		return GENERALERROR;
 	}
-	
-	if (creature->getFactionStatus() == FactionStatus::COVERT && targetCreature->getFactionStatus() == FactionStatus::OVERT) {
-		ghost->updateLastRealGcwTefPvpCombatActionTimestamp();
-		checkForTef(creature, targetCreature);
+
+	CombatManager* combatManager = CombatManager::instance();
+	PlayerObject* targetGhost = targetCreature->getPlayerObject().get();
+	if (targetGhost != nullptr && targetGhost->hasBhTef()) {
+		ghost->updateLastBhPvpCombatActionTimestamp();
+		combatManager->addGroupTef(creature, targetCreature);
 	}
+	
+	if (ghost != nullptr && creature->getFactionStatus() == FactionStatus::COVERT && targetCreature->getFactionStatus() == FactionStatus::OVERT) {
+		ghost->updateLastRealGcwTefPvpCombatActionTimestamp();
+	}
+
+	checkForTef(creature, targetCreature);
 
 	int retval = GENERALERROR;
 

@@ -20,7 +20,7 @@
 #include "templates/params/creature/CreatureFlag.h"
 //#include "server/zone/objects/creature/CreatureObject.h"
 #include "server/zone/objects/player/PlayerObject.h"
-//#include "server/zone/managers/combat/CombatManager.h"
+#include "server/zone/managers/combat/CombatManager.h"
 
 class HealDamageCommand : public QueueCommand {
 	float range;
@@ -564,10 +564,16 @@ public:
 
 		//PlayerObject* targetGhost = targetCreature->getPlayerObject();
 		//PlayerObject* ghost = creature->getPlayerObject();
-		//PlayerObject* targetGhost = targetCreature->getPlayerObject().get();
+		CombatManager* combatManager = CombatManager::instance();
+		PlayerObject* targetGhost = targetCreature->getPlayerObject().get();
 		PlayerObject* ghost = creature->getPlayerObject().get();
-		if (creature->getFactionStatus() == FactionStatus::COVERT && targetCreature->getFactionStatus() == FactionStatus::OVERT)
+		if (ghost != nullptr && creature->getFactionStatus() == FactionStatus::COVERT && targetCreature->getFactionStatus() == FactionStatus::OVERT)
 			ghost->updateLastRealGcwTefPvpCombatActionTimestamp();
+
+		if (targetGhost != nullptr && targetGhost->hasBhTef()) {
+			combatManager->addGroupTef(creature, targetCreature);
+			ghost->updateLastBhPvpCombatActionTimestamp();
+		}
 
 		checkForTef(creature, targetCreature);
 
