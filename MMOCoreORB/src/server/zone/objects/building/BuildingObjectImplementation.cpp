@@ -1403,12 +1403,8 @@ void BuildingObjectImplementation::createChildObjects() {
 					tano->setFaction(getFaction());
 					tano->setDetailedDescription("DEFAULT BASE TURRET");
 					tano->setPvpStatusBitmask(getPvpStatusBitmask() | tano->getPvpStatusBitmask());
-			} else if (obj->isScanner()) {
-					tano->setFaction(getFaction());
-					tano->setDetailedDescription("DEFAULT SCANNER");
-					tano->setPvpStatusBitmask(getPvpStatusBitmask() | tano->getPvpStatusBitmask());
+				}
 
-			}
 				InstallationObject* installation = cast<InstallationObject*>(obj.get());
 				if (installation != nullptr) {
 					installation->setOwner(getObjectID());
@@ -1430,6 +1426,7 @@ void BuildingObjectImplementation::createChildObjects() {
 	} else {
 		StructureObjectImplementation::createChildObjects();
 	}
+
 }
 
 void BuildingObjectImplementation::spawnChildSceneObject(String& templatePath, float x, float z, float y, unsigned long long cellID, float dw, float dx, float dy, float dz) {

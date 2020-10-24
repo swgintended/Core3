@@ -252,10 +252,6 @@ public:
 		turretSlots.elementAt(indx) = turretOID;
 	}
 
-	void addScanner(int indx, uint64 scannerOID) {
-		scannerSlots.add(indx,scannerOID);
-	}
-
 	void addTurret(int indx, uint64 turretOID) {
 		turretSlots.add(indx, turretOID);
 	}
@@ -264,7 +260,11 @@ public:
 		scannerSlots.elementAt(indx) = scannerOID;
 	}
 
-	void setMinefieldID(int indx, uint64 minefieldOID) {
+	void addScanner(int indx, uint64 scannerOID) {
+		scannerSlots.add(indx,scannerOID);
+	}
+
+	void setMinefieldOID(int indx, uint64 minefieldOID) {
 		minefieldSlots.elementAt(indx) = minefieldOID;
 	}
 

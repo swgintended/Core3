@@ -73,7 +73,7 @@ void ScannerZoneComponent::notifyPositionUpdate(SceneObject* sceneObject, QuadTr
 	}
 
 	float radius = scannerData->getCovertScannerRadius() * 1.f;
-//Time Check Here
+
 	if ((scannerData->canScan() > 0) || !sceneObject->isScanner() || !target->isPlayerCreature() || !sceneObject->isInRange(target, radius)) {
 		return;
 	}
@@ -99,7 +99,6 @@ void ScannerZoneComponent::notifyPositionUpdate(SceneObject* sceneObject, QuadTr
 	}
 
 	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(sceneObject);
-	creature->sendSystemMessage("delay timer" + String::valueOf(scannerData->getCovertScannerDelay()));
 
 	if ((scanner->getFaction() != creature->getFaction() || creature->getFaction() != 0) && creature->getFactionStatus() == FactionStatus::COVERT) {
 

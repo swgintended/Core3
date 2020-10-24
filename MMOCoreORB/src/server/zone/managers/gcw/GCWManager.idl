@@ -175,6 +175,7 @@ class GCWManager extends ManagedService implements Logger {
 
 	public native void performGCWTasks(boolean initial);
 	private native void verifyTurrets(BuildingObject building);
+	private native void verifyMinefields(BuildingObject building);
 	private native void verifyScanners(BuildingObject building);
 
 	public native boolean canPlaceMoreBases(CreatureObject creature);
