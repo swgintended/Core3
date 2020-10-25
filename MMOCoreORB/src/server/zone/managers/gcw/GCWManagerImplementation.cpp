@@ -1925,7 +1925,7 @@ void GCWManagerImplementation::sendBaseDefenseStatus(CreatureObject* creature, B
 	creature->sendMessage(status->generateMessage());
 }
 
-void GCWManagerImplementation::sendRemoveDefenseConfirmation(BuildingObject* building, CreatureObject* creature, uint64 deedOID) {
+void GCWManagerImplementation::sendRemoveDefenseConfirmation(BuildingObject* building, CreatureObject* creature, uint64 defenseOID) {
 	ZoneServer* zoneServer = zone->getZoneServer();
 	if (zoneServer == nullptr)
 		return;
@@ -1945,10 +1945,12 @@ void GCWManagerImplementation::sendRemoveDefenseConfirmation(BuildingObject* bui
 	if (building->getOwnerCreatureObject() != creature)
 		return;
 
-	if (!baseData->hasDefense(deedOID))
+	if (!baseData->hasDefense(defenseOID)) {
+		creature->sendSystemMessage("base data does not have defenseOID");
 		return;
+	}
 
-	ManagedReference<SceneObject*> defense = zoneServer->getObject(deedOID);
+	ManagedReference<SceneObject*> defense = zoneServer->getObject(defenseOID);
 
 	if (defense == nullptr)
 		return;
@@ -1957,22 +1959,22 @@ void GCWManagerImplementation::sendRemoveDefenseConfirmation(BuildingObject* bui
 	text << "@faction/faction_hq/faction_hq_response:terminal_response25 " << endl << endl; // Are you sure you want to remove the selected defense?
 	text << "@faction/faction_hq/faction_hq_response:selected_defense " << defense->getDisplayedName(); // Selected Defense:
 
-	ManagedReference<SuiListBox*> removeDefense = new SuiListBox(creature, SuiWindowType::HQ_TERMINAL);
+	ManagedReference<SuiMessageBox*> removeDefense = new SuiMessageBox(creature, SuiWindowType::HQ_TERMINAL);
 
 	removeDefense->setPromptTitle("@faction/faction_hq/faction_hq_response:terminal_response24"); // Confirm Defense Removal?
 	removeDefense->setPromptText(text.toString());
 	removeDefense->setUsingObject(building);
 	removeDefense->setOkButton(true, "@ok");
 	removeDefense->setCancelButton(true, "@cancel");
-	removeDefense->setCallback( new RemoveDefenseSuiCallback(zone->getZoneServer()));
+	removeDefense->setCallback( new RemoveDefenseSuiCallback(zone->getZoneServer(), defenseOID));
 
 	ghost->addSuiBox(removeDefense);
 	creature->sendMessage(removeDefense->generateMessage());
 }
 
-void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureObject* creature, uint64 deedOID) {
+void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureObject* creature, uint64 defenseID) {
 	ZoneServer* zoneServer = zone->getZoneServer();
-
+	creature->sendSystemMessage("remove defense called");
 	if (zoneServer == nullptr)
 		return;
 
@@ -1982,45 +1984,34 @@ void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureO
 	if (!(building->getPvpStatusBitmask() & CreatureFlag::OVERT))
 		return;
 
-	DestructibleBuildingDataComponent* baseData = getDestructibleBuildingData(building);
+	ManagedReference<SceneObject*> defense = zoneServer->getObject(defenseID);
 
-	if (baseData == nullptr || !baseData->hasDefense(deedOID))
-		return;
+	bool isScannerDeed = defense->getObjectTemplate()->getFullTemplateString().contains("detector");
+	bool isTurretDeed = defense->getObjectTemplate()->getFullTemplateString().contains("turret");
+	bool isMinefieldDeed = defense->getObjectTemplate()->getFullTemplateString().contains("minefield");
 
-	ManagedReference<SceneObject*> defense = zoneServer->getObject(deedOID);
-
-	if (defense == nullptr || !defense->isTurret() || !defense->isScanner() || !defense->isMinefield()) {
-		return;
-		creature->sendSystemMessage("failing before removal");
-	}
-
-	if (baseData->hasTurret(defense->getObjectID())) {
+	if (isTurretDeed) {
 
 		InstallationObject* turret = cast<InstallationObject*>(defense.get());
 
-		creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
-
+		notifyInstallationDestruction(turret);
 		turret->destroyObjectFromWorld(true);
-		notifyTurretDestruction(building, turret);
 
-	} else if (baseData->hasScanner(defense->getObjectID())) {
+	} else if (isScannerDeed) {
 
 		InstallationObject* scanner = cast<InstallationObject*>(defense.get());
 
-		creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
-
+		notifyInstallationDestruction(scanner);
 		scanner->destroyObjectFromWorld(true);
-		notifyScannerDestruction(building, scanner);
 
-	} else if (baseData->hasMinefield(defense->getObjectID())) {
+	} else if (isMinefieldDeed) {
 
 		InstallationObject* minefield = cast<InstallationObject*>(defense.get());
 
-		creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
-
+		notifyInstallationDestruction(minefield);
 		minefield->destroyObjectFromWorld(true);
-		notifyMinefieldDestruction(building, minefield);
 	}
+	creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
 }
 
 void GCWManagerImplementation::notifyInstallationDestruction(InstallationObject* installation) {
@@ -2249,21 +2240,18 @@ void GCWManagerImplementation::performDefenseDonation(BuildingObject* building, 
 		ManagedReference<Deed*> deed = dynamic_cast<Deed*>(defenseObj.get());
 		if (deed != nullptr) {
 
-				bool isScannerDeed = deed->getObjectTemplate()->getFullTemplateString().contains("detector");
-				bool isTurretDeed = deed->getObjectTemplate()->getFullTemplateString().contains("turret");
-				bool isMinefieldDeed = deed->getObjectTemplate()->getFullTemplateString().contains("minefield");
+			bool isScannerDeed = deed->getObjectTemplate()->getFullTemplateString().contains("detector");
+			bool isTurretDeed = deed->getObjectTemplate()->getFullTemplateString().contains("turret");
+			bool isMinefieldDeed = deed->getObjectTemplate()->getFullTemplateString().contains("minefield");
 
 			if (isMinefieldDeed)	{
 				performDonateMinefield(building, creature, deed);
-				creature->sendSystemMessage("Minefield: " );
 				return;
 			} else if (isScannerDeed) {
 				performDonateScanner(building, creature, deed);
-				creature->sendSystemMessage("Covert Scanner: " );
 				return;
 			} else if (isTurretDeed) {
 				performDonateTurret(building, creature, deed);
-				creature->sendSystemMessage("Turret / Destructible: " );
 				return;
 			}
 		}

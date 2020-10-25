@@ -12,28 +12,24 @@
 #include "server/zone/managers/gcw/GCWManager.h"
 
 class RemoveDefenseSuiCallback : public SuiCallback {
-
+private:
+	uint64 defense;
 public:
-	RemoveDefenseSuiCallback(ZoneServer* server)
+	RemoveDefenseSuiCallback(ZoneServer* server, uint64 defenseOID)
 		: SuiCallback(server) {
+		defense = defenseOID;
 	}
 
 	void run(CreatureObject* player, SuiBox* suiBox, uint32 eventIndex, Vector<UnicodeString>* args) {
 		bool cancelPressed = (eventIndex == 1);
 
-		if (cancelPressed || !suiBox->isListBox() || player == nullptr)
+		if (cancelPressed || !suiBox->isMessageBox() || player == nullptr)
 			return;
 
 		ManagedReference<SceneObject*> obj = suiBox->getUsingObject().get();
 
 		if (obj == nullptr || !obj->isBuildingObject())
 			return;
-
-		SuiListBox* listBox = cast<SuiListBox*>(suiBox);
-
-		int indx = Integer::valueOf(args->get(0).toString());
-
-		uint64 objectID = listBox->getMenuObjectID(indx);
 
 		ManagedReference<BuildingObject*> building = cast<BuildingObject*>(obj.get());
 
@@ -42,7 +38,7 @@ public:
 		if (gcwMan == nullptr)
 			return;
 
-		gcwMan->removeDefense(building, player, objectID);
+		gcwMan->removeDefense(building, player, defense);
 
 	}
 };
