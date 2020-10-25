@@ -1974,7 +1974,7 @@ void GCWManagerImplementation::sendRemoveDefenseConfirmation(BuildingObject* bui
 
 void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureObject* creature, uint64 defenseID) {
 	ZoneServer* zoneServer = zone->getZoneServer();
-	creature->sendSystemMessage("remove defense called");
+
 	if (zoneServer == nullptr)
 		return;
 
@@ -1995,21 +1995,18 @@ void GCWManagerImplementation::removeDefense(BuildingObject* building, CreatureO
 		InstallationObject* turret = cast<InstallationObject*>(defense.get());
 
 		notifyInstallationDestruction(turret);
-		turret->destroyObjectFromWorld(true);
 
 	} else if (isScannerDeed) {
 
 		InstallationObject* scanner = cast<InstallationObject*>(defense.get());
 
 		notifyInstallationDestruction(scanner);
-		scanner->destroyObjectFromWorld(true);
 
 	} else if (isMinefieldDeed) {
 
 		InstallationObject* minefield = cast<InstallationObject*>(defense.get());
 
 		notifyInstallationDestruction(minefield);
-		minefield->destroyObjectFromWorld(true);
 	}
 	creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:terminal_response58"); // Processing HQ defense removal...
 }
@@ -2372,7 +2369,6 @@ void GCWManagerImplementation::performDonateTurret(BuildingObject* building, Cre
 		params.setStringId("@faction/faction_hq/faction_hq_response:terminal_response44"); // This facility cannot accept deeds of type '%TO' at this time. Cancelling donation...
 		params.setTO(turretDeed->getObjectNameStringIdFile(), turretDeed->getObjectNameStringIdName());
 		creature->sendSystemMessage(params);
-		creature->sendSystemMessage("TURRET DONATION ATTEMPT!");
 		return;
 	}
 
@@ -2541,6 +2537,8 @@ uint64 GCWManagerImplementation::addChildInstallationFromDeed(BuildingObject* bu
 		tano->setDetailedDescription("Donated Turret");
 	} else if (tano->isScanner()) {
 		tano->setDetailedDescription("Donated Scanner");
+	} else if (tano->isMinefield()) {
+		tano->setDetailedDescription("Donated Minefield");
 	}
 
 	if (tano->isInstallationObject()) {

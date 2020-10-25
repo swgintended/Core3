@@ -28,6 +28,8 @@ destructionTimer = 600
 -- maximum bases per planet
 maxBases = 3
 
+maxBasesPerPlayer = 1
+
 -- time in seconds that a player must be overt before aborting a facility shutdown
 overtCooldown = 300
 
@@ -50,8 +52,6 @@ covertScannerDelay = 5
 -- % out of 100 to reveal a covert player
 covertScannerRevealChance = 90
 
-maxBasesPerPlayer = 1
-
 -- xp bonus for faction controlling a planet
 bonusXP = 15
 
@@ -70,7 +70,7 @@ loserBonus = -30
 spawnDefenses = 1
 
 -- Amount of time to delay vulnerability in seconds afer placing base
-initialVulnerabilityDelay = 10000
+initialVulnerabilityDelay = 0
 
 racialPenaltyEnabled = 1
 
