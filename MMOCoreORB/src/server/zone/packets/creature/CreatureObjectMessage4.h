@@ -31,6 +31,8 @@ public:
 		// listenToID
 		insertLong(creo->getListenID());
 
+		//insertLong(creo->getGroupTefID());
+
 		insertFloat(creo->getRunSpeed());
 
 		insertFloat(1.00625f);

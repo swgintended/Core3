@@ -571,8 +571,14 @@ public:
 			ghost->updateLastRealGcwTefPvpCombatActionTimestamp();
 
 		if (targetGhost != nullptr && targetGhost->hasBhTef()) {
-			combatManager->addGroupTef(creature, targetCreature);
-			ghost->updateLastBhPvpCombatActionTimestamp();
+			if (isGrouped()) {
+				if (creature->getGroupID() == targetCreature->getGroupID()) {
+					info(String::valueOf(targetCreature->getGroupID()) + ": Group Id.", true);
+					//targetCreature->getGroupTef();
+					combatManager->addGroupTef(creature, targetCreature);
+					ghost->updateLastBhPvpCombatActionTimestamp();
+				}
+			}
 		}
 
 		checkForTef(creature, targetCreature);

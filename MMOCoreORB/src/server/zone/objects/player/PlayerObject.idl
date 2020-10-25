@@ -163,6 +163,8 @@ class PlayerObject extends IntangibleObject {
 	protected unsigned long cloningFacility;
 	protected boolean isPlayerCloning;
 
+	protected unsigned long groupTefID;
+
 	@dereferenced
 	protected SortedVector<unsigned long> persistentMessages;
 
@@ -1766,6 +1768,11 @@ class PlayerObject extends IntangibleObject {
 
 	@read
 	public native boolean hasGroupTef();
+
+	@read
+	public unsigned long getGroupTefID() {
+		return groupTefID;
+	}
 
 	public native void setGroupTefTowards(unsigned int groupID, boolean scheduleTefRemovalTask = true);
 
