@@ -3298,10 +3298,12 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 	//BH GTEF for Later use
 	ManagedReference<CreatureObject*> ghostObject = dynamic_cast<CreatureObject*>(ghost->getParent().get().get());
 	if (targetGhost->hasBhTef() && ghost->hasBhTef() && targetGhost->hasGroupTefTowards(ghostObject->getGroupID())) {
+		//info("1", true);
 		return true;
 	}
 
 	if (ghost->hasBhTef() && ghost->hasGroupTefTowards(object->getGroupID())) {
+		//info("2", true);
 		return true;
 		/*ManagedReference<GroupObject*> group = object->getGroup();
 		if (group != nullptr) {
@@ -3325,22 +3327,30 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 		}
 	}*/
 
-	if (object->hasBountyMissionFor(asCreatureObject()) || (ghost->hasBhTef() && hasBountyMissionFor(object)))
+	if (object->hasBountyMissionFor(asCreatureObject()) || (ghost->hasBhTef() && hasBountyMissionFor(object))) {
+		//info("3", true);
 		return true;
+	}
 
 	if (object->getFaction() == getFaction() && object->getFaction() != 0 && (object->getFaction() == Factions::FACTIONREBEL || object->getFaction() == Factions::FACTIONIMPERIAL)) {
+		//info("4", true);
 		return false;
 	}
 
-	if (getGroupID() != 0 && getGroupID() == object->getGroupID())
+	if (getGroupID() != 0 && getGroupID() == object->getGroupID()) {
+		//info("5", true);
 		return false;
+	}
 
 	if (object->getFaction() == Factions::FACTIONNEUTRAL || getFaction() == Factions::FACTIONNEUTRAL){ 
+		//info("6", true);
 		return false; 
 	}
 
-	if (ghost->hasGroupTefTowards(object->getGroupID()))
+	if (ghost->hasGroupTefTowards(object->getGroupID())) {
+		//info("7", true);
 		return true;
+	}
 
 	//GTEF for Later use
 	/*if (ghost->hasGroupTefTowards(object->getGroupID())){
