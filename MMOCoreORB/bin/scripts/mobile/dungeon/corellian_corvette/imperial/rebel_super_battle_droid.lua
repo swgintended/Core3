@@ -1,7 +1,7 @@
 rebel_super_battle_droid = Creature:new {
 	objectName = "@mob/creature_names:rebel_super_battle_droid",
 	socialGroup = "rebel",
-	faction = "rebel",
+	--faction = "rebel",
 	level = 200,
 	chanceHit = 18,
 	damageMin = 1200,
