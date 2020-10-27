@@ -5,6 +5,7 @@
  *      Author: root
  */
 
+#include "server/chat/ChatManager.h"
 #include "server/zone/managers/gcw/GCWManager.h"
 #include "server/zone/Zone.h"
 #include "server/zone/ZoneServer.h"
@@ -623,6 +624,23 @@ void GCWManagerImplementation::startVulnerability(BuildingObject* building) {
 
 	if (building->getZone() == nullptr)
 		return;
+
+	StringBuffer startVulnerabilityMsg;
+	ManagedReference<CreatureObject*> owner = building->getOwnerCreatureObject();
+
+	if (owner == nullptr) {
+		return;
+	}
+
+	if (building->getFaction() == Factions::FACTIONREBEL) {
+
+		startVulnerabilityMsg << "An Rebel Base located at " << building->getPositionX() << ", " << building->getPositionY() << building->getZone()->getZoneName()  << " is now vulerable to destruction. This vulnerability will last 3 hours.";
+		
+	} else if (building->getFaction() == Factions::FACTIONIMPERIAL) {
+			
+		startVulnerabilityMsg << "An Rebel Base located at " << building->getPositionX() << ", " << building->getPositionY() << building->getZone()->getZoneName()  << " is now vulerable to destruction. This vulnerability will last 3 hours.";	}
+
+	owner->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, startVulnerabilityMsg.toString());
 
 	verifyTurrets(building);
 	spawnBaseTerminals(building);

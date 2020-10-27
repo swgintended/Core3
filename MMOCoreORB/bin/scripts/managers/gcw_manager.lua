@@ -61,7 +61,7 @@ loserBonus = -30
 spawnDefenses = 1
 
 -- Amount of time to delay vulnerability in seconds afer placing base
-initialVulnerabilityDelay = 0
+initialVulnerabilityDelay = 5
 
 racialPenaltyEnabled = 1
 
