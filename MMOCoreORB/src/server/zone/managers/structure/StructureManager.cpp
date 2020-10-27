@@ -536,7 +536,7 @@ StructureObject* StructureManager::placeStructure(CreatureObject* creature,
 		ghost->addOwnedStructure(structureObject);
 	}
 
-	if(structureObject->isTurret() || structureObject->isMinefield()){
+	if(structureObject->isTurret() || structureObject->isMinefield() || structureObject->isScanner()){
 		structureObject->setFaction(creature->getFaction());
 	}
 

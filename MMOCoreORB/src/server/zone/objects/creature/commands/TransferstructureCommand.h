@@ -49,7 +49,7 @@ public:
 			return GENERALERROR;
 		}
 
-		if ((structure->isGCWBase()) || structure->isTurret() || structure->isMinefield()) {
+		if ((structure->isGCWBase()) || structure->isTurret() || structure->isMinefield() || structure->isScanner()) {
 			creature->sendSystemMessage("@player_structure:faction_base"); // You cannot transfer your factional base access and allotment responsibility to anyone else.
 			return INVALIDTARGET;
 		}

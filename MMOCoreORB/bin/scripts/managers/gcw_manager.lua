@@ -5,7 +5,7 @@ gcwCheckTimer = 3600
 vulnerabilityDuration = 10800
 
 -- Amount of time in seconds between base vulnerabilities.
-vulnerabilityFrequency = 172800
+vulnerabilityFrequency = 594000 --6 days, 21 hours
 
 powerSwitchCount = 7
 
@@ -26,7 +26,9 @@ dnaStrandLength = 23
 destructionTimer = 600
 
 -- maximum bases per planet
-maxBases = 25
+maxBases = 3
+
+maxBasesPerPlayer = 1
 
 -- time in seconds that a player must be overt before aborting a facility shutdown
 overtCooldown = 300
@@ -41,7 +43,14 @@ reactivationTimer = 300
 -- X seconds after the last manual activity the turret will be able to auto fire
 turretAutoFireTimeout = 20
 
-maxBasesPerPlayer = 3
+-- Scanning Radius of Covert Faction Scanners
+covertScannerRadius = 32
+
+-- Delay between scans on players in scanning radius
+covertScannerDelay = 5
+
+-- % out of 100 to reveal a covert player
+covertScannerRevealChance = 90
 
 -- xp bonus for faction controlling a planet
 bonusXP = 15
@@ -57,7 +66,7 @@ crackdownScanPrivilegedPlayers = false
 winnerBonus = 0
 loserBonus = -30
 
--- Spawn turrets and minefields when base is placed 1=true 0=false
+-- Spawn turrets, covert stanner and minefields when base is placed 1=true 0=false
 spawnDefenses = 1
 
 -- Amount of time to delay vulnerability in seconds afer placing base

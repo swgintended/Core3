@@ -43,11 +43,11 @@ public:
 
 		SuiListBox* listBox = cast<SuiListBox*>(suiBox);
 
-		uint64 turretOID = listBox->getMenuObjectID(indx);
+		uint64 defenseOID = listBox->getMenuObjectID(indx);
 
 
 		if (otherPressed)
-			gcwMan->sendRemoveDefenseConfirmation(building, player, turretOID);
+			gcwMan->sendRemoveDefenseConfirmation(building, player, defenseOID);
 		else
 			gcwMan->sendBaseDefenseStatus(player, building);
 
