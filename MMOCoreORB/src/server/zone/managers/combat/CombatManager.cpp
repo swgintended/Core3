@@ -457,7 +457,7 @@ int CombatManager::doTargetCombatAction(CreatureObject* attacker, WeaponObject* 
 		if (attacker->isPlayerCreature()){
 			//info("shouldRealGcwTefpvpdtca1", true);
 			PlayerObject* ghost = attacker->getPlayerObject();
-			if (ghost != nullptr && tano->isTurret() && (tano->getFaction() == Factions::FACTIONREBEL || tano->getFaction() == Factions::FACTIONIMPERIAL)) {// && defender->getFaction() != attacker->getFaction() && (defender->getFaction() == Factions::FACTIONREBEL || defender->getFaction() == Factions::FACTIONIMPERIAL)) {
+			if (ghost != nullptr && (tano->isTurret() || tano->isScanner() || tano->isMinefield()) && (tano->getFaction() == Factions::FACTIONREBEL || tano->getFaction() == Factions::FACTIONIMPERIAL)) {// && defender->getFaction() != attacker->getFaction() && (defender->getFaction() == Factions::FACTIONREBEL || defender->getFaction() == Factions::FACTIONIMPERIAL)) {
 				ghost->updateLastPvpCombatActionTimestamp(false,false,true, false);
 				//attacker->broadcastPvpStatusBitmask();
 			}
