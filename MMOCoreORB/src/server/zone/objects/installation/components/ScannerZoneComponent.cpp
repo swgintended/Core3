@@ -100,7 +100,7 @@ void ScannerZoneComponent::notifyPositionUpdate(SceneObject* sceneObject, QuadTr
 
 	ManagedReference<TangibleObject*> scanner = cast<TangibleObject*>(sceneObject);
 
-	if ((scanner->getFaction() != creature->getFaction() || creature->getFaction() != 0) && creature->getFactionStatus() == FactionStatus::COVERT) {
+	if ((scanner->getFaction() != creature->getFaction() && creature->getFaction() != 0) && creature->getFactionStatus() == FactionStatus::COVERT) {
 
 		PlayClientEffectLoc* explodeLoc = new PlayClientEffectLoc("clienteffect/survey_effect.cef", tano->getZone()->getZoneName(), tano->getPositionX(), tano->getPositionZ(), tano->getPositionY());
 		tano->broadcastMessage(explodeLoc, false);
