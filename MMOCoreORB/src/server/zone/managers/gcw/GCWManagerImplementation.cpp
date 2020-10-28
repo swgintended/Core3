@@ -5,6 +5,7 @@
  *      Author: root
  */
 
+#include "server/chat/ChatManager.h"
 #include "server/zone/managers/gcw/GCWManager.h"
 #include "server/zone/Zone.h"
 #include "server/zone/ZoneServer.h"
@@ -700,6 +701,26 @@ void GCWManagerImplementation::startVulnerability(BuildingObject* building) {
 
 	if (building->getZone() == nullptr)
 		return;
+
+	StringBuffer startVulnerabilityMsg;
+	String zoneName = building->getZone()->getZoneName();
+	String capZoneName = zoneName.subString(0, 1).toUpperCase() + zoneName.subString(1);
+	ManagedReference<CreatureObject*> owner = building->getOwnerCreatureObject();
+
+	if (owner == nullptr || building == nullptr) {
+		return;
+	}
+
+	if (building->getFaction() == Factions::FACTIONREBEL) {
+
+		startVulnerabilityMsg << "IMPERIAL DIRECTIVE -- Scouts have located a Rebel Base on " << capZoneName << ". All forces rendezvous at " << building->getPositionX() << ", " << building->getPositionY() << ". It is vulnerable to be destoyed for the next 3 hours, show no mercy.";
+		
+	} else if (building->getFaction() == Factions::FACTIONIMPERIAL) {
+			
+		startVulnerabilityMsg << "REBEL ALERT -- An Imperial Base has been located on " << capZoneName << ". Alliance Forces assemble at " << building->getPositionX() << ", " << building->getPositionY() << ". We only have 3 hours before the vulnerability ends, we must not fail.";
+	}
+
+	owner->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, startVulnerabilityMsg.toString());
 
 	verifyTurrets(building);
 	verifyScanners(building);
