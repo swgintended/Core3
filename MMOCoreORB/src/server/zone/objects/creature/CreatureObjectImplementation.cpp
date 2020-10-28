@@ -3503,6 +3503,10 @@ bool CreatureObjectImplementation::isHealableBy(CreatureObject* object) {
 		if(targetGhost != nullptr){
 			//if(getFaction() != object->getFaction() && (targetFactionStatus == FactionStatus::COVERT || targetGhost->hasPvpTef()))
 			//	return false;
+			if(ghost->hasBhTef() && !targetGhost->hasBhTef())
+				return false;
+			if(targetGhost->hasBhTef() && !ghost->hasBhTef())
+				return false;
 			if(getFaction() != object->getFaction()) {
 				if(targetFactionStatus == FactionStatus::COVERT && targetGhost->hasRealGcwTef())
 					return false;
