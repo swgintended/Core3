@@ -5,11 +5,13 @@
 
 class VehicleObjectTemplate : public SharedCreatureObjectTemplate {
 	int decayRate, decayCycle;
+	float repairMod;
 
 public:
 	VehicleObjectTemplate() {
 		decayRate = 0;
 		decayCycle = 0;
+		repairMod = 1.0;
 	}
 
 	~VehicleObjectTemplate() {
@@ -20,7 +22,8 @@ public:
 		SharedCreatureObjectTemplate::readObject(templateData);
 		decayRate = templateData->getIntField("decayRate");
 		decayCycle = templateData->getIntField("decayCycle");
-    }
+		repairMod = templateData->getFloatField("repairMod", 1.0);
+	}
 
 	bool isVehicleObjectTemplate() {
 		return true;
@@ -32,6 +35,10 @@ public:
 
 	int getDecayCycle() {
 		return decayCycle;
+	}
+
+	float getRepairMod() {
+		return repairMod;
 	}
 
 };

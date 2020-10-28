@@ -44,7 +44,9 @@
 object_mobile_vehicle_landspeeder_av21 = object_mobile_vehicle_shared_landspeeder_av21:new {
 	templateType = VEHICLE,
 	decayRate = 15, -- Damage tick per decay cycle
-	decayCycle = 600 -- Time in seconds per cycle
+	decayCycle = 600, -- Time in seconds per cycle
+	-- repairMod = 1
+	repairMod = 1.25 -- SWGIntended: an AV-21 is more expensive to maintain
 }
 
 ObjectTemplates:addTemplate(object_mobile_vehicle_landspeeder_av21, "object/mobile/vehicle/landspeeder_av21.iff")
