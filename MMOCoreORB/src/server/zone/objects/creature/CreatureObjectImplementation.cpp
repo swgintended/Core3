@@ -3511,6 +3511,12 @@ bool CreatureObjectImplementation::isHealableBy(CreatureObject* object) {
 	if(targetCreo->isPlayerCreature()) {
 		PlayerObject* targetGhost = targetCreo->getPlayerObject();
 		if(targetGhost != nullptr){
+			if (isGrouped()) {
+				if(object->getGroupID() == getGroupID() && (targetGhost->hasRealGcwTef() || ghost->hasRealGcwTef()))
+					return false;
+				if(object->getGroupID() == getGroupID() && (!targetGhost->hasRealGcwTef() || !ghost->hasRealGcwTef()))
+					return true;
+			}
 			//if(getFaction() != object->getFaction() && (targetFactionStatus == FactionStatus::COVERT || targetGhost->hasPvpTef()))
 			//	return false;
 			if(ghost->hasBhTef() && !targetGhost->hasBhTef())
