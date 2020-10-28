@@ -242,6 +242,8 @@ void PlayerManagerImplementation::loadLuaConfig() {
 	baseStoredVehicles = lua->getGlobalInt("baseStoredVehicles");
 	baseStoredShips = lua->getGlobalInt("baseStoredShips");
 
+	baseVehicleRepairCost = lua->getGlobalInt("baseVehicleRepairCost");
+
 	veteranRewardAdditionalMilestones = lua->getGlobalInt("veteranRewardAdditionalMilestones");
 
 	LuaObject rewardMilestonesLua = lua->getGlobalObject("veteranRewardMilestones");
@@ -1233,7 +1235,7 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 				if (!CombatManager::instance()->areInDuel(attackerCreature, player)) {
 
 					FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
-					
+
 					if (attacker->getFaction() == Factions::FACTIONREBEL) {
 						attacker->playEffect("clienteffect/holoemote_rebel.cef", "head");
 						StringBuffer factionDeathBroadcast;
@@ -5842,10 +5844,10 @@ void PlayerManagerImplementation::doPvpDeathRatingUpdate(CreatureObject* player,
 
 
 
-	
+
 	//if (result == nullptr) {
 	//	error("ERROR INSERTING INTO DEATH INTO DATABASE!");
-	//} 
+	//}
 	//if (result != nullptr && result->next()){
 	//	deathID = result->getLastAffectedRow();
 		//deathID = result->getInt(0);
@@ -5855,7 +5857,7 @@ void PlayerManagerImplementation::doPvpDeathRatingUpdate(CreatureObject* player,
 //} catch (const Exception& e) {
 //	fatal(e.getMessage());
 	//}
-	
+
 
 
 	for (int i = 0; i < threatMap->size(); ++i) {

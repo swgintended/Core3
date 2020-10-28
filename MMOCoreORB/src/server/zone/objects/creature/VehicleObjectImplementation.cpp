@@ -5,17 +5,20 @@
  *      Author: victor
  */
 
+#include "server/zone/managers/player/PlayerManager.h"
+#include "server/zone/managers/structure/StructureManager.h"
 #include "server/zone/objects/creature/VehicleObject.h"
 #include "server/zone/packets/object/ObjectMenuResponse.h"
 #include "server/zone/objects/creature/CreatureObject.h"
 #include "server/zone/objects/player/PlayerObject.h"
-#include "server/zone/Zone.h"
 #include "server/zone/objects/player/sui/listbox/SuiListBox.h"
-#include "server/zone/managers/structure/StructureManager.h"
 #include "server/zone/objects/area/ActiveArea.h"
 #include "server/zone/objects/region/CityRegion.h"
 #include "server/zone/objects/region/Region.h"
 #include "server/zone/objects/creature/sui/RepairVehicleSuiCallback.h"
+#include "server/zone/Zone.h"
+#include "server/zone/ZoneProcessServer.h"
+#include "templates/creature/VehicleObjectTemplate.h"
 #include "templates/customization/AssetCustomizationManagerTemplate.h"
 
 
@@ -234,7 +237,9 @@ int VehicleObjectImplementation::calculateRepairCost(CreatureObject* player) {
 	if (player->getPlayerObject()->isPrivileged())
 		return 0;
 
-	return getConditionDamage() * 4;
+	int repairCost = getConditionDamage() * server->getPlayerManager()->getBaseVehicleRepairCost();
+	Reference<VehicleObjectTemplate*> vehicleTemplate = cast<VehicleObjectTemplate*>(getObjectTemplate());
+	return repairCost * vehicleTemplate->getRepairMod();
 }
 
 int VehicleObjectImplementation::inflictDamage(TangibleObject* attacker, int damageType, float damage, bool destroy, bool notifyClient, bool isCombatAction) {

@@ -67,6 +67,9 @@ baseStoredDroids = 5
 baseStoredVehicles = 3
 baseStoredShips = 3
 
+--Sets the base vehicle repair rate (credits multiplied by condition damage)
+baseVehicleRepairCost = 4
+
 -----------------------------------
 --VETERAN REWARDS CONFIG
 -----------------------------------
