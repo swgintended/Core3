@@ -612,7 +612,7 @@ int CombatManager::doTargetCombatAction(CreatureObject* attacker, WeaponObject* 
 			ManagedReference<PlayerObject*> defenderPlayer = defender->getPlayerObject();
 			if (ghost != nullptr){
 				Locker olocker(attackingCreature, attacker);
-				if (!defender->isAiAgent()) {
+				if (!defender->isAiAgent() && defender->isPlayerCreature()) {
 					if (!areInDuel(attacker, defender)) {
 						if (defenderPlayer->hasBhTef()){
 							if (defender->isGrouped()) {
