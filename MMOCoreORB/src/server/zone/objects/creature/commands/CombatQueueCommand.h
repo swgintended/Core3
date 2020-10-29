@@ -83,13 +83,6 @@ public:
 		GENERATE_INTENSITY // generates _light|_medium only
 	};
 
-		enum APType {
-		NONE,
-		LIGHT,
-		MEDIUM,
-		HEAVY
-	};
-
 	CombatQueueCommand(const String& name, ZoneProcessServer* server) : QueueCommand(name, server) {
 
 		minDamage = 0;
