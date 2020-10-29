@@ -58,7 +58,7 @@ ForceLightningSingle1Command = {
 	combatSpam = "forcelightningsingle1",
 
 	-- 0 NONE, 1 LIGHT, 2 MEDIUM, 3 HEAHVY
-	armorPiercing = 3;
+	armorPiercing = 3,
 
 	poolsToDamage = RANDOM_ATTRIBUTE,
 
