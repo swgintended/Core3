@@ -52,6 +52,7 @@ protected:
 
 	int coneRange;
 	int range;
+	int armorPiercing;
 
 	String accuracySkillMod;
 
@@ -80,6 +81,13 @@ public:
 		GENERATE_NONE, // Uses animation as given - Default
 		GENERATE_RANGED, // Generates _light|_medium as well as appends _face with headshots
 		GENERATE_INTENSITY // generates _light|_medium only
+	};
+
+		enum APType {
+		NONE,
+		LIGHT,
+		MEDIUM,
+		HEAVY
 	};
 
 	CombatQueueCommand(const String& name, ZoneProcessServer* server) : QueueCommand(name, server) {
@@ -124,6 +132,7 @@ public:
 		coneAction = false;
 
 		combatSpam = "";
+		armorPiercing = 0;
 		animation = "";
 		animType = GENERATE_NONE;
 
@@ -357,6 +366,10 @@ public:
 		return forceCost;
 	}
 
+	inline int getArmorPiercing() const {
+		return armorPiercing;
+	}
+
 	void setDamageMultiplier(float damageMultiplier) {
 		this->damageMultiplier = damageMultiplier;
 	}
@@ -419,6 +432,10 @@ public:
 
 	void setAnimType(uint8 type) {
 		animType = type;
+	}
+
+	void setArmorPiercing(int APType) {
+		this->armorPiercing = APType;
 	}
 
 	uint8 getAnimType() const {

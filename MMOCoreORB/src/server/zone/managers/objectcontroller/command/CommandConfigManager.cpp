@@ -640,6 +640,8 @@ void CommandConfigManager::parseVariableData(String varName, LuaObject &command,
 			combatCommand->setConeRange(Lua::getIntParameter(L));
 		else if (varName == "range")
 			combatCommand->setRange(Lua::getIntParameter(L));
+		else if (varName == "armorPiercing")
+			combatCommand->setArmorPiercing(Lua::getIntParameter(L));
 		else if (varName == "accuracySkillMod")
 			combatCommand->setAccuracySkillMod(Lua::getStringParameter(L));
 		else if (varName == "areaAction") {
@@ -732,6 +734,8 @@ void CommandConfigManager::parseVariableData(String varName, LuaObject &command,
 			jediCommand->setFrsLightForcePowerModifier(Lua::getFloatParameter(L));
 		else if (varName == "frsDarkForcePowerModifier")
 			jediCommand->setFrsDarkForcePowerModifier(Lua::getFloatParameter(L));
+		else if (varName == "armorPiercing")
+			jediCommand->setArmorPiercing(Lua::getIntParameter(L));
 		else if (jediCommand->isForceHealCommand()) {
 			ForceHealQueueCommand* healCommand = cast<ForceHealQueueCommand*>(jediCommand);
 			if (varName == "healAmount")

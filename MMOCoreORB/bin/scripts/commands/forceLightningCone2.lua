@@ -70,8 +70,8 @@ ForceLightningCone2Command = {
 
 	combatSpam = "forcelightningcone2",
 
-	-- NONE, LIGHT, MEDIUM, HEAVY
-	armorPiercing = HEAVY,
+	-- 0 NONE, 1 LIGHT, 2 MEDIUM, 3 HEAHVY
+	armorPiercing = 3;
 
 	poolsToDamage = RANDOM_ATTRIBUTE,
 

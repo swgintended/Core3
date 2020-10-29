@@ -68,6 +68,9 @@ ForceThrow1Command = {
 
 	combatSpam = "forcethrow1",
 
+	-- 0 NONE, 1 LIGHT, 2 MEDIUM, 3 HEAHVY
+	armorPiercing = 2;
+
 	poolsToDamage = RANDOM_ATTRIBUTE,
 
 	forceAttack = true,

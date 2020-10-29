@@ -1354,8 +1354,16 @@ int CombatManager::getArmorReduction(TangibleObject* attacker, WeaponObject* wea
 		damageType = weapon->getDamageType();
 		armorPiercing = weapon->getArmorPiercing();
 
-		if (weapon->isBroken())
+		if (weapon->isBroken()) {
 			armorPiercing = 0;
+		}
+	} else if(data.isForceAttack()) {
+		damageType = data.getDamageType();
+		armorPiercing = data.getArmorPiercing();
+
+		if (armorPiercing < 1) {
+			armorPiercing = 1;
+		}
 	} else {
 		damageType = data.getDamageType();
 	}
