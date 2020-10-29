@@ -42,6 +42,7 @@ protected:
 	int coneRange;
 	int coneAngle;
 	int areaRange;
+	int armorPiercing;
 
 	bool splashDamage;
 	bool hitIncapTarget;
@@ -111,6 +112,10 @@ public:
 
 	int getAccuracyBonus() const {
 		return accuracyBonus;
+	}
+
+	inline int getArmorPiercing() const {
+		return armorPiercing;
 	}
 
 	float getActionCostMultiplier() const {
@@ -203,6 +208,10 @@ public:
 
 	void setForceAttack(bool forceAttack) {
 		this->forceAttack = forceAttack;
+	}
+
+	void setArmorPiercing(int getArmorPiercing) {
+		this->armorPiercing = armorPiercing;
 	}
 
 	uint8 getTrails() const {
