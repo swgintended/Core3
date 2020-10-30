@@ -1361,7 +1361,7 @@ void PlayerObjectImplementation::notifyOnline() {
 	}
 
 	//Join server chat room
-	ghost->addChatRoom(chatManager->getServerRoom()->getRoomID());
+	//ghost->addChatRoom(chatManager->getServerRoom()->getRoomID());
 
 	// Screenplay login triggers
 	Lua* lua = DirectorManager::instance()->getLuaInstance();

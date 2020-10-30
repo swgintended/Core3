@@ -267,6 +267,8 @@ int ChatRoomImplementation::checkEnterPermission(CreatureObject* player) {
 		return ChatManager::SUCCESS;
 	case ChatRoom::AUCTION:
 		return ChatManager::SUCCESS;
+	case ChatRoom::SERVER:
+		return ChatManager::SUCCESS;
 	case ChatRoom::GUILD: {
 		ManagedReference<GuildObject*> guild = player->getGuildObject().getReferenceUnsafeStaticCast();
 		if (guild != nullptr) {
@@ -298,9 +300,6 @@ int ChatRoomImplementation::checkEnterPermission(CreatureObject* player) {
 			return ChatManager::NOTINVITED;
 
 		return ChatManager::SUCCESS;
-	case ChatRoom::SERVER:
-		return ChatManager::SUCCESS;
-
 	default:
 		break;
 	}
