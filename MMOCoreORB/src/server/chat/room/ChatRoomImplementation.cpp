@@ -298,6 +298,8 @@ int ChatRoomImplementation::checkEnterPermission(CreatureObject* player) {
 			return ChatManager::NOTINVITED;
 
 		return ChatManager::SUCCESS;
+	case ChatRoom::SERVER:
+		return ChatManager::SUCCESS;
 
 	default:
 		break;
