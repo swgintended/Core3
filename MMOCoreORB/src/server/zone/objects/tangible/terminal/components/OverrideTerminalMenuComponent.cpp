@@ -82,8 +82,8 @@ int OverrideTerminalMenuComponent::handleObjectMenuSelect(SceneObject* sceneObje
 	} else if (overrideTerminal->getDistanceTo(player) > 15) {
 		player->sendSystemMessage("You are too far away from the override terminal to continue sequencing!");
 		return 1;
-	} else if (!player->hasSkill("outdoors_bio_engineer_novice")) {
-		player->sendSystemMessage("Only a bio-engineer could expect to forge a suitable DNA sequence.");
+	} else if (player->getFactionRank() < 13) {
+		player->sendSystemMessage("Only a overt Operative with the Rank of Major or greater may access the DNA Sequencing!");
 		return 1;
 	}
 
