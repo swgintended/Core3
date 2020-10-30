@@ -19,6 +19,7 @@
 #include "server/zone/objects/tangible/terminal/components/TurretControlTerminalDataComponent.h"
 #include "server/zone/objects/installation/components/TurretDataComponent.h"
 
+#include "server/zone/managers/faction/FactionManager.h"
 #include "server/zone/managers/gcw/tasks/StartVulnerabilityTask.h"
 #include "server/zone/managers/gcw/tasks/EndVulnerabilityTask.h"
 #include "server/zone/managers/gcw/tasks/BaseDestructionTask.h"
@@ -1181,7 +1182,7 @@ void GCWManagerImplementation::verifyUplinkBand(CreatureObject* creature, Buildi
 			baseData->setState(DestructibleBuildingDataComponent::JAMMED);
 			creature->sendSystemMessage("You isolate the carrier signal to Channel #" + String::valueOf(band + 1) + ".");
 			creature->sendSystemMessage("Jamming complete! You disable the uplink...");
-			awardSlicingXP(creature, "bountyhunter", 1000);
+			//awardSlicingXP(creature, "bountyhunter", 1000);
 			return;
 		} else {
 			baseData->setState(DestructibleBuildingDataComponent::BAND);
@@ -1248,8 +1249,8 @@ bool GCWManagerImplementation::canStartSlice(CreatureObject* creature, TangibleO
 	} else if (tano->getDistanceTo(creature) > 15) {
 		creature->sendSystemMessage("You are too far away from the terminal to continue slicing!");
 		return false;
-	} else if (!creature->hasSkill("combat_smuggler_slicing_01")) {
-		creature->sendSystemMessage("Only a smuggler with terminal slicing knowledge could expect to disable this security terminal!");
+	} else if (creature->getFactionRank() < 15) {
+		creature->sendSystemMessage("Only a overt Operative with the Rank of Colonel may slice this terminal!");
 		return false;
 	}
 
@@ -1386,16 +1387,16 @@ void GCWManagerImplementation::sendDNASampleMenu(CreatureObject* creature, Build
 	if (chain == "") {
 		int length = 3;
 
-		if (creature->hasSkill("outdoors_bio_engineer_master"))
+		if (creature->getFactionRank() == 15)
 			length = 8;
-		else if (creature->hasSkill("outdoors_bio_engineer_dna_harvesting_04"))
+		else if (creature->getFactionRank() == 14)
 			length = 7;
-		else if (creature->hasSkill("outdoors_bio_engineer_dna_harvesting_03"))
+		else if (creature->getFactionRank() == 13)
 			length = 6;
-		else if (creature->hasSkill("outdoors_bio_engineer_dna_harvesting_02"))
+		/*else if (creature->getFactionRank() == 13)
 			length = 5;
-		else if (creature->hasSkill("outdoors_bio_engineer_dna_harvesting_01"))
-			length = 4;
+		else if (creature->getFactionRank() == 12)
+			length = 4;*/
 
 		for (int i = 0; i < length; i++) {
 			chain += dnaNucleotides.get(System::random(dnaNucleotides.size() - 1));
@@ -1478,7 +1479,7 @@ void GCWManagerImplementation::processDNASample(CreatureObject* creature, Tangib
 	if (totalLocks == dnaLocks.size()) {
 		creature->sendSystemMessage("Sequencing complete! You disable the security override for the facility...");
 		baseData->setState(DestructibleBuildingDataComponent::DNA);
-		awardSlicingXP(creature, "bio_engineer_dna_harvesting", 1000);
+		//awardSlicingXP(creature, "bio_engineer_dna_harvesting", 1000);
 		constructDNAStrand(building);
 		return;
 	}
@@ -1582,7 +1583,7 @@ void GCWManagerImplementation::handlePowerRegulatorSwitch(CreatureObject* creatu
 	if (checkStatus) {
 		creature->sendSystemMessage("@faction/faction_hq/faction_hq_response:alignment_complete"); // Alignment complete! The facility may now be set to overload from the primary terminal!
 		baseData->setState(DestructibleBuildingDataComponent::OVERLOADED);
-		awardSlicingXP(creature, "combat_rangedspecialize_heavy", 1000);
+		//awardSlicingXP(creature, "combat_rangedspecialize_heavy", 1000);
 		randomizePowerRegulatorSwitches(building);
 	} else {
 		sendPowerRegulatorControls(creature, building, powerRegulator);
@@ -1737,6 +1738,7 @@ void GCWManagerImplementation::doBaseDestruction(BuildingObject* building) {
 			}
 
 			owner->sendSystemMessage(message);
+			//broadcastDestroyReward(building);
 		}
 	}
 
@@ -1770,11 +1772,98 @@ void GCWManagerImplementation::broadcastBuilding(BuildingObject* building, Strin
 		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
 			CreatureObject* targetPlayer = cast<CreatureObject*>(targetObject);
 
-			if (targetPlayer != nullptr)
+			if (targetPlayer != nullptr) {
 				targetPlayer->sendSystemMessage(params);
+			}			
 		}
 	}
 }
+/*
+void GCWManagerImplementation::broadcastDestroyReward(BuildingObject* building) {
+	float range = 64;
+
+	if (zone == nullptr)
+		return;
+
+	SortedVector<QuadTreeEntry*> closePlayersR;
+	if (building->getCloseObjects() == nullptr) {
+#ifdef COV_DEBUG
+		building->info("Null closeobjects vector in GCWManagerImplementation::broadcastDestroyReward", true);
+#endif
+		zone->getInRangeObjects(building->getPositionX(), building->getPositionY(), range, &closePlayersR, true);
+	} else {
+		CloseObjectsVector* closeVector = (CloseObjectsVector*) building->getCloseObjects();
+		closeVector->safeCopyReceiversTo(closePlayersR, CloseObjectsVector::PLAYERTYPE);
+	}
+
+	for (int i = 0; i < closePlayersR.size(); i++) {
+		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersR.get(i));
+
+		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {						
+			PlayerObject* targetPlayer = cast<PlayerObject*>(targetObject);
+			CreatureObject* targetCreo = cast<CreatureObject*>(targetPlayer);
+
+			if ((targetPlayer != nullptr || targetCreo != nullptr) && (targetCreo->getFaction() != 0)) {
+			
+				int baseDestroyReward = 10000;
+				int buildingFaction = building->getFaction();
+				int playerFaction = targetCreo->getFaction();
+
+				if (buildingFaction == Factions::FACTIONIMPERIAL && playerFaction == Factions::FACTIONREBEL) {
+					targetPlayer->increaseFactionStanding("rebel", baseDestroyReward);
+					targetCreo->sendSystemMessage("You have succesfully destroyed the base and receive a faction bonus!");
+				} else if (buildingFaction == Factions::FACTIONREBEL && playerFaction == Factions::FACTIONIMPERIAL) {
+					targetPlayer->increaseFactionStanding("imperial", baseDestroyReward);
+					targetCreo->sendSystemMessage("You have succesfully destroyed the base and receive a faction bonus!");
+				}	
+			}
+		}
+	}
+}
+
+void GCWManagerImplementation::broadcastDefendReward(BuildingObject* building) {
+	float range = 64;
+
+	if (zone == nullptr)
+		return;
+
+	SortedVector<QuadTreeEntry*> closePlayersD;
+	if (building->getCloseObjects() == nullptr) {
+#ifdef COV_DEBUG
+		building->info("Null closeobjects vector in GCWManagerImplementation::broadcastDefendReward", true);
+#endif
+		zone->getInRangeObjects(building->getPositionX(), building->getPositionY(), range, &closePlayersD, true);
+	} else {
+		CloseObjectsVector* closeVector = (CloseObjectsVector*) building->getCloseObjects();
+		closeVector->safeCopyReceiversTo(closePlayersD, CloseObjectsVector::PLAYERTYPE);
+	}
+
+	for (int i = 0; i < closePlayersD.size(); i++) {
+		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersD.get(i));
+
+		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
+			
+			CreatureObject* targetCreo = cast<CreatureObject*>(targetObject);
+
+			if (targetCreo != nullptr) {
+				targetCreo->sendSystemMessage("You have succesfully defended the base and receive a faction bonus!");
+				PlayerObject* targetPlayer = cast<PlayerObject*>(targetCreo);
+			}
+		}
+	}
+
+	for (int i = 0; i < closePlayersD.size(); i++) {
+		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersD.get(i));
+
+		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
+			PlayerObject* targetPlayer = cast<PlayerObject*>(targetObject);
+			
+			if (targetPlayer != nullptr) {
+				targetPlayer->increaseFactionStanding("rebel", 2000);
+			}
+		}
+	}
+}*/
 
 void GCWManagerImplementation::startAbortSequenceDelay(BuildingObject* building, CreatureObject* creature, SceneObject* hqTerminal) {
 	if (!creature->checkCooldownRecovery("declare_overt_cooldown")) {
@@ -1814,10 +1903,12 @@ void GCWManagerImplementation::abortShutdownSequence(BuildingObject* building, C
 		baseData->setState(DestructibleBuildingDataComponent::REBOOTSEQUENCE);
 		StringIdChatParameter reloadMessage;
 		reloadMessage.setStringId("@faction/faction_hq/faction_hq_response:terminal_response07"); // COUNTDOWN ABORTED: FACILITY SHUTTING DOWN!!
-		broadcastBuilding(building, reloadMessage);
+		broadcastBuilding(building, reloadMessage);		
 
 		Reference<Task*> newTask = new BaseRebootTask(_this.getReferenceUnsafeStaticCast(), building, baseData);
 		newTask->schedule(60000);
+
+		//broadcastDefendReward(building);
 	}
 }
 
