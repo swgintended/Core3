@@ -27,6 +27,7 @@ protected:
 	float speedMod;
 	int visMod;
 	int buffClass;
+	int armorPiercing;
 	float frsLightForceCostModifier;
 	float frsDarkForceCostModifier;
 	float frsDarkExtraForceCostModifier;
@@ -54,6 +55,7 @@ public:
 		speedMod = 0;
 		visMod = 10;
 		buffCRC = 0;
+		armorPiercing = 0;
 		frsLightForceCostModifier = 0;
 		frsDarkExtraForceCostModifier = 0;
 		frsLightExtraForceCostModifier = 0;
@@ -324,6 +326,10 @@ public:
 		return visMod;
 	}
 
+	inline int getArmorPiercing() const {
+		return armorPiercing;
+	}
+
 	void setFrsLightForceCostModifier(float val) {
 		frsLightForceCostModifier = val;
 	}
@@ -347,6 +353,9 @@ public:
 	}
 	void setFrsDarkForcePowerModifier(float val) {
 		frsDarkForcePowerModifier = val;
+	}
+	void setArmorPiercing(int APType) {
+		armorPiercing = APType;
 	}
 };
 

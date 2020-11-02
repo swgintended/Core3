@@ -482,8 +482,8 @@ void SlicingSessionImplementation::handleSlice(SuiListBox* suiBox) {
 	} else if (tangibleObject->isArmorObject()) {
 		handleArmorSlice();
 		playerManager->awardExperience(player, "slicing", 250, true); // Armor Slice XP
-	} else if ( isBaseSlice()){
-		playerManager->awardExperience(player,"slicing", 1000, true); // Base slicing
+	} else if (isBaseSlice()){
+		//playerManager->awardExperience(player,"slicing", 1000, true); // Base slicing
 
 		Zone* zone = player->getZone();
 

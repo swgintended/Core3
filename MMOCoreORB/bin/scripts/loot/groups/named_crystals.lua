@@ -5,7 +5,7 @@ named_crystals = {
 	lootItems = {
 		{itemTemplate = "force_crystal_baass_wisdom", weight = 588235},
 		{itemTemplate = "force_crystal_banes_heart", weight = 588235},
-		{itemTemplate = "force_crysta;_bnars_sacrifice", weight = 588235},
+		{itemTemplate = "force_crystal_bnars_sacrifice", weight = 588235},
 		{itemTemplate = "force_crystal_dawn_of_dagobah", weight = 588235},
 		{itemTemplate = "force_crystal_gallias_intuition", weight = 588235},
 		{itemTemplate = "force_crystal_horns_future", weight = 588235},
