@@ -755,14 +755,12 @@ void CityManagerImplementation::processCityUpdate(CityRegion* city) {
 
 		city->cleanupCitizens();
 
+		PlayerManager* playerManager = zoneServer->getPlayerManager();
 		ManagedReference<SceneObject*> mayor = zoneServer->getObject(city->getMayorID());
 
 		if (mayor != nullptr && mayor->isPlayerCreature()) {
-			Reference<PlayerObject*> ghost = mayor->getSlottedObject("ghost").castTo<PlayerObject*> ();
-
-			if (ghost != nullptr) {
-				ghost->addExperience("political", 750, true);
-			}
+			Reference<CreatureObject*> ghost = mayor->getSlottedObject("ghost").castTo<CreatureObject*> ();
+			playerManager->awardExperience(ghost, "political", 750, false);
 		}
 		updateCityVoting(city);
 
@@ -1145,10 +1143,11 @@ void CityManagerImplementation::updateCityVoting(CityRegion* city, bool override
 				continue;
 			}
 
-			Reference<PlayerObject*> ghost = mayorObject->getSlottedObject("ghost").castTo<PlayerObject*>();
+			PlayerManager* playerManager = zoneServer->getPlayerManager();
+			Reference<CreatureObject*> ghost = mayorObject->getSlottedObject("ghost").castTo<CreatureObject*>();
 
 			if (ghost != nullptr) {
-				ghost->addExperience("political", votes * 300, true);
+				playerManager->awardExperience(ghost, "political", votes * 300, false);
 			}
 
 			if (votes > topVotes || (votes == topVotes && candidateID == incumbentID)) {
