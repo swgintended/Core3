@@ -233,8 +233,9 @@ void PlayerManagerImplementation::loadLuaConfig() {
 	medicalDuration = lua->getGlobalInt("medicalDuration");
 
 	groupExpMultiplier = lua->getGlobalFloat("groupExpMultiplier");
-
 	globalExpMultiplier = lua->getGlobalFloat("globalExpMultiplier");
+	jediExpLossMultiplier = lua->getGlobalFloat("jediExpLossMultiplier");
+	frsExpMultiplier = lua->getGlobalFloat("frsExpMultiplier");
 
 	baseStoredCreaturePets = lua->getGlobalInt("baseStoredCreaturePets");
 	baseStoredFactionPets = lua->getGlobalInt("baseStoredFactionPets");
@@ -1594,7 +1595,7 @@ void PlayerManagerImplementation::sendPlayerToCloner(CreatureObject* player, uin
 		if ((curExp + xpLoss) < negXpCap)
 			xpLoss = negXpCap - curExp;
 
-		awardExperience(player, "jedi_general", xpLoss, true);
+		awardExperience(player, "jedi_general", xpLoss, true, jediExpLossMultiplier, false);
 		StringIdChatParameter message("base_player","prose_revoke_xp");
 		message.setDI(xpLoss * -1);
 		message.setTO("exp_n", "jedi_general");
