@@ -764,6 +764,7 @@ void TemplateManager::registerGlobals() {
 
 	luaTemplatesInstance->setGlobalInt("CLONER_STANDARD", CloningBuildingObjectTemplate::STANDARD);
 	luaTemplatesInstance->setGlobalInt("CLONER_PLAYER_CITY", CloningBuildingObjectTemplate::PLAYER_CITY);
+	luaTemplatesInstance->setGlobalInt("CLONER_FS_ONLY", CloningBuildingObjectTemplate::FS_ONLY);
 	luaTemplatesInstance->setGlobalInt("CLONER_JEDI_ONLY", CloningBuildingObjectTemplate::JEDI_ONLY);
 	luaTemplatesInstance->setGlobalInt("CLONER_LIGHT_JEDI_ONLY", CloningBuildingObjectTemplate::LIGHT_JEDI_ONLY);
 	luaTemplatesInstance->setGlobalInt("CLONER_DARK_JEDI_ONLY", CloningBuildingObjectTemplate::DARK_JEDI_ONLY);
