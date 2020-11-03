@@ -2401,7 +2401,7 @@ void PlayerObjectImplementation::updateLastGroupTefPvpCombatActionTimestamp() {
 }
 
 bool PlayerObjectImplementation::hasPvpTef() const {
-	return !lastGcwPvpCombatActionTimestamp.isPast() || hasBhTef();
+	return !lastGcwPvpCombatActionTimestamp.isPast();// || hasBhTef();
 }
 
 bool PlayerObjectImplementation::hasBhTef() const {
@@ -2420,7 +2420,7 @@ void PlayerObjectImplementation::setGroupTefTowards(unsigned int groupID, bool s
 }
 
 bool PlayerObjectImplementation::hasGroupTefTowards(unsigned int groupID) const {
-	return !lastGroupTefPvpCombatActionTimestamp.isPast() && groupTefCrc == groupID; //groupID != 0 && 
+	return !lastGroupTefPvpCombatActionTimestamp.isPast() && groupTefCrc == groupID && groupID != 0;
 }
 
 bool PlayerObjectImplementation::hasGroupTef() const {

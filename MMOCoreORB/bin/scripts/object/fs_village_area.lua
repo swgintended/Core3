@@ -1,8 +1,15 @@
 fs_village_area = SharedObjectTemplate:new {
 	clientTemplateFileName = "",
-	planetMapCategory = "",
+	planetMapCategory = "cloningfacility",
 	planetMapSubCategory = "",
 	autoRegisterWithPlanetMap = 1,
+	templateType = CLONINGBUILDING,
+	facilityType = CLONER_FS_ONLY,
+
+
+	spawningPoints = {
+		{ x = -8, z = 78.5, y = -46, ow = -0.706572, ox = 0, oz = 0, oy = 0, cellid = 0 }
+	},
 
 	zoneComponent = "ZoneComponent",
 	objectMenuComponent = "ObjectMenuComponent",

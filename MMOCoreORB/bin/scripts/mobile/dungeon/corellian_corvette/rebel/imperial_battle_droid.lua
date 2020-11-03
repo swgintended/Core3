@@ -1,7 +1,7 @@
 imperial_battle_droid = Creature:new {
 	objectName = "@mob/creature_names:imperial_battle_droid",
 	socialGroup = "imperial",
-	faction = "imperial",
+	--faction = "imperial",
 	level = 134,
 	chanceHit = 5.5,
 	damageMin = 795,

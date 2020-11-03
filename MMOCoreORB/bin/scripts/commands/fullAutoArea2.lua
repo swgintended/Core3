@@ -65,7 +65,7 @@ FullAutoArea2Command = {
 		{}, 
 		{ "dizzy_defense" }, 
 		{ "jedi_state_defense", "resistance_states" }, 
-		30, 
+		85, 
 		0, 
 		30 
 	  ),
@@ -74,7 +74,7 @@ FullAutoArea2Command = {
 		{}, 
 		{ "blind_defense" }, 
 		{ "jedi_state_defense", "resistance_states" },
-		30, 
+		85, 
 		0, 
 		40 
 	  ),
@@ -83,7 +83,7 @@ FullAutoArea2Command = {
 		{}, 
 		{ "stun_defense" }, 
 		{ "jedi_state_defense", "resistance_states" }, 
-		30, 
+		85, 
 		0, 
 		30 
 	  )

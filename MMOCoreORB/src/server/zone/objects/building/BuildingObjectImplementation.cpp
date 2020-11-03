@@ -902,24 +902,24 @@ void BuildingObjectImplementation::onExit(CreatureObject* player, uint64 parenti
 }
 
 uint32 BuildingObjectImplementation::getMaximumNumberOfPlayerItems() {
+	//This sets the item limit for City Halls and Cloning Centers to 250 like they were during live, instead of 400 like they are now from the line below.
 	if (isCivicStructure() )
-		return 250;
+		return 250 * MAXITEMS_MULTIPLIER;
 
 	SharedStructureObjectTemplate* ssot = dynamic_cast<SharedStructureObjectTemplate*> (templateObject.get());
 
 	if (ssot == nullptr)
 		return 0;
-	//This sets the item limit for City Halls and Cloning Centers to 250 like they were during live, instead of 400 like they are now from the line below.
 
 	uint8 lots = ssot->getLotSize();
 
 	//Buildings that don't cost lots have MAXPLAYERITEMS storage space.
 	if (lots == 0)
-		return MAXPLAYERITEMS;
+		return MAXPLAYERITEMS * MAXITEMS_MULTIPLIER;
 
-	auto maxItems = MAXPLAYERITEMS;
+	auto maxItems = MAXPLAYERITEMS * MAXITEMS_MULTIPLIER;
 
-	return Math::min(maxItems, lots * 100);
+	return Math::min(maxItems, lots * 100 * MAXITEMS_MULTIPLIER);
 }
 
 int BuildingObjectImplementation::notifyObjectInsertedToChild(SceneObject* object, SceneObject* child, SceneObject* oldParent) {
@@ -1348,12 +1348,12 @@ void BuildingObjectImplementation::createChildObjects() {
 				}
 
 			} else {
-				if ((obj->isTurret() || obj->isMinefield() || obj->isDetector()) && gcwMan != nullptr && !gcwMan->shouldSpawnDefenses()) {
+				if ((obj->isTurret() || obj->isMinefield() || obj->isScanner()) && gcwMan != nullptr && !gcwMan->shouldSpawnDefenses()) {
 					if (obj->isTurret())
 						gcwMan->addTurret(asBuildingObject(), nullptr);
 					else if (obj->isMinefield())
 						gcwMan->addMinefield(asBuildingObject(), nullptr);
-					else if (obj->isDetector())
+					else if (obj->isScanner())
 						gcwMan->addScanner(asBuildingObject(), nullptr);
 
 					obj->destroyObjectFromDatabase(true);
@@ -1374,7 +1374,7 @@ void BuildingObjectImplementation::createChildObjects() {
 				obj->initializePosition(x, z, y);
 				obj->setDirection(dir.rotate(Vector3(0, 1, 0), degrees));
 
-				if (obj->isTurret() || obj->isMinefield())
+				if (obj->isTurret() || obj->isMinefield() || obj->isScanner())
 					obj->createChildObjects();
 
 				thisZone->transferObject(obj, -1, false);
@@ -1397,7 +1397,7 @@ void BuildingObjectImplementation::createChildObjects() {
 			permissions->setDefaultDenyPermission(ContainerPermissions::MOVECONTAINER);
 			permissions->setDenyPermission("owner", ContainerPermissions::MOVECONTAINER);
 
-			if (obj->isTurret() || obj->isMinefield() || obj->isDetector()) {
+			if (obj->isTurret() || obj->isMinefield() || obj->isScanner()) {
 				TangibleObject* tano = cast<TangibleObject*>(obj.get());
 				if (tano != nullptr) {
 					tano->setFaction(getFaction());
@@ -1415,7 +1415,7 @@ void BuildingObjectImplementation::createChildObjects() {
 						gcwMan->addTurret(asBuildingObject(), obj);
 					else if (obj->isMinefield())
 						gcwMan->addMinefield(asBuildingObject(), obj);
-					else if (obj->isDetector())
+					else if (obj->isScanner())
 						gcwMan->addScanner(asBuildingObject(), obj);
 
 				} else {
@@ -1426,6 +1426,7 @@ void BuildingObjectImplementation::createChildObjects() {
 	} else {
 		StructureObjectImplementation::createChildObjects();
 	}
+
 }
 
 void BuildingObjectImplementation::spawnChildSceneObject(String& templatePath, float x, float z, float y, unsigned long long cellID, float dw, float dx, float dy, float dz) {

@@ -242,6 +242,8 @@ void PlayerManagerImplementation::loadLuaConfig() {
 	baseStoredVehicles = lua->getGlobalInt("baseStoredVehicles");
 	baseStoredShips = lua->getGlobalInt("baseStoredShips");
 
+	baseVehicleRepairCost = lua->getGlobalInt("baseVehicleRepairCost");
+
 	veteranRewardAdditionalMilestones = lua->getGlobalInt("veteranRewardAdditionalMilestones");
 
 	LuaObject rewardMilestonesLua = lua->getGlobalObject("veteranRewardMilestones");
@@ -1205,9 +1207,20 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 
 	ThreatMap* threatMap = player->getThreatMap();
 
-	if (attacker->getFaction() != 0) {
+	CreatureObject* attackerCreature = attacker->asCreatureObject();
+
+	if (attacker->isPlayerCreature() && (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player))) {
+		StringBuffer bhDeathBroadcast;
+		if (attackerCreature->hasBountyMissionFor(player)) {
+			bhDeathBroadcast << "!! IMPERIAL COMMUNICATION !! Bounty Hunter " << attackerCreature->getFirstName() <<" has collected the bounty placed on the Jedi scum " << player->getFirstName() << ".";
+		} else {
+			bhDeathBroadcast << attackerCreature->getFirstName() << " has successfully fought off and slain the Bounty Hunter " << player->getFirstName() << ".";
+		}
+		player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, bhDeathBroadcast.toString());
+
+	} else if (attacker->getFaction() != 0) {
+
 		if (attacker->isPlayerCreature() || attacker->isPet()) {
-			CreatureObject* attackerCreature = attacker->asCreatureObject();
 
 			if (attackerCreature->isPet()) {
 				CreatureObject* owner = attackerCreature->getLinkedCreature().get();
@@ -1218,19 +1231,12 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 			}
 
 			if (attackerCreature->isPlayerCreature()) {
+
 				if (!CombatManager::instance()->areInDuel(attackerCreature, player)) {
+
 					FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
 
-					if (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player)) {
-						StringBuffer bhDeathBroadcast;
-						if (attackerCreature->hasBountyMissionFor(player)) {
-							bhDeathBroadcast << "Bounty Hunter " << attackerCreature->getFirstName() <<" has killed it's mark " << player->getFirstName() << ".";
-						} else {
-							bhDeathBroadcast << attackerCreature->getFirstName() << " has killed the Bounty Hunter " << player->getFirstName() << ".";
-						}
-						player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, bhDeathBroadcast.toString());
-
-					} else if (attacker->getFaction() == Factions::FACTIONREBEL) {
+					if (attacker->getFaction() == Factions::FACTIONREBEL) {
 						attacker->playEffect("clienteffect/holoemote_rebel.cef", "head");
 						StringBuffer factionDeathBroadcast;
 						factionDeathBroadcast << "A Rebel named " << attackerCreature->getFirstName() << " has murdered " << player->getFirstName() << ", an Empire Loyalist.";
@@ -1400,14 +1406,17 @@ void PlayerManagerImplementation::sendActivateCloneRequest(CreatureObject* playe
 		if (cbot == nullptr)
 			continue;
 
-		if (cbot->getFacilityType() == CloningBuildingObjectTemplate::JEDI_ONLY && player->hasSkill("force_title_jedi_rank_01")) {
+		if (cbot->getFacilityType() == CloningBuildingObjectTemplate::FS_ONLY && player->hasSkill("force_title_jedi_novice")) {
+			String name = "Village of Aurilia (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
+			cloneMenu->addMenuItem(name, loc->getObjectID());
+		} else if (cbot->getFacilityType() == CloningBuildingObjectTemplate::JEDI_ONLY && player->hasSkill("force_title_jedi_rank_01")) {
 			String name = "Force Shrine (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
 			cloneMenu->addMenuItem(name, loc->getObjectID());
 		} else if ((cbot->getFacilityType() == CloningBuildingObjectTemplate::LIGHT_JEDI_ONLY && player->hasSkill("force_rank_light_novice")) ||
 				(cbot->getFacilityType() == CloningBuildingObjectTemplate::DARK_JEDI_ONLY && player->hasSkill("force_rank_dark_novice"))) {
 			FrsManager* frsManager = server->getFrsManager();
 
-			if (frsManager->isFrsEnabled()) {
+			if (frsManager != nullptr && frsManager->isFrsEnabled()) {
 				String name = "Jedi Enclave (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
 				cloneMenu->addMenuItem(name, loc->getObjectID());
 			}
@@ -1439,6 +1448,9 @@ bool PlayerManagerImplementation::isValidClosestCloner(CreatureObject* player, S
 		return false;
 
 	if (cbot->isJediCloner())
+		return false;
+
+	if (cbot->isFsCloner())
 		return false;
 
 	return true;

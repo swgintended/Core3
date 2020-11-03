@@ -16,7 +16,7 @@ class CloningBuildingObjectTemplate : public SharedBuildingObjectTemplate {
 	int facilityType;
 
 public:
-	enum { STANDARD = 0, PLAYER_CITY, JEDI_ONLY, LIGHT_JEDI_ONLY, DARK_JEDI_ONLY, FACTION_REBEL, FACTION_IMPERIAL };
+	enum { STANDARD = 0, PLAYER_CITY, FS_ONLY, JEDI_ONLY, LIGHT_JEDI_ONLY, DARK_JEDI_ONLY, FACTION_REBEL, FACTION_IMPERIAL };
 
 	CloningBuildingObjectTemplate() {
 		facilityType = 0;
@@ -72,6 +72,10 @@ public:
 
 	bool isJediCloner() {
 		return facilityType == JEDI_ONLY || facilityType == LIGHT_JEDI_ONLY || facilityType == DARK_JEDI_ONLY;
+	}
+
+	bool isFsCloner() {
+		return facilityType == FS_ONLY;
 	}
 
 	inline Vector<CloneSpawnPoint>* getCloneSpawnPoints() {
