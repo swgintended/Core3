@@ -1315,6 +1315,15 @@ tatooine_world = {
 			weighting = 2,
 			size = 35
 		},
+		{
+			lairTemplateName = "tatooine_krayt_dragon_ancient_neutral_none",
+			spawnLimit = 5,
+			minDifficulty = 325,
+			maxDifficulty = 340, 
+			numberToSpawn = 0,
+			weighting = 4,
+			size = 35
+		},
 	}
 }
 
