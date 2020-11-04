@@ -63,7 +63,7 @@ class Creature extends AiAgent {
 
 	@dirty
 	public boolean isCamouflaged(CreatureObject target) {
-		return isAggressiveTo(target) && (isScentMasked(target) || isConcealed(target));
+		return isAggressiveTo(target) && (isScentMasked(target) || isConcealed(target) || isAnimalCalmed(target));
 	}
 
 	@local
@@ -242,5 +242,10 @@ class Creature extends AiAgent {
 
 		return super.npcTemplate.getLevel();
 	}
-}
 
+	@preLocked
+	public native void setAnimalCalmState(CreatureObject attacker, int durationSeconds = 10);
+
+	@read
+	public native boolean isAnimalCalmed(CreatureObject attacker);
+}

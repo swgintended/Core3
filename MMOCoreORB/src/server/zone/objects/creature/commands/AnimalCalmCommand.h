@@ -31,46 +31,20 @@ public:
 			return NOJEDIARMOR;
 		}
 
-		ManagedReference<SceneObject*> targetObject = server->getZoneServer()->getObject(target);
-
-		Creature* targetCreature = cast<Creature*>(targetObject.get());
-
-		if (targetCreature == nullptr)
+		ManagedReference<SceneObject*> sceneObject = server->getZoneServer()->getObject(target);
+		if (sceneObject == nullptr)
 			return INVALIDTARGET;
 
-		if (!targetCreature->isCreature()) {
+		if (!sceneObject->isCreature()) {
 			creature->sendSystemMessage("@error_message:target_not_creature");
-			return false;
-		}
-		if (targetCreature->getDistanceTo(creature) > 32.f){
-			creature->sendSystemMessage("@error_message:target_out_of_range");
-			return false;
-		}
-		if (targetCreature->getMainDefender() != creature) {
-			creature->sendSystemMessage("@error_message:not_your_target");
-			return false;
+			return GENERALERROR;
 		}
 
-		int res = doCombatAction(creature, target);
+		return doCombatAction(creature, target);
+	}
 
-		if (res == SUCCESS) {
-			ManagedReference<Creature*> creatureTarget = targetObject.castTo<Creature*>();
-
-			Locker clocker(creatureTarget, creature);
-
-			creatureTarget->removeDefender(creature);
-			creatureTarget->notifyObservers(ObserverEventType::DEFENDERDROPPED);
-			creatureTarget->getThreatMap()->clearAggro(creature);
-
-			creature->doCombatAnimation(creatureTarget, STRING_HASHCODE("mind_trick_1"), 1, 0);
-			creature->sendSystemMessage("@jedi_spam:calm_target");
-
-			return SUCCESS;
-		} else {
-			creature->sendSystemMessage("@jedi_spam:fail_calm_target");
-		}
-
-		return res;
+	void sendAttackCombatSpam(TangibleObject* attacker, TangibleObject* defender, int attackResult, int damage, const CreatureAttackData& data) const {
+		// There are no specific animalcalm combat spam messages
 	}
 
 };

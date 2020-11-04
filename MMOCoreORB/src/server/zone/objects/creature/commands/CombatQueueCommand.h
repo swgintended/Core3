@@ -19,6 +19,7 @@
 #include "templates/params/creature/CreatureAttribute.h"
 #include "templates/params/creature/CreatureState.h"
 #include "templates/params/creature/CreatureFlag.h"
+#include "server/zone/objects/creature/ai/Creature.h"
 #include "server/zone/objects/creature/commands/effect/StateEffect.h"
 #include "server/zone/objects/creature/commands/effect/DotEffect.h"
 #include "server/zone/objects/creature/commands/effect/CommandEffect.h"
@@ -645,10 +646,11 @@ public:
 	}
 
 	// this goes in command in order to allow for overriding for special commands
-	virtual void applyEffect(CreatureObject* attacker, CreatureObject* defender, uint8 effectType, uint32 mod) const {
+	virtual void applyEffect(CreatureObject* attacker, Reference<CreatureObject*> defender, uint8 effectType, uint32 mod) const {
 		CombatManager* combatManager = CombatManager::instance();
 		StateEffect effect = getStateEffect(effectType);
 		Reference<Buff*> buff = nullptr;
+		Reference<Creature*> creature = nullptr;
 
 		Vector<String> defenseMods = effect.getDefenderStateDefenseModifiers();
 		float targetDefense = 0.f;
@@ -775,6 +777,14 @@ public:
 				defender->sendSystemMessage("@combat_effects:strafe_system");
 				defender->setNextAttackDelay(mod, duration);
 			}
+			break;
+		case CommandEffect::ANIMALCALM:
+			if (!defender->isCreature()) {
+				break;
+			}
+			creature = defender.castTo<Creature*>();
+			creature->setAnimalCalmState(attacker, duration);
+			attacker->sendSystemMessage("@jedi_spam:calm_target");
 			break;
 		case CommandEffect::ATTACKER_FORCE_STAND:
 			attacker->setPosture(CreaturePosture::UPRIGHT, false, false);

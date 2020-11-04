@@ -3061,8 +3061,8 @@ bool CreatureObjectImplementation::isAggressiveTo(CreatureObject* object) {
 		return true;
 	}
 
-	if (object->getFaction() == Factions::FACTIONNEUTRAL || getFaction() == Factions::FACTIONNEUTRAL) { 
-		return false; 
+	if (object->getFaction() == Factions::FACTIONNEUTRAL || getFaction() == Factions::FACTIONNEUTRAL) {
+		return false;
 	}
 
 	if (object->getFaction() == getFaction() && object->getFaction() != 0 && (object->getFaction() == Factions::FACTIONREBEL || object->getFaction() == Factions::FACTIONIMPERIAL)) {
@@ -3121,8 +3121,8 @@ bool CreatureObjectImplementation::isAggressiveTo(CreatureObject* object) {
 		return true;
 
 
-	//if (object->getFaction() == Factions::FACTIONNEUTRAL || getFaction() == Factions::FACTIONNEUTRAL){ 
-	//	return false; 
+	//if (object->getFaction() == Factions::FACTIONNEUTRAL || getFaction() == Factions::FACTIONNEUTRAL){
+	//	return false;
 	//}
 
 
@@ -3130,7 +3130,7 @@ bool CreatureObjectImplementation::isAggressiveTo(CreatureObject* object) {
 
 
 	// TEF FIX
-	if ((ghost->hasRealGcwTef() || targetGhost->hasRealGcwTef()) && getFaction() != object->getFaction()) //object->getPvpStatusBitmask() & CreatureFlag::TEF) 
+	if ((ghost->hasRealGcwTef() || targetGhost->hasRealGcwTef()) && getFaction() != object->getFaction()) //object->getPvpStatusBitmask() & CreatureFlag::TEF)
 		return true;
 
 	ManagedReference<GuildObject*> guildObject = guild.get();
@@ -3216,7 +3216,7 @@ bool CreatureObjectImplementation::isAttackableBy(TangibleObject* object, bool b
 	//} else if((object->getPvpStatusBitmask() & CreatureFlag::OVERT) && !(getPvpStatusBitmask() & CreatureFlag::OVERT)) {
 	//	return false;
 	}
-	
+
 	//if((object->getPvpStatusBitmask() & CreatureFlag::OVERT) && !(getPvpStatusBitmask() & CreatureFlag::OVERT))
 	//	return false;
 
@@ -3342,9 +3342,9 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 		return false;
 	}
 
-	if (object->getFaction() == Factions::FACTIONNEUTRAL || getFaction() == Factions::FACTIONNEUTRAL){ 
+	if (object->getFaction() == Factions::FACTIONNEUTRAL || getFaction() == Factions::FACTIONNEUTRAL){
 		//info("6", true);
-		return false; 
+		return false;
 	}
 
 	if (ghost->hasGroupTefTowards(object->getGroupID())) {
@@ -3372,8 +3372,8 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 	//Reference<CreatureObject*> ghostObject = ghost->getParent().get()->asCreatureObject();
 	// && targetGhost->hasGroupTefTowards(ghostObject->getGroupID()))
 	//if (targetGhost->hasGroupTef() && targetGhost->hasGroupTefTowards(ghostObject->getGroupID()))
-		
-	
+
+
 	//if (targetGhost->hasGroupTefTowards(ghostObject->getGroupID()))
 	//	return true;
 	//if (!bhFight) {
@@ -3862,6 +3862,10 @@ bool CreatureObjectImplementation::hasEffectImmunity(uint8 effectType) const {
 	case CommandEffect::POSTUREUP:
 	case CommandEffect::POSTUREDOWN:
 		if (const_cast<CreatureObjectImplementation*>(this)->isVehicleObject() || isWalkerSpecies())
+			return true;
+		break;
+	case CommandEffect::ANIMALCALM:
+		if (!const_cast<CreatureObjectImplementation*>(this)->isCreature())
 			return true;
 		break;
 	default:

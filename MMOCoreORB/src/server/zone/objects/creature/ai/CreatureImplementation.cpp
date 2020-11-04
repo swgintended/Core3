@@ -9,6 +9,8 @@
 #include "server/zone/objects/creature/ai/Creature.h"
 #include "server/zone/packets/object/ObjectMenuResponse.h"
 #include "server/zone/objects/creature/events/DespawnCreatureTask.h"
+#include "server/zone/objects/tangible/threat/ThreatMap.h"
+#include "server/zone/managers/combat/CombatManager.h"
 #include "server/zone/managers/creature/CreatureManager.h"
 #include "server/zone/Zone.h"
 #include "server/zone/objects/intangible/PetControlDevice.h"
@@ -507,4 +509,75 @@ void CreatureImplementation::sendMessage(BasePacket* msg) {
 #endif
 		delete msg;
 	}
+}
+
+void CreatureImplementation::setAnimalCalmState(CreatureObject* attacker, int durationSeconds) {
+	if (attacker == nullptr) {
+		return;
+	}
+
+	if (!cooldownTimerMap->isPast("animalcalmRecovery")) {
+		return;
+	}
+
+	// Force the creature to peace from combat
+	CreatureObject* creo = asCreatureObject();
+	CombatManager::instance()->forcePeace(creo);
+
+	// Dump threat from the attacker so the creature won't immediately attack
+	// if the creature is engaged in combat again (ex. another player) and the
+	// attacker was the highest threat.
+	getThreatMap()->dropDamage(attacker);
+	// Add the animal calm state cooldown. This cooldown is used in
+	// isAnimalCalmed() in the AI awareness check for aggressive creatures to
+	// give the attacker a grace period to leave the aggressive radius of the
+	// creature.
+	cooldownTimerMap->updateToCurrentAndAddMili("animalcalm_" + String::valueOf(attacker->getObjectID()), durationSeconds * 1000);
+
+	// If the attacker has a group, the Jedi can calm the animal for all members
+	// of the group. If another non-grouped player is nearby (and the creature is
+	// aggressive), this may sic the creature on other players outside the group.
+	GroupObject* attackerGroup = attacker->getGroup();
+	if (attackerGroup != nullptr) {
+		// Lock the group in case another thread is changing the size
+		Locker groupLocker(attackerGroup);
+		for (int i = 0; i < attackerGroup->getGroupSize(); i++) {
+			CreatureObject* attackerMember = attackerGroup->getGroupMember(i);
+			// Note: off-world members are handled in the threat map's dropDamage()
+			getThreatMap()->dropDamage(attackerMember);
+		}
+		groupLocker.release();
+
+		// Use the group's ID and not individual members for space savings. Plus
+		// some group members may be in a different zone and we don't need to add
+		// all those IDs to the cooldown timer map.
+		cooldownTimerMap->updateToCurrentAndAddMili("animalcalm_" + String::valueOf(attackerGroup->getObjectID()), durationSeconds * 1000);
+	}
+
+	// The animal can only be calmed every once in a while, similar to a knockdown
+	cooldownTimerMap->updateToCurrentAndAddMili("animalcalmRecovery", 30000);
+}
+
+// Checks if the animal is currently under an animal calm effect for a given
+// attacker.
+//
+// This is called in the AI's awareness logic. If the animal is calmed, it will
+// ignore the attacker as long as combat is not engaged, even if the animal is
+// normally aggressive (no exclamation point or aggro when entering aggro
+// radius).
+bool CreatureImplementation::isAnimalCalmed(CreatureObject* attacker) const {
+	if (attacker == nullptr) {
+		return false;
+	}
+
+	if (!cooldownTimerMap->isPast("animalcalm_" + String::valueOf(attacker->getObjectID()))) {
+		return true;
+	}
+
+	uint64 attackerGroupID = attacker->getGroupID();
+	if (attackerGroupID != 0 && !cooldownTimerMap->isPast("animalcalm_" + String::valueOf(attackerGroupID))) {
+		return true;
+	}
+
+	return false;
 }

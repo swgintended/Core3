@@ -42,17 +42,34 @@
 --true = 1, false = 0
 
 AnimalCalmCommand = {
-        name = "animalcalm",
-        visMod = 25,
-        damageMultiplier = 0,
-        speed = 4.0,
-        forceCost = 25,
-        accuracySkillMod = "mindblast_accuracy",
-        attackType = FORCEATTACK,
-        combatSpam = "mindblast1",
-        poolsToDamage = NO_ATTRIBUTE,
-        range = 32
+	name = "animalcalm",
+
+	damageMultiplier = 0,
+	speed = 4.0,
+	forceCost = 25,
+	accuracySkillMod = "animalcalm_accuracy",
+	forceAttack = true,
+	visMod = 25,
+
+	stateEffects = {
+		StateEffect(
+			ANIMALCALM_EFFECT,
+			{ "animalcalmRecovery" },
+			{},
+			{ "jedi_state_defense" },
+			100,
+			0,
+			10
+		)
+	},
+
+	animation = "mind_trick_1",
+
+	combatSpam = "animalcalm",
+
+	poolsToDamage = NO_ATTRIBUTE,
+
+	range = 32
 }
 
 AddCommand(AnimalCalmCommand)
-
