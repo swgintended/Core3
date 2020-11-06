@@ -239,12 +239,12 @@ class GCWManager extends ManagedService implements Logger {
 	@local
 	public native void broadcastBuilding(BuildingObject building, @dereferenced StringIdChatParameter params);
 
-	@local
+	/*@local
 	public native void broadcastDestroyReward(BuildingObject building);
 
 	@local
 	public native void broadcastDefendReward(BuildingObject building);
-	
+	*/
 	public native void startAbortSequenceDelay(BuildingObject building, CreatureObject creature, SceneObject hqTerminal);
 	public native void abortShutdownSequence(BuildingObject building, CreatureObject creature);
 
