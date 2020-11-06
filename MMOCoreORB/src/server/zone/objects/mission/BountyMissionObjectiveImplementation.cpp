@@ -582,11 +582,13 @@ void BountyMissionObjectiveImplementation::handlePlayerKilled(ManagedObject* arg
 		if (owner->getObjectID() == killer->getObjectID()) {
 			//Target killed by player, complete mission.
 			ZoneServer* zoneServer = owner->getZoneServer();
+			PlayerManager* playerManager = zoneServer->getPlayerManager();
+			float xpLossMult = playerManager->getJediExpLossMultiplier();
 			if (zoneServer != nullptr) {
 				ManagedReference<CreatureObject*> target = zoneServer->getObject(mission->getTargetObjectId()).castTo<CreatureObject*>();
 				if (target != nullptr) {
 					int minXpLoss = -50000;
-					int maxXpLoss = -500000;
+					int maxXpLoss = -500000 * xpLossMult;
 
 					VisibilityManager::instance()->clearVisibility(target);
 					int xpLoss = mission->getRewardCredits() * -2;
@@ -596,7 +598,7 @@ void BountyMissionObjectiveImplementation::handlePlayerKilled(ManagedObject* arg
 					else if (xpLoss < maxXpLoss)
 						xpLoss = maxXpLoss;
 
-					owner->getZoneServer()->getPlayerManager()->awardExperience(target, "jedi_general", xpLoss, true);
+					owner->getZoneServer()->getPlayerManager()->awardExperience(target, "jedi_general", xpLoss, true, xpLossMult, false);
 					StringIdChatParameter message("base_player","prose_revoke_xp");
 					message.setDI(xpLoss * -1);
 					message.setTO("exp_n", "jedi_general");
@@ -614,4 +616,3 @@ void BountyMissionObjectiveImplementation::handlePlayerKilled(ManagedObject* arg
 		}
 	}
 }
-
