@@ -1738,7 +1738,7 @@ void GCWManagerImplementation::doBaseDestruction(BuildingObject* building) {
 			}
 
 			owner->sendSystemMessage(message);
-			broadcastDestroyReward(building);
+			//broadcastDestroyReward(building);
 		}
 	}
 
@@ -1778,7 +1778,7 @@ void GCWManagerImplementation::broadcastBuilding(BuildingObject* building, Strin
 		}
 	}
 }
-
+/*
 void GCWManagerImplementation::broadcastDestroyReward(BuildingObject* building) {
 	float range = 64;
 
@@ -1799,16 +1799,22 @@ void GCWManagerImplementation::broadcastDestroyReward(BuildingObject* building) 
 	for (int i = 0; i < closePlayersR.size(); i++) {
 		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersR.get(i));
 
-		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
-		
-			CreatureObject* targetCreature = cast<CreatureObject*>(targetObject);
+		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {						
+			PlayerObject* targetPlayer = cast<PlayerObject*>(targetObject);
+			CreatureObject* targetCreo = cast<CreatureObject*>(targetPlayer);
 
-			if (targetCreature != nullptr && targetCreature->getFaction() != 0 && targetCreature->getFaction() != building->getFaction()) {
-				
-				if (building->getFaction() == Factions::FACTIONREBEL) {
-					FactionManager::instance()->awardFactionStanding(targetCreature,"rebel", 10000);
-				} else if (building->getFaction() == Factions::FACTIONIMPERIAL) {
-					FactionManager::instance()->awardFactionStanding(targetCreature,"imperial", 10000);
+			if ((targetPlayer != nullptr || targetCreo != nullptr) && (targetCreo->getFaction() != 0)) {
+			
+				int baseDestroyReward = 10000;
+				int buildingFaction = building->getFaction();
+				int playerFaction = targetCreo->getFaction();
+
+				if (buildingFaction == Factions::FACTIONIMPERIAL && playerFaction == Factions::FACTIONREBEL) {
+					targetPlayer->increaseFactionStanding("rebel", baseDestroyReward);
+					targetCreo->sendSystemMessage("You have succesfully destroyed the base and receive a faction bonus!");
+				} else if (buildingFaction == Factions::FACTIONREBEL && playerFaction == Factions::FACTIONIMPERIAL) {
+					targetPlayer->increaseFactionStanding("imperial", baseDestroyReward);
+					targetCreo->sendSystemMessage("You have succesfully destroyed the base and receive a faction bonus!");
 				}	
 			}
 		}
@@ -1836,20 +1842,28 @@ void GCWManagerImplementation::broadcastDefendReward(BuildingObject* building) {
 		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersD.get(i));
 
 		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
-		
-			CreatureObject* targetCreature = cast<CreatureObject*>(targetObject);
+			
+			CreatureObject* targetCreo = cast<CreatureObject*>(targetObject);
 
-			if (targetCreature != nullptr && targetCreature->getFaction() != 0 && targetCreature->getFaction() == building->getFaction()) {
-				
-				if (building->getFaction() == Factions::FACTIONREBEL) {
-					FactionManager::instance()->awardFactionStanding(targetCreature,"imperial", 2000);
-				} else if (building->getFaction() == Factions::FACTIONIMPERIAL) {
-					FactionManager::instance()->awardFactionStanding(targetCreature,"rebel", 2000);
-				}	
+			if (targetCreo != nullptr) {
+				targetCreo->sendSystemMessage("You have succesfully defended the base and receive a faction bonus!");
+				PlayerObject* targetPlayer = cast<PlayerObject*>(targetCreo);
 			}
 		}
 	}
-}
+
+	for (int i = 0; i < closePlayersD.size(); i++) {
+		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersD.get(i));
+
+		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
+			PlayerObject* targetPlayer = cast<PlayerObject*>(targetObject);
+			
+			if (targetPlayer != nullptr) {
+				targetPlayer->increaseFactionStanding("rebel", 2000);
+			}
+		}
+	}
+}*/
 
 void GCWManagerImplementation::startAbortSequenceDelay(BuildingObject* building, CreatureObject* creature, SceneObject* hqTerminal) {
 	if (!creature->checkCooldownRecovery("declare_overt_cooldown")) {
@@ -1894,7 +1908,7 @@ void GCWManagerImplementation::abortShutdownSequence(BuildingObject* building, C
 		Reference<Task*> newTask = new BaseRebootTask(_this.getReferenceUnsafeStaticCast(), building, baseData);
 		newTask->schedule(60000);
 
-		broadcastDefendReward(building);
+		//broadcastDefendReward(building);
 	}
 }
 
