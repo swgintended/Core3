@@ -445,20 +445,26 @@ void LightsaberCrystalComponentImplementation::updateCrystal(int value){
 }
 
 void LightsaberCrystalComponentImplementation::updateCraftingValues(CraftingValues* values, bool firstUpdate) {
+	String crystalTemplate = getObjectTemplate()->getCustomName();
+
 	int colorMax = values->getMaxValue("color");
 	int color = values->getCurrentValue("color");
 
 	if (colorMax != 31) {
-		int finalColor = Math::min(color, 30);
-		setColor(finalColor);
-		updateCrystal(finalColor);
+		if (colorMax == 0 && crystalTemplate.isEmpty()) {
+			int finalColor = System::random(11);
+			setColor(finalColor);
+			updateCrystal(finalColor);
+		} else if (colorMax >= 12) {
+			setColor(color);
+			updateCrystal(color);
+		}
 	} else {
 		setColor(31);
 		updateCrystal(31);
 	}
 
 	generateCrystalStats();
-
 	ComponentImplementation::updateCraftingValues(values, firstUpdate);
 }
 
