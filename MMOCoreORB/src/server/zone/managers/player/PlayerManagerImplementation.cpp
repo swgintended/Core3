@@ -1531,7 +1531,8 @@ void PlayerManagerImplementation::sendPlayerToCloner(CreatureObject* player, uin
 	}
 	// TEF FIX
 	// Clone as Covert
-	if (player->getFactionStatus() != FactionStatus::COVERT && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_IMPERIAL && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_REBEL && !player->hasSkill("force_title_jedi_rank_03"))
+
+	if (player->getFaction() != 0 && player->getFactionStatus() != FactionStatus::COVERT && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_IMPERIAL && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_REBEL && !player->hasSkill("force_title_jedi_rank_03"))
 		player->setFactionStatus(FactionStatus::COVERT);
 	// TEF FIX Should stay TEF until Clone
 	if (ghost->hasPvpTef() || ghost->hasRealGcwTef() || ghost->hasGroupTef()) {
