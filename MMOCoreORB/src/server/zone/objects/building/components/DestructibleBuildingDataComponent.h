@@ -111,7 +111,7 @@ public:
 		return lastResetTime;
 	}
 
-	Time getDefenseDonateDelay()  {
+	Time getDonateDefenseDelay()  {
 		return nextDefenseDonation;
 	}
 

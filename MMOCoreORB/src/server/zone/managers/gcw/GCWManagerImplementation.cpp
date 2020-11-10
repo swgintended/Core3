@@ -2247,7 +2247,7 @@ void GCWManagerImplementation::sendSelectDeedToDonate(BuildingObject* building, 
 	if (!(building->getPvpStatusBitmask() & CreatureFlag::OVERT))
 		return;
 
-	float currentDelay = ((Time().miliDifference(baseData->getDefenseDonateDelay()) / 1000) / 60);
+	float currentDelay = ((Time().miliDifference(baseData->getDonateDefenseDelay()) / 1000) / 60);
 
 	if (baseData->canDonateDefense()) {
 		if (currentDelay > 1) {
