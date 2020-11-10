@@ -233,8 +233,9 @@ void PlayerManagerImplementation::loadLuaConfig() {
 	medicalDuration = lua->getGlobalInt("medicalDuration");
 
 	groupExpMultiplier = lua->getGlobalFloat("groupExpMultiplier");
-
 	globalExpMultiplier = lua->getGlobalFloat("globalExpMultiplier");
+	jediExpLossMultiplier = lua->getGlobalFloat("jediExpLossMultiplier");
+	frsExpMultiplier = lua->getGlobalFloat("frsExpMultiplier");
 
 	baseStoredCreaturePets = lua->getGlobalInt("baseStoredCreaturePets");
 	baseStoredFactionPets = lua->getGlobalInt("baseStoredFactionPets");
@@ -1406,14 +1407,17 @@ void PlayerManagerImplementation::sendActivateCloneRequest(CreatureObject* playe
 		if (cbot == nullptr)
 			continue;
 
-		if (cbot->getFacilityType() == CloningBuildingObjectTemplate::JEDI_ONLY && player->hasSkill("force_title_jedi_rank_01")) {
+		if (cbot->getFacilityType() == CloningBuildingObjectTemplate::FS_ONLY && player->hasSkill("force_title_jedi_novice")) {
+			String name = "Village of Aurilia (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
+			cloneMenu->addMenuItem(name, loc->getObjectID());
+		} else if (cbot->getFacilityType() == CloningBuildingObjectTemplate::JEDI_ONLY && player->hasSkill("force_title_jedi_rank_01")) {
 			String name = "Force Shrine (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
 			cloneMenu->addMenuItem(name, loc->getObjectID());
 		} else if ((cbot->getFacilityType() == CloningBuildingObjectTemplate::LIGHT_JEDI_ONLY && player->hasSkill("force_rank_light_novice")) ||
 				(cbot->getFacilityType() == CloningBuildingObjectTemplate::DARK_JEDI_ONLY && player->hasSkill("force_rank_dark_novice"))) {
 			FrsManager* frsManager = server->getFrsManager();
 
-			if (frsManager->isFrsEnabled()) {
+			if (frsManager != nullptr && frsManager->isFrsEnabled()) {
 				String name = "Jedi Enclave (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
 				cloneMenu->addMenuItem(name, loc->getObjectID());
 			}
@@ -1445,6 +1449,9 @@ bool PlayerManagerImplementation::isValidClosestCloner(CreatureObject* player, S
 		return false;
 
 	if (cbot->isJediCloner())
+		return false;
+
+	if (cbot->isFsCloner())
 		return false;
 
 	return true;
@@ -1524,8 +1531,12 @@ void PlayerManagerImplementation::sendPlayerToCloner(CreatureObject* player, uin
 	}
 	// TEF FIX
 	// Clone as Covert
-	if (player->getFactionStatus() != FactionStatus::COVERT && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_IMPERIAL && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_REBEL && !player->hasSkill("force_title_jedi_rank_03"))
+
+	if (player->getFaction() != 0 && player->getFactionStatus() != FactionStatus::COVERT && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_IMPERIAL && cbot->getFacilityType() != CloningBuildingObjectTemplate::FACTION_REBEL && !player->hasSkill("force_title_jedi_rank_03")) {
 		player->setFactionStatus(FactionStatus::COVERT);
+	} else if (player->getFaction() == 0) {
+		player->setFactionStatus(FactionStatus::ONLEAVE);
+	}
 	// TEF FIX Should stay TEF until Clone
 	if (ghost->hasPvpTef() || ghost->hasRealGcwTef() || ghost->hasGroupTef()) {
 		ghost->schedulePvpTefRemovalTask(true, true, true, true);
@@ -1594,7 +1605,7 @@ void PlayerManagerImplementation::sendPlayerToCloner(CreatureObject* player, uin
 		if ((curExp + xpLoss) < negXpCap)
 			xpLoss = negXpCap - curExp;
 
-		awardExperience(player, "jedi_general", xpLoss, true);
+		awardExperience(player, "jedi_general", xpLoss, true, jediExpLossMultiplier, false);
 		StringIdChatParameter message("base_player","prose_revoke_xp");
 		message.setDI(xpLoss * -1);
 		message.setTO("exp_n", "jedi_general");
