@@ -99,6 +99,7 @@ class GCWManager extends ManagedService implements Logger {
 	public transient int loserBonus;
 	public transient boolean spawnDefenses;
 	public transient int initialVulnerabilityDelay;
+	public transient int donateDefenseDelay;
 
 	public transient boolean racialPenaltyEnabled;
 
@@ -145,6 +146,7 @@ class GCWManager extends ManagedService implements Logger {
 		racialPenaltyEnabled = true;
 		spawnDefenses = true;
 		initialVulnerabilityDelay = 0;
+		donateDefenseDelay = 120;
 
 		Logger.setLoggingName("GCWManager " + zne.getZoneName());
 		Logger.info("instantiated", true);
@@ -508,5 +510,10 @@ class GCWManager extends ManagedService implements Logger {
 	@read
 	public int getResetTimer() {
 		return resetTimer;
+	}
+
+	@read
+	public int getDonateDefenseDelay() {
+		return donateDefenseDelay;
 	}
 }

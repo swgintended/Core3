@@ -42,6 +42,21 @@ void DestructibleBuildingDataComponent::initializeTransientMembers() {
 	uplinkBand = System::random(0x9);
 }
 
+void DestructibleBuildingDataComponent::updateDonateDefenseDelay(float delay) {
+	int miliDonateDelay = delay * 1000;
+	nextDefenseDonation = Time();
+	nextDefenseDonation.addMiliTime(miliDonateDelay);
+}
+
+bool DestructibleBuildingDataComponent::canDonateDefense() {
+	int delay = 0;
+
+	if (nextDefenseDonation.isFuture()) {
+		delay = Time().miliDifference(nextDefenseDonation);
+	}
+	return delay;
+}
+
 bool DestructibleBuildingDataComponent::parseFromBinaryStream(ObjectInputStream* stream) {
 	uint16 _varCount = stream->readShort();
 
@@ -238,5 +253,6 @@ bool DestructibleBuildingDataComponent::readObjectMember(ObjectInputStream* stre
 	}
 
 	return false;
+
 }
 
