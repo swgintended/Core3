@@ -20,8 +20,13 @@ void ElevatorMenuComponent::fillObjectMenuResponse(SceneObject* sceneObject, Obj
 int ElevatorMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject, CreatureObject* creature, byte selectedID) const {
 	ManagedReference<SceneObject*> parent = creature->getParent().get();
 
-	if (parent == nullptr || !parent->isCellObject() || parent != sceneObject->getParent().get())
+	if (parent == nullptr || creature == nullptr || !parent->isCellObject() || parent != sceneObject->getParent().get())
 		return 0;
+
+	if (creature->isInCombat()) {
+		creature->sendSystemMessage("You cannot access the Elevator Terminal while fighting!");
+		return 0;
+	}
 
 	CellObject* cell = parent.castTo<CellObject*>();
 
