@@ -81,6 +81,7 @@ void GCWManagerImplementation::loadLuaConfig() {
 	covertScannerDelay = lua->getGlobalInt("covertScannerDelay");
 	covertScannerRevealChance = lua->getGlobalInt("covertScannerRevealChance");
 	maxBasesPerPlayer = lua->getGlobalInt("maxBasesPerPlayer");
+	donateDefenseDelay = lua->getGlobalInt("donateDefenseDelay");
 	bonusXP = lua->getGlobalInt("bonusXP");
 	winnerBonus = lua->getGlobalInt("winnerBonus");
 	loserBonus = lua->getGlobalInt("loserBonus");
@@ -2246,6 +2247,21 @@ void GCWManagerImplementation::sendSelectDeedToDonate(BuildingObject* building, 
 	if (!(building->getPvpStatusBitmask() & CreatureFlag::OVERT))
 		return;
 
+	float currentDelay = ((Time().miliDifference(baseData->getDonateDefenseDelay()) / 1000) / 60);
+
+	if (baseData->canDonateDefense()) {
+		if (currentDelay > 1) {
+			creature->sendSystemMessage("You cannot donate anymore defenses to this HQ for approximately " + String::valueOf(currentDelay) + " minutes.");
+			return;
+		} else if (currentDelay == 1) {
+			creature->sendSystemMessage("You cannot donate anymore defenses to this HQ for approximately " + String::valueOf(currentDelay) + " minute.");
+			return;
+		} else {
+			creature->sendSystemMessage("You will be able to donate more defenses to this HQ soon.");
+			return;
+		}
+	}
+
 	if (ghost->hasSuiBoxWindowType(SuiWindowType::HQ_TERMINAL))
 		ghost->closeSuiWindowType(SuiWindowType::HQ_TERMINAL);
 
@@ -2430,6 +2446,7 @@ void GCWManagerImplementation::performDonateMinefield(BuildingObject* building, 
 		params.setTO(deed->getObjectNameStringIdFile(), deed->getObjectNameStringIdName());
 		creature->sendSystemMessage(params);
 
+		baseData->updateDonateDefenseDelay(getDonateDefenseDelay());
 		verifyMinefields(building);
 		block.release();
 
@@ -2506,6 +2523,7 @@ void GCWManagerImplementation::performDonateTurret(BuildingObject* building, Cre
 		params.setTO(turretDeed->getObjectNameStringIdFile(), turretDeed->getObjectNameStringIdName());
 		creature->sendSystemMessage(params);
 
+		baseData->updateDonateDefenseDelay(getDonateDefenseDelay());
 		verifyTurrets(building);
 		block.release();
 
@@ -2583,6 +2601,7 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 		params.setTO(scannerDeed->getObjectNameStringIdFile(), scannerDeed->getObjectNameStringIdName());
 		creature->sendSystemMessage(params);
 
+		baseData->updateDonateDefenseDelay(getDonateDefenseDelay());
 		verifyScanners(building);
 		block.release();
 
