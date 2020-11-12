@@ -20,6 +20,7 @@
 #include "templates/faction/Factions.h"
 #include "server/zone/objects/player/FactionStatus.h"
 #include "server/zone/managers/player/PlayerMap.h"
+#include <map>
 
 
 void FrsManagerImplementation::initialize() {
@@ -480,6 +481,14 @@ void FrsManagerImplementation::validatePlayerData(CreatureObject* player) {
 		}
 	}
 
+	int curExperience = ghost->getExperience("force_rank_xp");
+	int maxExperience = frs_xp_caps.at(realPlayerRank);
+	if (curExperience >= maxExperience) {
+		curExperience *= -1;
+		ghost->addExperience("force_rank_xp", curExperience, true);
+		ghost->addExperience("force_rank_xp", maxExperience, true);
+	}
+
 	ghost->recalculateForcePower();
 }
 
@@ -813,6 +822,21 @@ void FrsManagerImplementation::demotePlayer(CreatureObject* player) {
 }
 
 void FrsManagerImplementation::adjustFrsExperience(CreatureObject* player, int amount, bool sendSystemMessage) {
+	std::map<int, int> frs_xp_caps = {
+		{0,15000},
+		{1,25000},
+		{2,37500},
+		{3,50000},
+		{4,75000},
+		{5,100000},
+		{6,125000},
+		{7,187500},
+		{8,250000},
+		{9,375000},
+		{10,625000},
+		{11,625000}
+	};
+
 	if (player == nullptr || amount == 0)
 		return;
 
@@ -823,6 +847,27 @@ void FrsManagerImplementation::adjustFrsExperience(CreatureObject* player, int a
 
 	ManagedReference<PlayerManager*> playerManager = getZoneServer()->getPlayerManager();
 	if (amount > 0) {
+	        FrsData* playerData = ghost->getFrsData();
+			int rank = playerData->getRank();
+			int councilType = playerData->getCouncilType();
+			int curExperience = ghost->getExperience("force_rank_xp");
+			int totalExperience = curExperience + amount;
+			int maxExperience = frs_xp_caps.at(rank);
+			//info(String::valueOf(rank), true);
+			//info(String::valueOf(councilType), true);
+			//info(String::valueOf(curExperience), true);
+			//info(String::valueOf(totalExperience), true);
+			//info(String::valueOf(frs_xp_caps.at(1)), true);
+			//info(String::valueOf(frs_xp_caps.at(rank)), true);
+
+			if (totalExperience >= maxExperience){
+				int newAmount = maxExperience - curExperience;
+	          	//if (ghost->hasCappedExperience("force_rank_xp"))
+	                //{
+				ghost->addExperience("force_rank_xp", newAmount, true);
+				StringIdChatParameter param("@force_rank:experience_granted"); // You have gained %DI Force Rank experience.
+				param.setDI(newAmount);
+				player->sendSystemMessage(param);
 
 		if (ghost->hasCappedExperience("force_rank_xp")) {
 			StringIdChatParameter message("base_player", "prose_hit_xp_cap"); //You have achieved your current limit for %TO experience.
@@ -3322,7 +3367,7 @@ bool FrsManagerImplementation::handleDarkCouncilDeath(CreatureObject* killer, Cr
 		}
 	}
 
-	if (challengeData == nullptr || challengeData->isChallengeCompleted())
+	if (challengeData == nullptr)
 		return false;
 
 	uint64 challengerID = challengeData->getChallengerID();
