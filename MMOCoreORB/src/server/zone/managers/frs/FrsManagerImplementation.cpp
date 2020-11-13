@@ -868,6 +868,7 @@ void FrsManagerImplementation::adjustFrsExperience(CreatureObject* player, int a
 				StringIdChatParameter param("@force_rank:experience_granted"); // You have gained %DI Force Rank experience.
 				param.setDI(newAmount);
 				player->sendSystemMessage(param);
+			}
 
 		if (ghost->hasCappedExperience("force_rank_xp")) {
 			StringIdChatParameter message("base_player", "prose_hit_xp_cap"); //You have achieved your current limit for %TO experience.
