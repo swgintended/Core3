@@ -51,6 +51,31 @@ public:
 			return GENERALERROR;
 		}
 
+		if (creature->isInCombat()) {
+			creature->sendSystemMessage("You cannot migrate stats in combat!");
+			return 0;
+		}
+
+		//BuildingObject* buildingObj = cast<BuildingObject*>( creature->getParentRecursively(SceneObject::SALONBUILDING));
+		ManagedReference<SceneObject*> obj = creature->getParentRecursively(SceneObjectType::SALONBUILDING);
+
+		if (obj == nullptr) {
+			creature->sendSystemMessage("You must be inside an Image Design tent in order to perform that action.");
+			if(obj != nullptr) {
+				int i = obj->getGameObjectType();
+				System::out << String::valueOf(i) << endl;
+			}
+			return GENERALERROR;
+		}
+
+		/*buildingObj = cast<BuildingObject*>( playerTarget->getRootParent());
+
+		if (buildingObj == nullptr || buildingObj->getGameObjectType() != BuildingObject::SALONBUILDING) {
+			playerTarget->sendSystemMessage("You must be inside an Image Design tent in order to be Image Designed.");
+			designer->sendSystemMessage("Your current target is not currently inside a valid Image Design tent.");
+			return GENERALERROR;
+		}*/
+
 		StringTokenizer tokenizer(arguments.toString());
 		tokenizer.setDelimeter(" ");
 
