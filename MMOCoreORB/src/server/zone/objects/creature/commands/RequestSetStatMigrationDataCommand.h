@@ -56,7 +56,6 @@ public:
 			return 0;
 		}
 
-		//BuildingObject* buildingObj = cast<BuildingObject*>( creature->getParentRecursively(SceneObject::SALONBUILDING));
 		ManagedReference<SceneObject*> obj = creature->getParentRecursively(SceneObjectType::SALONBUILDING);
 
 		if (obj == nullptr) {
