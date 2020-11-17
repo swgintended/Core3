@@ -60,10 +60,6 @@ public:
 
 		if (obj == nullptr) {
 			creature->sendSystemMessage("You must be inside an Image Design tent in order to perform that action.");
-			if(obj != nullptr) {
-				int i = obj->getGameObjectType();
-				System::out << String::valueOf(i) << endl;
-			}
 			return GENERALERROR;
 		}
 
