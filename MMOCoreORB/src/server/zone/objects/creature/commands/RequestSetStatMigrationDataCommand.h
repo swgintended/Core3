@@ -67,14 +67,6 @@ public:
 			return GENERALERROR;
 		}
 
-		/*buildingObj = cast<BuildingObject*>( playerTarget->getRootParent());
-
-		if (buildingObj == nullptr || buildingObj->getGameObjectType() != BuildingObject::SALONBUILDING) {
-			playerTarget->sendSystemMessage("You must be inside an Image Design tent in order to be Image Designed.");
-			designer->sendSystemMessage("Your current target is not currently inside a valid Image Design tent.");
-			return GENERALERROR;
-		}*/
-
 		StringTokenizer tokenizer(arguments.toString());
 		tokenizer.setDelimeter(" ");
 
