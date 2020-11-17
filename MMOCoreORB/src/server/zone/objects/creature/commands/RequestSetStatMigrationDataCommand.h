@@ -53,7 +53,7 @@ public:
 
 		if (creature->isInCombat()) {
 			creature->sendSystemMessage("You cannot migrate stats in combat!");
-			return 0;
+			return GENERALERROR;
 		}
 
 		ManagedReference<SceneObject*> obj = creature->getParentRecursively(SceneObjectType::SALONBUILDING);
