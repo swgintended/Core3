@@ -59,7 +59,7 @@ public:
 		ManagedReference<SceneObject*> obj = creature->getParentRecursively(SceneObjectType::SALONBUILDING);
 
 		if (obj == nullptr) {
-			creature->sendSystemMessage("You must be inside an Image Design tent in order to perform that action.");
+			creature->sendSystemMessage("You must be inside an Image Design tent in order to migrate your stats.");
 			return GENERALERROR;
 		}
 
