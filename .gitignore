@@ -2,5 +2,6 @@ MMOEngine
 luacov.report.out
 luacov.stats.out
 MMOCoreORB/bin/conf/config.lua
-MMOCoreORB/bin/scripts/managers/ghoutput.xml
-MMOCoreORB/bin/scripts/managers/intendedspawns.txt
+MMOCoreORB/bin/scripts/managers/galaxyharvester_spawns.xml
+MMOCoreORB/bin/scripts/managers/swgcraft_spawns.txt
+MMOCoreORB/bin/scripts/managers/resource_manager_spawns.lua
