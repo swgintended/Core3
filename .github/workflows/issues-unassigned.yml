@@ -1,0 +1,15 @@
+name: Move issues when they are unassigned
+
+on:
+  issues:
+    types: [unassigned]
+
+jobs:
+  automate-project-columns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: alex-page/github-project-automation-plus@v0.3.0
+        with:
+          project: SWG Intended
+          column: To do
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
