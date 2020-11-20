@@ -83,16 +83,6 @@ public:
 		uint32 targetFaction = target->getFaction();
 		int leaderStatus = leader->getFactionStatus();
 		int targetStatus = targetCreo->getFactionStatus();
-
-		if (targetFaction != 0) {
-			if (leaderFaction != targetFaction && targetStatus > FactionStatus::COVERT) {
-				return false;
-			}
-		}
-
-		if (target->getParentRecursively(SceneObjectType::BUILDING) != leader->getParentRecursively(SceneObjectType::BUILDING))
-			return false;
-
 		PlayerObject* leaderGhost = leader->getPlayerObject();
 		PlayerObject* targetGhost = targetCreo->getPlayerObject();
 
@@ -100,16 +90,34 @@ public:
 			return false;
 		}
 
-		if (target->getGroupID() == leader->getGroupID() && targetGhost->hasBhTef()) {
-			leaderGhost->updateLastPvpCombatActionTimestamp(false, false, false, true);
+		if (targetFaction != 0) {
+			if (leaderFaction != targetFaction && targetStatus > FactionStatus::COVERT) {
+				return false;
+			}
+
+			if (leaderFaction != targetFaction && targetGhost->hasRealGcwTef()) {
+				return false;
+			}
 		}
 
-		if (leaderFaction == targetFaction && targetStatus > leaderStatus && targetStatus == FactionStatus::OVERT) {
-			leaderGhost->updateLastPvpCombatActionTimestamp(false, false, true, false);
+		if (target->getParentRecursively(SceneObjectType::BUILDING)
+				!= leader->getParentRecursively(SceneObjectType::BUILDING)) {
+			return false;
+		}
+
+		if (targetGhost->hasBhTef() && !leaderGhost->hasGroupTef()) {
+			return false;
+		}
+
+		if (leaderFaction == targetFaction) {
+			if (targetGhost->hasRealGcwTef() || (targetStatus > leaderStatus && targetStatus == FactionStatus::OVERT)) {
+				leaderGhost->updateLastPvpCombatActionTimestamp(false, false, true, false);
+			}
 		}
 
 		return true;
 	}
+
 
 /*	bool shoutCommand(CreatureObject* player, GroupObject* group) {
 		if (player == nullptr || group == nullptr)
@@ -130,12 +138,13 @@ public:
 */
 
 	float calculateGroupModifier(GroupObject* group) const {
-		if (group == nullptr)
+				if (group == nullptr) {
 			return 0;
+				}
 
 		float modifier = 1.0f + ((float)(group->getGroupSize()) / 20.0f);
 
-			return modifier;
+				return modifier;
 	}
 
 	bool inflictHAM(CreatureObject* player, int health, int action, int mind) const {
