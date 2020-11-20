@@ -328,11 +328,30 @@ bool PlayerCreationManager::createCharacter(ClientCreateCharacterCallback* callb
 
 	auto client = callback->getClient();
 
-	if (client->getCharacterCount(zoneServer.get()->getGalaxyID()) >= 2) {
-		ErrorMessage* errMsg = new ErrorMessage("Create Error", "You are limited to 2 characters per galaxy.", 0x0);
-		client->sendMessage(errMsg);
+	try {
+		StringBuffer query1;
+		uint32 accountId1 = client->getAccountID();
+		query1 << "SELECT admin_level as t FROM accounts as a WHERE a.account_id = " << accountId1 << ";";
 
-		return false;
+		UniqueReference<ResultSet*> res1(ServerDatabase::instance()->executeQuery(query1));
+		uint32 adm_lvl = 0;
+		if (res1 != nullptr && res1->next()) 
+			adm_lvl = res1->getUnsignedInt(0);
+
+		if (adm_lvl >= 2 && client->getCharacterCount(zoneServer.get()->getGalaxyID()) >= 3) {
+			ErrorMessage* errMsg = new ErrorMessage("Create Error", "Admins are limited to 3 characters per galaxy.", 0x0);
+			client->sendMessage(errMsg);
+
+			return false;
+
+		} else if (adm_lvl == 0 && client->getCharacterCount(zoneServer.get()->getGalaxyID()) >= 2) {
+			ErrorMessage* errMsg = new ErrorMessage("Create Error", "You are limited to 2 characters per galaxy.", 0x0);
+			client->sendMessage(errMsg);
+
+			return false;
+		}
+	} catch (const DatabaseException& e) {
+		error(e.getMessage());
 	}
 
 	PlayerManager* playerManager = zoneServer.get()->getPlayerManager();
