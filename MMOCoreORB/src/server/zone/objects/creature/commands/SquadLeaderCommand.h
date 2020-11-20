@@ -79,27 +79,39 @@ public:
 		if (allowPet && target->isPet())
 			targetCreo = target->getLinkedCreature().get();
 
-		PlayerObject* ghost = targetCreo->getPlayerObject();
-		if (ghost == nullptr || ghost->hasBhTef())
-			return false;
-
 		uint32 leaderFaction = leader->getFaction();
 		uint32 targetFaction = target->getFaction();
+		int leaderStatus = leader->getFactionStatus();
 		int targetStatus = targetCreo->getFactionStatus();
+		PlayerObject* leaderGhost = leader->getPlayerObject();
+		PlayerObject* targetGhost = targetCreo->getPlayerObject();
 
-		if (leaderFaction == 0) {
-			if (targetFaction != 0 && targetStatus > FactionStatus::ONLEAVE)
-				return false;
-		} else if (targetFaction != 0) {
-			if (leaderFaction != targetFaction && targetStatus > FactionStatus::ONLEAVE)
-				return false;
+		if (leaderGhost == nullptr || targetGhost == nullptr) {
+			return false;
+		}
 
-			if (leaderFaction == targetFaction && targetStatus > leader->getFactionStatus())
+		if (targetFaction != 0) {
+			if (leaderFaction != targetFaction && targetStatus > FactionStatus::COVERT) {
 				return false;
+			}
+
+			if (leaderFaction != targetFaction && targetGhost->hasRealGcwTef()) {
+				return false;
+			}
 		}
 
 		if (target->getParentRecursively(SceneObjectType::BUILDING) != leader->getParentRecursively(SceneObjectType::BUILDING))
 			return false;
+
+		if (targetGhost->hasBhTef() && !leaderGhost->hasGroupTef()) {
+			return false;
+		}
+
+		if (leaderFaction == targetFaction) {
+			if (targetGhost->hasRealGcwTef() || (targetStatus > leaderStatus && targetStatus == FactionStatus::OVERT)) {
+				leaderGhost->updateLastPvpCombatActionTimestamp(false, false, true, false);
+			}
+		}
 
 		return true;
 	}

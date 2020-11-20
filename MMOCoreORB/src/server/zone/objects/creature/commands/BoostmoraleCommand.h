@@ -47,6 +47,10 @@ public:
 
 			if (!checkDistance(player, member, 64))
 				return GENERALERROR;
+
+			if (!isValidGroupAbilityTarget(player, member, false)) {
+				return GENERALERROR;
+			}
 		}
 
 		int hamCost = (int) (100.0f * calculateGroupModifier(group));
