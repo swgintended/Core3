@@ -5,12 +5,14 @@
 
 class EnemyFlag : public Serializable {
 public:
+	static const uint32 TEFTIMER = 300;
+
 	EnemyFlag() : EnemyFlag(0, 0, 0) {}
 	EnemyFlag(const uint64 enemyID, const uint32 faction) : EnemyFlag(enemyID, faction, 0) {}
-	EnemyFlag(const uint64 enemyID, const uint32 faction, const uint64 durationInSeconds) : Serializable(), enemyID(enemyID), faction(faction) {
+	EnemyFlag(const uint64 enemyID, const uint32 faction, const uint32 durationInSeconds) : Serializable(), enemyID(enemyID), faction(faction) {
 		if (durationInSeconds == 0) {
 			// Persistent flag
-			expiration = Time(0);
+			setPersistent();
 		} else {
 			// Temporary flag
 			updateExpiration(durationInSeconds);
@@ -23,6 +25,7 @@ public:
 		j["enemyID"] = flag.enemyID;
 		j["faction"] = flag.faction;
 		j["expiration"] = flag.expiration;
+		j["temporary"] = flag.temporary;
 	}
 
 	inline uint64 getEnemyID() const {
@@ -34,7 +37,7 @@ public:
 	}
 
 	inline bool isTemporary() const {
-		return expiration.getTime() != 0;
+		return temporary;
 	}
 
 	inline bool isExpired() const {
@@ -45,9 +48,22 @@ public:
 		return expiration.isPast();
 	}
 
-	inline void updateExpiration(const uint64 expiresInSecondsFromNow) {
+	inline uint32 getExpiration() const {
+		if (!isTemporary()) {
+			return 0;
+		}
+
+		return expiration.getTime();
+	}
+
+	inline void updateExpiration(const uint32 expiresInSecondsFromNow = TEFTIMER) {
+		temporary = true;
 		expiration.updateToCurrentTime();
 		expiration.addMiliTime(expiresInSecondsFromNow * 1000);
+	}
+
+	inline void setPersistent() {
+		temporary = false;
 	}
 
 	int compareTo(const EnemyFlag& other) const {
@@ -56,9 +72,20 @@ public:
 		}
 
 		if (faction != other.faction) {
+			// Arbitrarily sort faction by hash (could compare by name in the future)
 			return faction - other.faction;
 		}
 
+		if (!temporary && !other.temporary) {
+			return 0;
+		} else if (!temporary) {
+			// Arbitrarily sort persistent flags before TEFs
+			return -1;
+		} else {
+			return 1;
+		}
+
+		// Sort TEFs by expiration
 		return expiration.compareTo(other.expiration);
 	}
 
@@ -66,11 +93,13 @@ private:
 	uint64 enemyID;
 	uint32 faction;
 	SerializableTime expiration;
+	bool temporary;
 
 	inline void addSerializableVariables() {
 		addSerializableVariable("enemyID", &enemyID);
 		addSerializableVariable("faction", &faction);
 		addSerializableVariable("expiration", &expiration);
+		addSerializableVariable("temporary", &temporary);
 	}
 
 	// GCW Scenario
