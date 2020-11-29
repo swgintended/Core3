@@ -59,6 +59,12 @@ groupExpMultiplier = 1.2
 --Sets a global experience multiplier
 globalExpMultiplier = 2.0
 
+--Sets the experience multiplier for Jedi XP loss on death
+jediExpLossMultiplier = 1.0
+
+--Sets the experience multiplier for FRS XP
+frsExpMultiplier = 1.0
+
 --Sets the base number of control devices of each type that a player can have in their datapad at once
 --For creature pets, A Creature Handler will have the base number + their stored pets skill mod as limit
 baseStoredCreaturePets = 2
@@ -66,6 +72,9 @@ baseStoredFactionPets = 3
 baseStoredDroids = 5
 baseStoredVehicles = 3
 baseStoredShips = 3
+
+--Sets the base vehicle repair rate (credits multiplied by condition damage)
+baseVehicleRepairCost = 4
 
 -----------------------------------
 --VETERAN REWARDS CONFIG
@@ -77,7 +86,7 @@ veteranRewardAdditionalMilestones = 360 --frequency, in days, of additional mile
 veteranRewards = {
 
 		-- 90 Day Rewards
-		{templateFile = "object/tangible/veteran_reward/harvester.iff", milestone=90, oneTime=true, description="@veteran_new:poweredharvester"},
+		--{templateFile = "object/tangible/veteran_reward/harvester.iff", milestone=90, oneTime=true, description="@veteran_new:poweredharvester"},
 		{templateFile = "object/tangible/veteran_reward/data_terminal_s1.iff", milestone=90, oneTime=false, description="@veteran_new:dataterminal1"},
 		{templateFile = "object/tangible/veteran_reward/data_terminal_s2.iff", milestone=90, oneTime=false, description="@veteran_new:dataterminal2"},
 		{templateFile = "object/tangible/veteran_reward/data_terminal_s3.iff", milestone=90, oneTime=false, description="@veteran_new:dataterminal3"},

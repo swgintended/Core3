@@ -36,6 +36,7 @@ private:
 	Time vulnerabilityEndTime; //serialized
 	Time placementTime; // serialized
 	Time lastResetTime; // serialized
+	Time nextDefenseDonation;
 	int uplinkBand; // secret code used to jam the uplink
 	bool activeDefenses;
 	bool defenseAddedThisVuln;
@@ -110,6 +111,10 @@ public:
 		return lastResetTime;
 	}
 
+	Time getDonateDefenseDelay()  {
+		return nextDefenseDonation;
+	}
+
 	int getUplinkBand() {
 		return uplinkBand;
 	}
@@ -164,6 +169,9 @@ public:
 		minefieldSlots.get(indx) = minefieldOID;
 	}
 
+	void setActiveScanner(int indx, uint64 scannerOID) {
+		scannerSlots.get(indx) = scannerOID;
+	}
 	void initializeTransientMembers();
 
 	int getTotalTurretCount() {
@@ -186,12 +194,20 @@ public:
 		return (minefieldSlots.get(indx) > 0);
 	}
 
+	bool isScannerSlotOccupied(int indx) {
+		return (scannerSlots.get(indx) > 0);
+	}
+
 	uint64 getTurretID(int indx) {
 		return turretSlots.elementAt(indx);
 	}
 
 	uint64 getMinefieldOID(int indx) {
 		return minefieldSlots.elementAt(indx);
+	}
+
+	uint64 getScannerOID(int indx) {
+		return scannerSlots.elementAt(indx);
 	}
 
 	bool hasTurret(uint64 turretID) {
@@ -202,8 +218,12 @@ public:
 		return minefieldSlots.contains(minefieldOID);
 	}
 
+	bool hasScanner(uint64 scannerOID) {
+		return scannerSlots.contains(scannerOID);
+	}
+
 	bool hasDefense(uint64 defenseOID) {
-		return hasTurret(defenseOID) || hasMinefield(defenseOID);
+		return hasTurret(defenseOID) || hasMinefield(defenseOID) || hasScanner(defenseOID);
 	}
 
 	int getIndexOfTurret(uint64 turretID) {
@@ -224,23 +244,32 @@ public:
 		return -1;
 	}
 
-	void setTurretID(int indx, uint64 turretOID) {
-		turretSlots.elementAt(indx) = turretOID;
+	int getIndexOfScanner(uint64 scannerOID) {
+		for (int i = 0; i < scannerSlots.size(); i++) {
+			if (scannerSlots.elementAt(i) == scannerOID)
+				return i;
+		}
+
+		return -1;
 	}
 
-	void addScanner(int indx, uint64 scannerOID) {
-		scannerSlots.add(indx,scannerOID);
+	void setTurretID(int indx, uint64 turretOID) {
+		turretSlots.elementAt(indx) = turretOID;
 	}
 
 	void addTurret(int indx, uint64 turretOID) {
 		turretSlots.add(indx, turretOID);
 	}
 
-	void setScannerID(int indx, uint64 scannerOID) {
+	void setScannerOID(int indx, uint64 scannerOID) {
 		scannerSlots.elementAt(indx) = scannerOID;
 	}
 
-	void setMinefieldID(int indx, uint64 minefieldOID) {
+	void addScanner(int indx, uint64 scannerOID) {
+		scannerSlots.add(indx,scannerOID);
+	}
+
+	void setMinefieldOID(int indx, uint64 minefieldOID) {
 		minefieldSlots.elementAt(indx) = minefieldOID;
 	}
 
@@ -347,6 +376,10 @@ public:
 	void setTerminalsSpawned(bool val) {
 		terminalsSpawned = val;
 	}
+
+	void updateDonateDefenseDelay(float delay);
+
+	bool canDonateDefense();
 
 private:
 

@@ -13,11 +13,11 @@
 
 class RemoveDefenseSuiCallback : public SuiCallback {
 private:
-	uint64 deed;
+	uint64 defense;
 public:
-	RemoveDefenseSuiCallback(ZoneServer* server, uint64 deedID)
+	RemoveDefenseSuiCallback(ZoneServer* server, uint64 defenseOID)
 		: SuiCallback(server) {
-		deed = deedID;
+		defense = defenseOID;
 	}
 
 	void run(CreatureObject* player, SuiBox* suiBox, uint32 eventIndex, Vector<UnicodeString>* args) {
@@ -35,11 +35,10 @@ public:
 
 		GCWManager* gcwMan = player->getZone()->getGCWManager();
 
-
 		if (gcwMan == nullptr)
 			return;
 
-		gcwMan->removeDefense(building, player, deed);
+		gcwMan->removeDefense(building, player, defense);
 
 	}
 };

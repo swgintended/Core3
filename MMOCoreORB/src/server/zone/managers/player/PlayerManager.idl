@@ -84,6 +84,7 @@ class PlayerManager extends Observer implements Logger {
 	protected int baseStoredDroids;
 	protected int baseStoredVehicles;
 	protected int baseStoredShips;
+	protected int baseVehicleRepairCost;
 	protected boolean allowSameAccountPvpRatingCredit;
 	protected int onlineCharactersPerAccount;
 
@@ -102,6 +103,8 @@ class PlayerManager extends Observer implements Logger {
 
 	transient CharacterNameMap nameMap;
 	private float globalExpMultiplier;
+	private float jediExpLossMultiplier;
+	private float frsExpMultiplier;
 	private float groupExpMultiplier;
 
 	@dereferenced
@@ -192,6 +195,12 @@ class PlayerManager extends Observer implements Logger {
 	public native void awardBadge(PlayerObject ghost, final Badge badge);
 
 	public native void setExperienceMultiplier(float globalMultiplier);
+	public float getJediExpLossMultiplier() {
+		return jediExpLossMultiplier;
+	}
+	public float getFrsExpMultiplier() {
+		return frsExpMultiplier;
+	}
 	public native int awardExperience(CreatureObject player, final string xpType, int amount, boolean sendSystemMessage = true, float localMultiplier = 1.0f, boolean applyModifiers = true);
 
 	@local @dereferenced
@@ -539,6 +548,10 @@ class PlayerManager extends Observer implements Logger {
 
 	public int getBaseStoredShips() {
 		return baseStoredShips;
+	}
+
+	public int getBaseVehicleRepairCost() {
+		return baseVehicleRepairCost;
 	}
 
 	public int getNumVeteranRewardMilestones(){

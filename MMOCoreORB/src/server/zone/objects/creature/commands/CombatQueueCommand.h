@@ -52,6 +52,7 @@ protected:
 
 	int coneRange;
 	int range;
+	int armorPiercing;
 
 	String accuracySkillMod;
 
@@ -124,6 +125,7 @@ public:
 		coneAction = false;
 
 		combatSpam = "";
+		armorPiercing = 0;
 		animation = "";
 		animType = GENERATE_NONE;
 
@@ -357,6 +359,10 @@ public:
 		return forceCost;
 	}
 
+	inline int getArmorPiercing() const {
+		return armorPiercing;
+	}
+
 	void setDamageMultiplier(float damageMultiplier) {
 		this->damageMultiplier = damageMultiplier;
 	}
@@ -419,6 +425,10 @@ public:
 
 	void setAnimType(uint8 type) {
 		animType = type;
+	}
+
+	void setArmorPiercing(int APType) {
+		this->armorPiercing = APType;
 	}
 
 	uint8 getAnimType() const {

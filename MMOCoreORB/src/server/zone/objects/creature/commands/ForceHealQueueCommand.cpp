@@ -460,6 +460,11 @@ int ForceHealQueueCommand::doQueueCommand(CreatureObject* creature, const uint64
 
 	// TEF Fix
 	PlayerObject* ghost = creature->getPlayerObject().get();
+
+	if (ghost == nullptr) {
+		return GENERALERROR;
+	}
+
 	if (creature->getFaction() != targetCreature->getFaction() && creature->getFactionStatus() == FactionStatus::COVERT && ghost->hasRealGcwTef()) {
 		creature->sendSystemMessage("@healing:pvp_no_help");
 		return GENERALERROR;

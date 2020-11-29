@@ -51,6 +51,18 @@ public:
 			return GENERALERROR;
 		}
 
+		if (creature->isInCombat()) {
+			creature->sendSystemMessage("You cannot migrate stats in combat!");
+			return GENERALERROR;
+		}
+
+		ManagedReference<SceneObject*> obj = creature->getParentRecursively(SceneObjectType::SALONBUILDING);
+
+		if (obj == nullptr) {
+			creature->sendSystemMessage("You must be inside an Image Design tent in order to migrate your stats.");
+			return GENERALERROR;
+		}
+
 		StringTokenizer tokenizer(arguments.toString());
 		tokenizer.setDelimeter(" ");
 

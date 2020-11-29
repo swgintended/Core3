@@ -5,7 +5,7 @@ named_crystals = {
 	lootItems = {
 		{itemTemplate = "force_crystal_baass_wisdom", weight = 588235},
 		{itemTemplate = "force_crystal_banes_heart", weight = 588235},
-		{itemTemplate = "force_crysta;_bnars_sacrifice", weight = 588235},
+		{itemTemplate = "force_crystal_bnars_sacrifice", weight = 588235},
 		{itemTemplate = "force_crystal_dawn_of_dagobah", weight = 588235},
 		{itemTemplate = "force_crystal_gallias_intuition", weight = 588235},
 		{itemTemplate = "force_crystal_horns_future", weight = 588235},
@@ -16,7 +16,7 @@ named_crystals = {
 		{itemTemplate = "force_crystal_mundis_response", weight = 588235},
 		{itemTemplate = "force_crystal_prowess_of_plo_koon", weight = 588235},
 		{itemTemplate = "force_crystal_qui_gons_devotion", weight = 588236},
-		{itemTemplate = "force_crystal_quintessebce_of_the_force", weight = 588236},
+		{itemTemplate = "force_crystal_quintessence_of_the_force", weight = 588236},
 		{itemTemplate = "force_crystal_strength_of_luminaria", weight = 588236},
 		{itemTemplate = "force_crystal_ulics_redemption", weight = 588236},
 		{itemTemplate = "force_crystal_windus_guile", weight = 588236},
