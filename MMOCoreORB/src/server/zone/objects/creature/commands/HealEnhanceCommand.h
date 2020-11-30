@@ -237,10 +237,10 @@ public:
 	uint32 getEnhancePackStrength(EnhancePack *enhancePack, CreatureObject* enhancer, CreatureObject *patient) const {
 		uint32 buffPower = 0;
 		float buffNerf = 0.1;
+
 		if (BuffAttribute::isProtection(enhancePack->getAttribute())) {  // If it's a protection enhancement, wound treatment has no effect
 			buffPower = enhancePack->getEffectiveness();
 			buffPower = buffPower * patient->calculateBFRatio();
-			buffPower = buffPower * buffNerf;
 		} else {
 			buffPower = enhancePack->calculatePower(enhancer, patient);
 			buffPower = buffPower * buffNerf;
