@@ -1297,6 +1297,10 @@ void PlayerObjectImplementation::notifyOnline() {
 	CreatureObject* playerCreature = parent->asCreatureObject();
 	if (playerCreature == nullptr)
 		return;
+	
+	ManagedReference<PlayerObject*> ghost = playerCreature->getPlayerObject();
+	if (ghost == nullptr)
+		return;
 
 	miliSecsSession = 0;
 
@@ -1355,6 +1359,9 @@ void PlayerObjectImplementation::notifyOnline() {
 			frsManager->playerLoggedIn(playerCreature);
 		}
 	}
+
+	//Join server chat room
+	//ghost->addChatRoom(chatManager->getServerRoom()->getRoomID());
 
 	// Screenplay login triggers
 	Lua* lua = DirectorManager::instance()->getLuaInstance();

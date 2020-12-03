@@ -43,6 +43,7 @@ class ChatManager extends ManagedService implements Logger {
 	ChatRoom guildRoom;
 	ChatRoom auctionRoom;
 	ChatRoom systemRoom;
+	ChatRoom serverRoom;
 
 	transient ChatRoomMap roomMap;
 
@@ -360,6 +361,7 @@ class ChatManager extends ManagedService implements Logger {
 	public native void handleGuildChat(CreatureObject player, final unicode message);
 	public native void handlePlanetChat(CreatureObject player, final unicode message);
 	public native void handleAuctionChat(CreatureObject player, final unicode message);
+	public native void handleServerChat(CreatureObject player, final unicode message);
 	public native void handleChatRoomMessage(CreatureObject sender, final unicode message, unsigned int roomID, unsigned int counter);
 	public native void handleSocialInternalMessage(CreatureObject sender, final unicode arguments);
 	@local
@@ -444,6 +446,13 @@ class ChatManager extends ManagedService implements Logger {
 	 */
 	public ChatRoom getAuctionRoom() {
 		return auctionRoom;
+	}
+
+	/*
+	 * Returns the server chat room
+	 */
+	public ChatRoom getServerRoom() {
+		return serverRoom;
 	}
 
 	/*

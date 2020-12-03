@@ -75,6 +75,7 @@ void ChatManagerImplementation::stop() {
 	groupRoom = nullptr;
 	guildRoom = nullptr;
 	auctionRoom = nullptr;
+	serverRoom = nullptr;
 	gameRooms.removeAll();
 }
 
@@ -314,6 +315,10 @@ void ChatManagerImplementation::initiateRooms() {
 	auctionRoom = createRoom("Auction", galaxyRoom);
 	auctionRoom->setCanEnter(true);
 	auctionRoom->setChatRoomType(ChatRoom::AUCTION);
+
+	serverRoom = createRoom("Galaxy", galaxyRoom);
+	serverRoom->setCanEnter(true);
+	serverRoom->setChatRoomType(ChatRoom::SERVER);
 
 }
 
@@ -734,10 +739,12 @@ void ChatManagerImplementation::handleChatRoomMessage(CreatureObject* sender, co
 
 	BaseMessage* msg = new ChatRoomMessage(fullName, server->getGalaxyName(), formattedMessage, roomID);
 
-	// Auction Chat and Planet Chat should adhere to player ignore list
+	// Auction Chat, Planet Chat, and Server Chat should adhere to player ignore list
 	if(auctionRoom != nullptr && auctionRoom->getRoomID() == roomID) {
 		channel->broadcastMessageCheckIgnore(msg, name);
 	} else if (planetRoom != nullptr && planetRoom->getRoomID() == roomID) {
+		channel->broadcastMessageCheckIgnore(msg, name);
+	} else if (serverRoom != nullptr && serverRoom->getRoomID() == roomID) {
 		channel->broadcastMessageCheckIgnore(msg, name);
 	} else {
 		channel->broadcastMessage(msg);
@@ -1624,6 +1631,45 @@ void ChatManagerImplementation::handleAuctionChat(CreatureObject* sender, const 
 	if (auctionRoom != nullptr) {
 		BaseMessage* msg = new ChatRoomMessage(fullName, server->getGalaxyName(), formattedMessage, auctionRoom->getRoomID());
 		auctionRoom->broadcastMessageCheckIgnore(msg, name);
+	}
+
+}
+
+void ChatManagerImplementation::handleServerChat(CreatureObject* sender, const UnicodeString& message) {
+	String name = sender->getFirstName();
+	String fullName = "";
+
+	if (sender->isPlayerCreature()) {
+		ManagedReference<PlayerObject*> senderGhost = sender->getPlayerObject();
+
+		if (senderGhost == nullptr)
+			return;
+
+		if (senderGhost->isMuted()) {
+			String reason = senderGhost->getMutedReason();
+
+			if (reason != "")
+				sender->sendSystemMessage("Your chat abilities are currently disabled by Customer Support for '" + reason + "'.");
+			else
+				sender->sendSystemMessage("Your chat abilities are currently disabled by Customer Support.");
+
+			return;
+		}
+
+		fullName = getTaggedName(senderGhost, name);
+	}
+
+	StringTokenizer args(message.toString());
+	if (!args.hasMoreTokens()) {
+		sender->sendSystemMessage("@ui:im_no_message"); // You need to include a message!
+		return;
+	}
+
+	UnicodeString formattedMessage(formatMessage(message));
+
+	if (serverRoom != nullptr) {
+		BaseMessage* msg = new ChatRoomMessage(fullName, server->getGalaxyName(), formattedMessage, serverRoom->getRoomID());
+		serverRoom->broadcastMessageCheckIgnore(msg, name);
 	}
 
 }
