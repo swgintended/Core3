@@ -1210,7 +1210,15 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 
 	CreatureObject* attackerCreature = attacker->asCreatureObject();
 
-	if (attacker->isPlayerCreature() && (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player))) {
+	if (attackerCreature->isPet()) {
+		CreatureObject* owner = attackerCreature->getLinkedCreature().get();
+
+		if (owner != nullptr && owner->isPlayerCreature()) {
+			attackerCreature = owner;
+		}
+	}
+
+	if (attackerCreature->isPlayerCreature() && (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player))) {
 		StringBuffer bhDeathBroadcast;
 		if (attackerCreature->hasBountyMissionFor(player)) {
 			bhDeathBroadcast << "!! IMPERIAL COMMUNICATION !! Bounty Hunter " << attackerCreature->getFirstName() <<" has collected the bounty placed on the Jedi scum " << player->getFirstName() << ".";
@@ -1219,61 +1227,46 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 		}
 		player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, bhDeathBroadcast.toString());
 
-	} else if (attacker->getFaction() != 0) {
+	} else if (attackerCreature->isPlayerCreature() && attackerCreature->getFaction() != 0 && player->getFaction() != 0 && attackerCreature->getFaction() != player->getFaction()) {
 
-		if (attacker->isPlayerCreature() || attacker->isPet()) {
+		if (!CombatManager::instance()->areInDuel(attackerCreature, player) && !ghost->hasGroupTefTowards(player->getGroupID())) {
 
-			if (attackerCreature->isPet()) {
-				CreatureObject* owner = attackerCreature->getLinkedCreature().get();
+			FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
 
-				if (owner != nullptr && owner->isPlayerCreature()) {
-					attackerCreature = owner;
-				}
+			if (attacker->getFaction() == Factions::FACTIONREBEL) {
+				attacker->playEffect("clienteffect/holoemote_rebel.cef", "head");
+				StringBuffer factionDeathBroadcast;
+				factionDeathBroadcast << "A Rebel named " << attackerCreature->getFirstName() << " has murdered " << player->getFirstName() << ", an Empire Loyalist.";
+				player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, factionDeathBroadcast.toString());
+			} else if (attacker->getFaction() == Factions::FACTIONIMPERIAL) {
+				attacker->playEffect("clienteffect/holoemote_imperial.cef", "head");
+				StringBuffer factionDeathBroadcast;
+				factionDeathBroadcast << attackerCreature->getFirstName() << ", an Empire Loyalist, has found and slaughtered the Rebel Scum named " << player->getFirstName() << ".";
+				player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, factionDeathBroadcast.toString());
 			}
+		}
+	}
 
-			if (attackerCreature->isPlayerCreature()) {
+	PlayerObject* victimGhost = player->getPlayerObject();
 
-				if (!CombatManager::instance()->areInDuel(attackerCreature, player)) {
+	if (ghost != nullptr && victimGhost != nullptr) {
+		FrsData* attackerData = ghost->getFrsData();
+		int attackerCouncil = attackerData->getCouncilType();
 
-					FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
+		FrsData* victimData = victimGhost->getFrsData();
+		int victimCouncil = victimData->getCouncilType();
 
-					if (attacker->getFaction() == Factions::FACTIONREBEL) {
-						attacker->playEffect("clienteffect/holoemote_rebel.cef", "head");
-						StringBuffer factionDeathBroadcast;
-						factionDeathBroadcast << "A Rebel named " << attackerCreature->getFirstName() << " has murdered " << player->getFirstName() << ", an Empire Loyalist.";
-						player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, factionDeathBroadcast.toString());
-					} else if (attacker->getFaction() == Factions::FACTIONIMPERIAL) {
-						attacker->playEffect("clienteffect/holoemote_imperial.cef", "head");
-						StringBuffer factionDeathBroadcast;
-						factionDeathBroadcast << attackerCreature->getFirstName() << ", an Empire Loyalist, has found and slaughtered the Rebel Scum named " << player->getFirstName() << ".";
-						player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, factionDeathBroadcast.toString());
-					}
-				}
-			}
+		if (attackerCouncil == FrsManager::COUNCIL_DARK && victimCouncil == FrsManager::COUNCIL_DARK) {
+			ManagedReference<FrsManager*> strongMan = player->getZoneServer()->getFrsManager();
+			ManagedReference<CreatureObject*> attackerStrongRef = attackerCreature->asCreatureObject();
+			ManagedReference<CreatureObject*> playerStrongRef = player->asCreatureObject();
 
-			PlayerObject* attackerGhost = attackerCreature->getPlayerObject();
-			PlayerObject* victimGhost = player->getPlayerObject();
+			Reference<ThreatMap*> copyThreatMap = new ThreatMap(*threatMap);
 
-			if (attackerGhost != nullptr && victimGhost != nullptr) {
-				FrsData* attackerData = attackerGhost->getFrsData();
-				int attackerCouncil = attackerData->getCouncilType();
-
-				FrsData* victimData = victimGhost->getFrsData();
-				int victimCouncil = victimData->getCouncilType();
-
-				if (attackerCouncil == FrsManager::COUNCIL_DARK && victimCouncil == FrsManager::COUNCIL_DARK) {
-					ManagedReference<FrsManager*> strongMan = player->getZoneServer()->getFrsManager();
-					ManagedReference<CreatureObject*> attackerStrongRef = attackerCreature->asCreatureObject();
-					ManagedReference<CreatureObject*> playerStrongRef = player->asCreatureObject();
-
-					Reference<ThreatMap*> copyThreatMap = new ThreatMap(*threatMap);
-
-					Core::getTaskManager()->executeTask([attackerStrongRef, playerStrongRef, strongMan, copyThreatMap] () {
-						if (!strongMan->handleDarkCouncilDeath(attackerStrongRef, playerStrongRef))
-							strongMan->handleSuddenDeathLoss(playerStrongRef, copyThreatMap);
-					}, "PvPFRSKillTask");
-				}
-			}
+			Core::getTaskManager()->executeTask([attackerStrongRef, playerStrongRef, strongMan, copyThreatMap] () {
+				if (!strongMan->handleDarkCouncilDeath(attackerStrongRef, playerStrongRef))
+					strongMan->handleSuddenDeathLoss(playerStrongRef, copyThreatMap);
+			}, "PvPFRSKillTask");
 		}
 	}
 
