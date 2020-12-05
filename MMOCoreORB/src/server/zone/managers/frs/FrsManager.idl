@@ -109,6 +109,8 @@ class FrsManager extends ManagedService implements Logger {
 	protected transient int maxChallenges;
 	protected transient int missedVotePenalty;
 
+	protected transient boolean shareXPOnKill;
+
 	public FrsManager(ZoneServer zserv) {
 		Logger.setLoggingName("FrsManager");
 		Logger.setLogging(false);
@@ -135,6 +137,8 @@ class FrsManager extends ManagedService implements Logger {
 
 		maxPetitioners = 0;
 		missedVotePenalty = 0;
+
+		shareXPOnKill = true;
 	}
 
 	public native void initialize();

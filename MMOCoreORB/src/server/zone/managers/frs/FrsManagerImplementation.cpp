@@ -167,6 +167,7 @@ void FrsManagerImplementation::loadLuaConfig() {
 	maxPetitioners = lua->getGlobalInt("maxPetitioners");
 	missedVotePenalty = lua->getGlobalInt("missedVotePenalty");
 	maxChallenges = lua->getGlobalInt("maxChallenges");
+	shareXPOnKill = lua->getGlobalBoolean("shareXPOnKill");
 
 	uint32 enclaveID = lua->getGlobalInt("lightEnclaveID");
 
@@ -1054,8 +1055,9 @@ int FrsManagerImplementation::calculatePvpExperienceChange(CreatureObject* attac
 	int xpChange = getBaseExperienceGain(playerGhost, opponentGhost, !isVictim);
 
 	if (xpChange != 0) {
-		// Give full FRS xp
-		xpChange = (int)((float)xpChange / 1);
+		if (isVictim || (shareXPOnKill && !isVictim)) {
+			xpChange = (int)((float)xpChange * contribution);
+		}
 
 		// Adjust xp value depending on pvp rating
 		// A lower rated victim will lose less experience, a higher rated victim will lose more experience
