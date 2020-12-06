@@ -19,6 +19,7 @@
 #include "server/zone/objects/tangible/terminal/components/TurretControlTerminalDataComponent.h"
 #include "server/zone/objects/installation/components/TurretDataComponent.h"
 
+#include "server/zone/managers/director/DirectorManager.h"
 #include "server/zone/managers/faction/FactionManager.h"
 #include "server/zone/managers/gcw/tasks/StartVulnerabilityTask.h"
 #include "server/zone/managers/gcw/tasks/EndVulnerabilityTask.h"
@@ -81,6 +82,7 @@ void GCWManagerImplementation::loadLuaConfig() {
 	covertScannerDelay = lua->getGlobalInt("covertScannerDelay");
 	covertScannerRevealChance = lua->getGlobalInt("covertScannerRevealChance");
 	maxBasesPerPlayer = lua->getGlobalInt("maxBasesPerPlayer");
+	donateDefenseDelay = lua->getGlobalInt("donateDefenseDelay");
 	bonusXP = lua->getGlobalInt("bonusXP");
 	winnerBonus = lua->getGlobalInt("winnerBonus");
 	loserBonus = lua->getGlobalInt("loserBonus");
@@ -287,6 +289,7 @@ void GCWManagerImplementation::performGCWTasks(bool initial) {
 	setImperialScore(imperialsScore);
 
 	updateWinningFaction();
+	spawnGcwControlBanners();
 
 	uint64 timer = gcwCheckTimer * 1000;
 
@@ -463,6 +466,19 @@ void GCWManagerImplementation::updateWinningFaction() {
 		}
 	}
 	winnerDifficultyScaling = scaling;
+}
+
+void GCWManagerImplementation::spawnGcwControlBanners() {
+	if (zone == nullptr) {
+		return;
+	}
+
+	String zoneName = zone->getZoneName();
+	Lua* lua = DirectorManager::instance()->getLuaInstance();
+	Reference<LuaFunction*> luaSpawnCityControlBanners = lua->createFunction("CityControlBanners", "spawnGcwControlBanners", 0);
+
+	*luaSpawnCityControlBanners << zoneName;
+	luaSpawnCityControlBanners->callFunction();
 }
 
 bool GCWManagerImplementation::hasTooManyBasesNearby(int x, int y) {
@@ -715,9 +731,9 @@ void GCWManagerImplementation::startVulnerability(BuildingObject* building) {
 	if (building->getFaction() == Factions::FACTIONREBEL) {
 
 		startVulnerabilityMsg << "IMPERIAL DIRECTIVE -- Scouts have located a Rebel Base on " << capZoneName << ". All forces rendezvous at " << building->getPositionX() << ", " << building->getPositionY() << ". It is vulnerable to be destoyed for the next 3 hours, show no mercy.";
-		
+
 	} else if (building->getFaction() == Factions::FACTIONIMPERIAL) {
-			
+
 		startVulnerabilityMsg << "REBEL ALERT -- An Imperial Base has been located on " << capZoneName << ". Alliance Forces assemble at " << building->getPositionX() << ", " << building->getPositionY() << ". We only have 3 hours before the vulnerability ends, we must not fail.";
 	}
 
@@ -1774,7 +1790,7 @@ void GCWManagerImplementation::broadcastBuilding(BuildingObject* building, Strin
 
 			if (targetPlayer != nullptr) {
 				targetPlayer->sendSystemMessage(params);
-			}			
+			}
 		}
 	}
 }
@@ -1800,16 +1816,16 @@ void GCWManagerImplementation::broadcastDestroyReward(BuildingObject* building) 
 		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersR.get(i));
 
 		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
-		
+
 			CreatureObject* targetCreature = cast<CreatureObject*>(targetObject);
 
 			if (targetCreature != nullptr && targetCreature->getFaction() != 0 && targetCreature->getFaction() != building->getFaction()) {
-				
+
 				if (building->getFaction() == Factions::FACTIONREBEL) {
 					FactionManager::instance()->awardFactionStanding(targetCreature,"rebel", 10000);
 				} else if (building->getFaction() == Factions::FACTIONIMPERIAL) {
 					FactionManager::instance()->awardFactionStanding(targetCreature,"imperial", 10000);
-				}	
+				}
 			}
 		}
 	}
@@ -1836,16 +1852,16 @@ void GCWManagerImplementation::broadcastDefendReward(BuildingObject* building) {
 		SceneObject* targetObject = static_cast<SceneObject*>(closePlayersD.get(i));
 
 		if (targetObject->isPlayerCreature() && building->isInRange(targetObject, range)) {
-		
+
 			CreatureObject* targetCreature = cast<CreatureObject*>(targetObject);
 
 			if (targetCreature != nullptr && targetCreature->getFaction() != 0 && targetCreature->getFaction() == building->getFaction()) {
-				
+
 				if (building->getFaction() == Factions::FACTIONREBEL) {
 					FactionManager::instance()->awardFactionStanding(targetCreature,"imperial", 2000);
 				} else if (building->getFaction() == Factions::FACTIONIMPERIAL) {
 					FactionManager::instance()->awardFactionStanding(targetCreature,"rebel", 2000);
-				}	
+				}
 			}
 		}
 	}
@@ -1889,7 +1905,7 @@ void GCWManagerImplementation::abortShutdownSequence(BuildingObject* building, C
 		baseData->setState(DestructibleBuildingDataComponent::REBOOTSEQUENCE);
 		StringIdChatParameter reloadMessage;
 		reloadMessage.setStringId("@faction/faction_hq/faction_hq_response:terminal_response07"); // COUNTDOWN ABORTED: FACILITY SHUTTING DOWN!!
-		broadcastBuilding(building, reloadMessage);		
+		broadcastBuilding(building, reloadMessage);
 
 		Reference<Task*> newTask = new BaseRebootTask(_this.getReferenceUnsafeStaticCast(), building, baseData);
 		newTask->schedule(60000);
@@ -2246,6 +2262,21 @@ void GCWManagerImplementation::sendSelectDeedToDonate(BuildingObject* building, 
 	if (!(building->getPvpStatusBitmask() & CreatureFlag::OVERT))
 		return;
 
+	float currentDelay = ((Time().miliDifference(baseData->getDonateDefenseDelay()) / 1000) / 60);
+
+	if (baseData->canDonateDefense()) {
+		if (currentDelay > 1) {
+			creature->sendSystemMessage("You cannot donate anymore defenses to this HQ for approximately " + String::valueOf(currentDelay) + " minutes.");
+			return;
+		} else if (currentDelay == 1) {
+			creature->sendSystemMessage("You cannot donate anymore defenses to this HQ for approximately " + String::valueOf(currentDelay) + " minute.");
+			return;
+		} else {
+			creature->sendSystemMessage("You will be able to donate more defenses to this HQ soon.");
+			return;
+		}
+	}
+
 	if (ghost->hasSuiBoxWindowType(SuiWindowType::HQ_TERMINAL))
 		ghost->closeSuiWindowType(SuiWindowType::HQ_TERMINAL);
 
@@ -2430,6 +2461,7 @@ void GCWManagerImplementation::performDonateMinefield(BuildingObject* building, 
 		params.setTO(deed->getObjectNameStringIdFile(), deed->getObjectNameStringIdName());
 		creature->sendSystemMessage(params);
 
+		baseData->updateDonateDefenseDelay(getDonateDefenseDelay());
 		verifyMinefields(building);
 		block.release();
 
@@ -2506,6 +2538,7 @@ void GCWManagerImplementation::performDonateTurret(BuildingObject* building, Cre
 		params.setTO(turretDeed->getObjectNameStringIdFile(), turretDeed->getObjectNameStringIdName());
 		creature->sendSystemMessage(params);
 
+		baseData->updateDonateDefenseDelay(getDonateDefenseDelay());
 		verifyTurrets(building);
 		block.release();
 
@@ -2583,6 +2616,7 @@ void GCWManagerImplementation::performDonateScanner(BuildingObject* building, Cr
 		params.setTO(scannerDeed->getObjectNameStringIdFile(), scannerDeed->getObjectNameStringIdName());
 		creature->sendSystemMessage(params);
 
+		baseData->updateDonateDefenseDelay(getDonateDefenseDelay());
 		verifyScanners(building);
 		block.release();
 

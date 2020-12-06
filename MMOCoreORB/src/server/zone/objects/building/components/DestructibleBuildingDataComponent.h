@@ -36,6 +36,7 @@ private:
 	Time vulnerabilityEndTime; //serialized
 	Time placementTime; // serialized
 	Time lastResetTime; // serialized
+	Time nextDefenseDonation;
 	int uplinkBand; // secret code used to jam the uplink
 	bool activeDefenses;
 	bool defenseAddedThisVuln;
@@ -108,6 +109,10 @@ public:
 
 	Time getLastResetTime() {
 		return lastResetTime;
+	}
+
+	Time getDonateDefenseDelay()  {
+		return nextDefenseDonation;
 	}
 
 	int getUplinkBand() {
@@ -371,6 +376,10 @@ public:
 	void setTerminalsSpawned(bool val) {
 		terminalsSpawned = val;
 	}
+
+	void updateDonateDefenseDelay(float delay);
+
+	bool canDonateDefense();
 
 private:
 
