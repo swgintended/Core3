@@ -54,9 +54,9 @@ Core3 = {
 
 	DBHost = "127.0.0.1",
 	DBPort = 3306,
-	DBName = "swgemu",
-	DBUser = "swgemu",
-	DBPass = "123456",
+	DBName = "swgemu2",
+	DBUser = "swgemu2",
+	DBPass = "",
 	DBInstances = 2,
 	DBSecret = "swgemus3cr37!", -- Change this! This value should be unique and of reasonable length.
 
@@ -96,7 +96,7 @@ Core3 = {
 	--"11",
 	--"character_farm",
 	--"cinco_city_test_m5",
-	"corellia",
+	--"corellia",
 	--"creature_test",
 	--"dantooine",
 	--"dathomir",
@@ -106,7 +106,7 @@ Core3 = {
 	--"floratest",
 	--"godclient_test",
 	--"lok",
-	--"naboo",
+	"naboo",
 	--"otoh_gunga",
 	--"rivertest",
 	--"rori",
@@ -130,12 +130,12 @@ Core3 = {
 	--"space_yavin4",
 	--"taanab",
 	--"talus",
-	--"tatooine",
+	"tatooine",
 	--"test_wearables",
 	"tutorial",
 	--"umbra",
 	--"watertabletest",
-	"yavin4"
+	--"yavin4"
 	},
 
 

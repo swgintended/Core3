@@ -438,8 +438,14 @@ public:
 		}
 
 		PlayerManager* playerManager = server->getZoneServer()->getPlayerManager();
+		float duration = enhancePack->getDuration();
+		uint32 amountEnhanced;
 
-		uint32 amountEnhanced = playerManager->healEnhance(enhancer, patient, attribute, buffPower, enhancePack->getDuration() * .33, enhancePack->getAbsorption());
+		if (BuffAttribute::isProtection(attribute)) {
+			amountEnhanced = playerManager->healEnhance(enhancer, patient, attribute, buffPower, duration, enhancePack->getAbsorption());
+		} else {
+			amountEnhanced = playerManager->healEnhance(enhancer, patient, attribute, buffPower, duration * .33, enhancePack->getAbsorption());
+		}
 
 		if (creature->isPlayerCreature() && targetCreature->isPlayerCreature()) {
 			playerManager->sendBattleFatigueMessage(creature, targetCreature);
