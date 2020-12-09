@@ -177,6 +177,7 @@ class PlayerManager extends Observer implements Logger {
 	 * @post { attacker and player locked }
 	 */
 	public native void killPlayer(TangibleObject attacker, CreatureObject player, int typeofdeath = 0, boolean isCombatAction = false);
+	public native void broadcastKillMessage(CreatureObject attacker, CreatureObject victim);
 
 	/**
 	 * Calculates the length of time that incapacitation should last. Cannot exceed 1 minute.
