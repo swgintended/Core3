@@ -26,6 +26,11 @@ maxPetitioners = 11
 maxChallenges = 20
 missedVotePenalty = 100 -- FRS XP
 
+-- FRS XP gain is divided amongst attackers
+--shareXPOnKill = true
+--SWGIntended: Give full FRS XP
+shareXPOnKill = false
+
 -- { rank, skillName, requiredExperience, playerCap, robe }
 lightRankingData = {
 	{ 0, "force_rank_light_novice", 0, -1, "object/tangible/wearables/robe/robe_jedi_light_s01.iff" },
