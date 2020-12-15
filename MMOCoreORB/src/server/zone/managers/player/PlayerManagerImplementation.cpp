@@ -1208,65 +1208,51 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 
 	ThreatMap* threatMap = player->getThreatMap();
 
-	CreatureObject* attackerCreature = attacker->asCreatureObject();
+	if (attacker->isPlayerCreature() || attacker->isPet()) {
+		CreatureObject* attackerCreature = attacker->asCreatureObject();
 
-	if (attackerCreature->isPet()) {
-		CreatureObject* owner = attackerCreature->getLinkedCreature().get();
+		if (attackerCreature->isPet()) {
+			CreatureObject* owner = attackerCreature->getLinkedCreature().get();
 
-		if (owner != nullptr && owner->isPlayerCreature()) {
-			attackerCreature = owner;
-		}
-	}
-
-	if (attackerCreature->isPlayerCreature() && (player->hasBountyMissionFor(attackerCreature) || attackerCreature->hasBountyMissionFor(player))) {
-		StringBuffer bhDeathBroadcast;
-		if (attackerCreature->hasBountyMissionFor(player)) {
-			bhDeathBroadcast << "!! IMPERIAL COMMUNICATION !! Bounty Hunter " << attackerCreature->getFirstName() <<" has collected the bounty placed on the Jedi scum " << player->getFirstName() << ".";
-		} else {
-			bhDeathBroadcast << attackerCreature->getFirstName() << " has successfully fought off and slain the Bounty Hunter " << player->getFirstName() << ".";
-		}
-		player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, bhDeathBroadcast.toString());
-
-	} else if (attackerCreature->isPlayerCreature() && attackerCreature->getFaction() != 0 && player->getFaction() != 0 && attackerCreature->getFaction() != player->getFaction()) {
-
-		if (!CombatManager::instance()->areInDuel(attackerCreature, player) && !ghost->hasGroupTefTowards(player->getGroupID())) {
-
-			FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
-
-			if (attacker->getFaction() == Factions::FACTIONREBEL) {
-				attacker->playEffect("clienteffect/holoemote_rebel.cef", "head");
-				StringBuffer factionDeathBroadcast;
-				factionDeathBroadcast << "A Rebel named " << attackerCreature->getFirstName() << " has murdered " << player->getFirstName() << ", an Empire Loyalist.";
-				player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, factionDeathBroadcast.toString());
-			} else if (attacker->getFaction() == Factions::FACTIONIMPERIAL) {
-				attacker->playEffect("clienteffect/holoemote_imperial.cef", "head");
-				StringBuffer factionDeathBroadcast;
-				factionDeathBroadcast << attackerCreature->getFirstName() << ", an Empire Loyalist, has found and slaughtered the Rebel Scum named " << player->getFirstName() << ".";
-				player->getZoneServer()->getChatManager()->broadcastGalaxy(nullptr, factionDeathBroadcast.toString());
+			if (owner != nullptr && owner->isPlayerCreature()) {
+				attackerCreature = owner;
 			}
 		}
-	}
 
-	PlayerObject* victimGhost = player->getPlayerObject();
+		broadcastKillMessage(attackerCreature, player);
 
-	if (ghost != nullptr && victimGhost != nullptr) {
-		FrsData* attackerData = ghost->getFrsData();
-		int attackerCouncil = attackerData->getCouncilType();
+		if (attacker->getFaction() != 0) {
+			if (attackerCreature->isPlayerCreature()) {
+				// Do not award faction points if dueling or fighting each other from group TEF free for all
+				bool inSameGroup = attackerCreature->getGroupID() != 0 && attackerCreature->getGroupID() == player->getGroupID();
+				if (!CombatManager::instance()->areInDuel(attackerCreature, player) && !inSameGroup) {
+					FactionManager::instance()->awardPvpFactionPoints(attackerCreature, player);
+				}
+			}
 
-		FrsData* victimData = victimGhost->getFrsData();
-		int victimCouncil = victimData->getCouncilType();
+			PlayerObject* attackerGhost = attackerCreature->getPlayerObject();
+			PlayerObject* victimGhost = player->getPlayerObject();
 
-		if (attackerCouncil == FrsManager::COUNCIL_DARK && victimCouncil == FrsManager::COUNCIL_DARK) {
-			ManagedReference<FrsManager*> strongMan = player->getZoneServer()->getFrsManager();
-			ManagedReference<CreatureObject*> attackerStrongRef = attackerCreature->asCreatureObject();
-			ManagedReference<CreatureObject*> playerStrongRef = player->asCreatureObject();
+			if (attackerGhost != nullptr && victimGhost != nullptr) {
+				FrsData* attackerData = attackerGhost->getFrsData();
+				int attackerCouncil = attackerData->getCouncilType();
 
-			Reference<ThreatMap*> copyThreatMap = new ThreatMap(*threatMap);
+				FrsData* victimData = victimGhost->getFrsData();
+				int victimCouncil = victimData->getCouncilType();
 
-			Core::getTaskManager()->executeTask([attackerStrongRef, playerStrongRef, strongMan, copyThreatMap] () {
-				if (!strongMan->handleDarkCouncilDeath(attackerStrongRef, playerStrongRef))
-					strongMan->handleSuddenDeathLoss(playerStrongRef, copyThreatMap);
-			}, "PvPFRSKillTask");
+				if (attackerCouncil == FrsManager::COUNCIL_DARK && victimCouncil == FrsManager::COUNCIL_DARK) {
+					ManagedReference<FrsManager*> strongMan = player->getZoneServer()->getFrsManager();
+					ManagedReference<CreatureObject*> attackerStrongRef = attackerCreature->asCreatureObject();
+					ManagedReference<CreatureObject*> playerStrongRef = player->asCreatureObject();
+
+					Reference<ThreatMap*> copyThreatMap = new ThreatMap(*threatMap);
+
+					Core::getTaskManager()->executeTask([attackerStrongRef, playerStrongRef, strongMan, copyThreatMap] () {
+						if (!strongMan->handleDarkCouncilDeath(attackerStrongRef, playerStrongRef))
+							strongMan->handleSuddenDeathLoss(playerStrongRef, copyThreatMap);
+					}, "PvPFRSKillTask");
+				}
+			}
 		}
 	}
 
@@ -1295,6 +1281,48 @@ void PlayerManagerImplementation::killPlayer(TangibleObject* attacker, CreatureO
 	player->setTargetID(0, true);
 
 	player->notifyObjectKillObservers(attacker);
+}
+
+void PlayerManagerImplementation::broadcastKillMessage(CreatureObject* attacker, CreatureObject* victim) {
+	// Bounty hunter kill
+	if (attacker->hasBountyMissionFor(victim) || victim->hasBountyMissionFor(attacker)) {
+		StringBuffer bhDeathBroadcast;
+		if (attacker->hasBountyMissionFor(victim)) {
+			bhDeathBroadcast << "!! IMPERIAL COMMUNICATION !! Bounty Hunter " << attacker->getFirstName() <<" has collected the bounty placed on the Jedi scum " << victim->getFirstName() << ".";
+		} else {
+			bhDeathBroadcast << attacker->getFirstName() << " has successfully fought off and slain the Bounty Hunter " << victim->getFirstName() << ".";
+		}
+
+		server->getChatManager()->broadcastGalaxy(nullptr, bhDeathBroadcast.toString());
+		return;
+	}
+
+	if (CombatManager::instance()->areInDuel(attacker, victim)) {
+		return;
+	}
+
+	PlayerObject* victimGhost = victim->getPlayerObject();
+	if (victimGhost != nullptr && victimGhost->hasGroupTefTowards(victim->getGroupID())) {
+		// Do not broadcast kill messages when fighting ones own group in a free-for-all group TEF effect
+		return;
+	}
+
+	// GCW kill
+	if (attacker->getFaction() != 0 && victim->getFaction() != 0  && attacker->getFaction() != victim->getFaction()) {
+		StringBuffer factionDeathBroadcast;
+		if (attacker->getFaction() == Factions::FACTIONREBEL) {
+			attacker->playEffect("clienteffect/holoemote_rebel.cef", "head");
+			factionDeathBroadcast << "A Rebel named " << attacker->getFirstName() << " has murdered " << victim->getFirstName() << ", an Empire Loyalist.";
+		} else if (attacker->getFaction() == Factions::FACTIONIMPERIAL) {
+			attacker->playEffect("clienteffect/holoemote_imperial.cef", "head");
+			factionDeathBroadcast << attacker->getFirstName() << ", an Empire Loyalist, has found and slaughtered the Rebel Scum named " << victim->getFirstName() << ".";
+		} else {
+			return;
+		}
+
+		server->getChatManager()->broadcastGalaxy(nullptr, factionDeathBroadcast.toString());
+		return;
+	}
 }
 
 void PlayerManagerImplementation::sendActivateCloneRequest(CreatureObject* player, int typeofdeath) {
@@ -1410,7 +1438,7 @@ void PlayerManagerImplementation::sendActivateCloneRequest(CreatureObject* playe
 				(cbot->getFacilityType() == CloningBuildingObjectTemplate::DARK_JEDI_ONLY && player->hasSkill("force_rank_dark_novice"))) {
 			FrsManager* frsManager = server->getFrsManager();
 
-			if (frsManager != nullptr && frsManager->isFrsEnabled()) {
+			if (frsManager->isFrsEnabled()) {
 				String name = "Jedi Enclave (" + String::valueOf((int)loc->getWorldPositionX()) + ", " + String::valueOf((int)loc->getWorldPositionY()) + ")";
 				cloneMenu->addMenuItem(name, loc->getObjectID());
 			}

@@ -614,7 +614,7 @@ int CombatManager::doTargetCombatAction(CreatureObject* attacker, WeaponObject* 
 				Locker olocker(attackingCreature, attacker);
 				if (!defender->isAiAgent() && defender->isPlayerCreature()) {
 					if (!areInDuel(attacker, defender)) {
-						if (defenderPlayer->hasBhTef()){
+						if (defenderPlayer != nullptr && defenderPlayer->hasBhTef()){
 							if (defender->isGrouped()) {
 								addGroupTef(attacker, defender);
 								//info("doTargetCombatAction defenderhasbhtefandgroup", true);
