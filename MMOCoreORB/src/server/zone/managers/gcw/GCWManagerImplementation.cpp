@@ -2375,9 +2375,11 @@ void GCWManagerImplementation::performDefenseDonation(BuildingObject* building, 
 				return;
 			} else if (isScannerDeed) {
 				performDonateScanner(building, creature, deed);
+				creature->sendSystemMessage("Scanner Function selected");
 				return;
 			} else if (isTurretDeed) {
 				performDonateTurret(building, creature, deed);
+				creature->sendSystemMessage("Deed Function Selected");
 				return;
 			}
 		}
@@ -2510,7 +2512,7 @@ void GCWManagerImplementation::performDonateTurret(BuildingObject* building, Cre
 		if (child != nullptr) {
 			turretTemplate = TemplateManager::instance()->getTemplate(child->getTemplateFile().hashCode());
 
-			if (turretTemplate != nullptr && turretTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE) {
+			if (turretTemplate != nullptr && turretTemplate->getGameObjectType() == SceneObjectType::DESTRUCTIBLE && turretTemplate->getFullTemplateString().contains("turret")) {
 				if (currentTurretIndex == nextAvailableTurret) {
 					break;
 				} else {
