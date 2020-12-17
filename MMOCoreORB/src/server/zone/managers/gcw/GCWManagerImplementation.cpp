@@ -2375,11 +2375,9 @@ void GCWManagerImplementation::performDefenseDonation(BuildingObject* building, 
 				return;
 			} else if (isScannerDeed) {
 				performDonateScanner(building, creature, deed);
-				creature->sendSystemMessage("Scanner Function selected");
 				return;
 			} else if (isTurretDeed) {
 				performDonateTurret(building, creature, deed);
-				creature->sendSystemMessage("Deed Function Selected");
 				return;
 			}
 		}
