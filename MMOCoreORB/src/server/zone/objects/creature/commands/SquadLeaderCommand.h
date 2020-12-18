@@ -59,7 +59,7 @@ public:
 		return true;
 	}
 
-	static bool isValidGroupAbilityTarget(CreatureObject* leader, CreatureObject* target, bool allowPet) {
+	static bool isValidGroupAbilityTarget(CreatureObject* leader, CreatureObject* target, bool allowPet, bool tefAbility) {
 		if (allowPet) {
 			if (!target->isPlayerCreature() && !target->isPet()) {
 				return false;
@@ -105,16 +105,22 @@ public:
 			return false;
 		}
 
+		//Fix: With TEF Revamp, SL abilities should cause group TEF on leaderGhost and return true if targetGhost hasBhTef
 		if (targetGhost->hasBhTef() && !leaderGhost->hasGroupTef()) {
 			return false;
 		}
 
-		if (leaderFaction == targetFaction) {
-			if (targetGhost->hasRealGcwTef() || (targetStatus > leaderStatus && targetStatus == FactionStatus::OVERT)) {
-				leaderGhost->updateLastPvpCombatActionTimestamp(false, false, true, false);
+		if (tefAbility) {
+			if (targetGhost->hasBhTef() && leaderGhost->hasGroupTef()) {
+				leaderGhost->updateLastPvpCombatActionTimestamp(false, false, false, true);
+			}
+
+			if (leaderFaction == targetFaction) {
+				if (targetGhost->hasRealGcwTef() || (targetStatus > leaderStatus && targetStatus == FactionStatus::OVERT)) {
+					leaderGhost->updateLastPvpCombatActionTimestamp(false, false, true, false);
+				}
 			}
 		}
-
 		return true;
 	}
 

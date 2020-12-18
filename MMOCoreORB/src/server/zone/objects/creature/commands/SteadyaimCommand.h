@@ -76,7 +76,7 @@ public:
 			if (member == nullptr || !member->isPlayerCreature())
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, false))
+			if (!isValidGroupAbilityTarget(leader, member, false, true))
 				continue;
 
 			if (!checkDistance(leader, member, 64))

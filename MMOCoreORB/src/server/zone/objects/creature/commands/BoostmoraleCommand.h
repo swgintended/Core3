@@ -48,7 +48,7 @@ public:
 			if (!checkDistance(player, member, 64))
 				return GENERALERROR;
 
-			if (!isValidGroupAbilityTarget(player, member, false)) {
+			if (!isValidGroupAbilityTarget(player, member, false, true)) {
 				return GENERALERROR;
 			}
 		}
@@ -95,7 +95,7 @@ public:
 			if (!member->isPlayerCreature())
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, false))
+			if (!isValidGroupAbilityTarget(leader, member, false, false))
 				continue;
 
 			Locker clocker(member, leader);
@@ -127,7 +127,7 @@ public:
 			if (!member->isPlayerCreature())
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, false))
+			if (!isValidGroupAbilityTarget(leader, member, false, true))
 				continue;
 
 			Locker clocker(member, leader);

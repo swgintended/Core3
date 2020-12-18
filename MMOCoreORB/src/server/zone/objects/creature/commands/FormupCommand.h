@@ -74,7 +74,7 @@ public:
 			if (member == nullptr || !member->isPlayerCreature())
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, false))
+			if (!isValidGroupAbilityTarget(leader, member, false, true))
 				continue;
 
 			if (!checkDistance(leader, member, 64))
@@ -86,7 +86,7 @@ public:
 
 			if (member->isDizzied())
 				member->removeStateBuff(CreatureState::DIZZY);
-					
+
 			if (member->isStunned())
 				member->removeStateBuff(CreatureState::STUNNED);
 
