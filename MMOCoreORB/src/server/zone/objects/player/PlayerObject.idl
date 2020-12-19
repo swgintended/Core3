@@ -1967,7 +1967,7 @@ class PlayerObject extends IntangibleObject {
 
 		victimList.add(0, playerID);
 
-		if (victimList.size() > 20)
+		if (victimList.size() > 10)
 			victimList.remove(victimList.size() - 1);
 
 		lastPvpRatingUpdate.updateToCurrentTime();
