@@ -52,6 +52,9 @@ covertScannerDelay = 5
 -- % out of 100 to reveal a covert player
 covertScannerRevealChance = 90
 
+-- Delay in which players can donate defenses to a base
+donateDefenseDelay = 300
+
 -- xp bonus for faction controlling a planet
 bonusXP = 15
 

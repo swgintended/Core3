@@ -103,6 +103,8 @@ class PlayerManager extends Observer implements Logger {
 
 	transient CharacterNameMap nameMap;
 	private float globalExpMultiplier;
+	private float jediExpLossMultiplier;
+	private float frsExpMultiplier;
 	private float groupExpMultiplier;
 
 	@dereferenced
@@ -175,6 +177,7 @@ class PlayerManager extends Observer implements Logger {
 	 * @post { attacker and player locked }
 	 */
 	public native void killPlayer(TangibleObject attacker, CreatureObject player, int typeofdeath = 0, boolean isCombatAction = false);
+	public native void broadcastKillMessage(CreatureObject attacker, CreatureObject victim);
 
 	/**
 	 * Calculates the length of time that incapacitation should last. Cannot exceed 1 minute.
@@ -196,6 +199,12 @@ class PlayerManager extends Observer implements Logger {
 	public native void revokeBadge(PlayerObject ghost, final Badge badge);
 
 	public native void setExperienceMultiplier(float globalMultiplier);
+	public float getJediExpLossMultiplier() {
+		return jediExpLossMultiplier;
+	}
+	public float getFrsExpMultiplier() {
+		return frsExpMultiplier;
+	}
 	public native int awardExperience(CreatureObject player, final string xpType, int amount, boolean sendSystemMessage = true, float localMultiplier = 1.0f, boolean applyModifiers = true);
 
 	@local @dereferenced
