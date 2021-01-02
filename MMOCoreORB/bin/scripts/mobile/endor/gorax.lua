@@ -36,6 +36,7 @@ gorax = Creature:new {
 			lootChance = 7000000
 		}
 	},
+	badge = 145,
 	weapons = {},
 	conversationTemplate = "",
 	attacks = {

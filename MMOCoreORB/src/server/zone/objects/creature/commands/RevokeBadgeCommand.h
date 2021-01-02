@@ -21,6 +21,30 @@ public:
 		if (!checkInvalidLocomotions(creature))
 			return INVALIDLOCOMOTION;
 
+		if (arguments.isEmpty() && target == 0) {
+			creature->sendSystemMessage("Syntax: /revokeBadge [badge id]");
+			return GENERALERROR;
+		}
+
+		ManagedReference<SceneObject*> targetObject = server->getZoneServer()->getObject(target);
+		StringTokenizer args(arguments.toString());
+
+		float badgeId = args.getFloatToken();
+
+		if (targetObject == nullptr || !targetObject->isPlayerCreature()) {
+			creature->sendSystemMessage("Invalid target.");
+			return INVALIDTARGET;
+		}
+
+		ManagedReference<CreatureObject*> player = cast<CreatureObject*>(targetObject.get());
+
+		if (player != nullptr) {
+			Locker crossLocker(player, creature);
+
+			server->getPlayerManager()->revokeBadge(player->getPlayerObject(), badgeId);
+			creature->sendSystemMessage("Revoked badge " + String::valueOf(badgeId) + " from " + player->getDisplayedName() + ".");
+		}
+
 		return SUCCESS;
 	}
 
