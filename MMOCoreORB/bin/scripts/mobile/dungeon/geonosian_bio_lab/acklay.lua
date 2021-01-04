@@ -34,6 +34,7 @@ acklay = Creature:new {
 			}
 		}
 	},
+	badge = 144,
 	weapons = {},
 	conversationTemplate = "",
 	attacks = {

@@ -31,7 +31,9 @@ Creature = {
 	attacks = {},
 	conversationTemplate = "",
 	personalityStf = "",
-	optionsBitmask = AIENABLED
+	optionsBitmask = AIENABLED,
+
+	badge = -1
 }
 
 function Creature:new (o)

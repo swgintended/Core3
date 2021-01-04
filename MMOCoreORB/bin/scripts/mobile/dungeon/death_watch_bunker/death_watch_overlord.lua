@@ -43,6 +43,7 @@ death_watch_overlord = Creature:new {
 			lootChance = 5000000
 		}
 	},
+	badge = 142,
 	weapons = {"dark_trooper_weapons"},
 	conversationTemplate = "",
 	attacks = merge(riflemanmaster,fencermaster,marksmanmaster,brawlermaster)

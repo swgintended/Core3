@@ -102,6 +102,8 @@ protected:
 	String reactionStf;
 	String personalityStf;
 
+	int badge;
+
 public:
 	CreatureTemplate();
 
@@ -441,6 +443,10 @@ public:
 		}
 
 		return false;
+	}
+
+	inline int getBadge() const {
+		return badge;
 	}
 };
 

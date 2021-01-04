@@ -40,6 +40,7 @@ krayt_dragon_ancient = Creature:new {
 			lootChance = 7720000
 		}
 	},
+	badge = 140,
 	weapons = {},
 	conversationTemplate = "",
 	attacks = {
