@@ -81,7 +81,7 @@ public:
 
 		EnemyFlags* flags = ghost->getEnemyFlags();
 		for (int i = 0; i < flags->size(); i++) {
-			EnemyFlag* flag = &flags->get(i);
+			EnemyFlag* flag = flags->get(i);
 			uint64 flagID = SetTEFCommand::generateEnemyFlagID(flag);
 			listbox->addMenuItem(SetTEFCommand::formatEnemyFlag(flag, admin->getZoneServer()), flagID);
 		}
@@ -118,7 +118,7 @@ public:
 				default:
 					// Selected an EnemyFlag to edit
 					for (int i = 0; i < flags->size(); i++) {
-						EnemyFlag* flag = &flags->get(i);
+						EnemyFlag* flag = flags->get(i);
 						uint64 flagID = SetTEFCommand::generateEnemyFlagID(flag);
 						if (flagID == actionOrID) {
 							SetTEFCommand::showEditEnemyFlag(admin, player, flag);

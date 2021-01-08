@@ -21,6 +21,38 @@ public:
 		addSerializableVariables();
 	}
 
+	EnemyFlag(const EnemyFlag& copy): Object(), Serializable() {
+		copyFrom(copy);
+		addSerializableVariables();
+	}
+
+#ifdef CXX11_COMPILER
+	EnemyFlag(const EnemyFlag&& copy): Serializable() {
+		copyFrom(copy);
+		addSerializableVariables();
+	}
+#endif
+
+	EnemyFlag& operator=(const EnemyFlag& copy) {
+		if (this == &copy) {
+			return *this;
+		}
+
+		copyFrom(copy);
+		return *this;
+	}
+
+#ifdef CXX11_COMPILER
+	EnemyFlag& operator=(const EnemyFlag&& copy) {
+		if (this == &copy) {
+			return *this;
+		}
+
+		copyFrom(copy);
+		return *this;
+	}
+#endif
+
 	friend void to_json(nlohmann::json& j, const EnemyFlag& flag) {
 		j["enemyID"] = flag.enemyID;
 		j["faction"] = flag.faction;
@@ -57,13 +89,16 @@ public:
 	}
 
 	inline void updateExpiration(const uint32 expiresInSecondsFromNow = TEFTIMER) {
+		uint32 prevExpiration = getExpiration();
 		temporary = true;
 		expiration.updateToCurrentTime();
 		expiration.addMiliTime(expiresInSecondsFromNow * 1000);
+		notifyChanged(this, getExpiration() - prevExpiration);
 	}
 
 	inline void setPersistent() {
 		temporary = false;
+		notifyChanged(this, 0);
 	}
 
 	int compareTo(const EnemyFlag& other) const {
@@ -89,17 +124,30 @@ public:
 		return expiration.compareTo(other.expiration);
 	}
 
+	inline void setCallbacks(Function<void(EnemyFlag*, uint32)> notifyChanged) {
+		this->notifyChanged = notifyChanged;
+	}
+
 private:
 	uint64 enemyID;
 	uint32 faction;
 	SerializableTime expiration;
 	bool temporary;
+	Function<void(EnemyFlag*, uint32)> notifyChanged = [](EnemyFlag* flag, uint32 secondsDelta){};
 
 	inline void addSerializableVariables() {
 		addSerializableVariable("enemyID", &enemyID);
 		addSerializableVariable("faction", &faction);
 		addSerializableVariable("expiration", &expiration);
 		addSerializableVariable("temporary", &temporary);
+	}
+
+	inline void copyFrom(const EnemyFlag& copy) {
+		enemyID = copy.enemyID;
+		faction = copy.faction;
+		expiration = copy.expiration;
+		temporary = copy.temporary;
+		notifyChanged = copy.notifyChanged;
 	}
 
 	// GCW Scenario
