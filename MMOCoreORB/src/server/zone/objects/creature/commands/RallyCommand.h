@@ -69,10 +69,10 @@ public:
 			if (member == nullptr)
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, true, true))
-				continue;
-			// FIX RALLY: Check distance from leader to member
 			if (!checkDistance(leader, member, 64))
+				continue;
+
+			if (!isValidGroupAbilityTarget(leader, member, true, true))
 				continue;
 
 

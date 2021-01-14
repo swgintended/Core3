@@ -90,10 +90,10 @@ public:
 			if (member == nullptr || !member->isPlayerCreature())
 				continue;
 
-			if (!isValidGroupAbilityTarget(creature, member, false, true))
+			if(!checkDistance(player, member, 64))
 				continue;
 
-			if(!checkDistance(player, member, 64))
+			if (!isValidGroupAbilityTarget(creature, member, false, true))
 				continue;
 
 			Locker clocker(member, player);
