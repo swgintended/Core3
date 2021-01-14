@@ -2079,6 +2079,34 @@ void PlayerManagerImplementation::awardBadge(PlayerObject* ghost, const Badge* b
 	}
 }
 
+void PlayerManagerImplementation::revokeBadge(PlayerObject* ghost, uint32 badgeId) {
+	const Badge* badge = BadgeList::instance()->get(badgeId);
+	if (badge != nullptr)
+		revokeBadge(ghost, badge);
+}
+
+void PlayerManagerImplementation::revokeBadge(PlayerObject* ghost, const Badge* badge) {
+	if (badge == nullptr) {
+		ghost->error("Failed to revoke null badge.");
+		return;
+	}
+
+
+	ManagedReference<CreatureObject*> player = dynamic_cast<CreatureObject*>(ghost->getParent().get().get());
+	const unsigned int badgeId = badge->getIndex();
+	if (!ghost->hasBadge(badgeId)) {
+		return;
+	}
+
+	ghost->unsetBadge(badgeId);
+	StringIdChatParameter stringId("badge_n", "");
+	stringId.setTO("badge_n", badge->getKey());
+	stringId.setStringId("badge_n", "prose_revoke");
+	player->sendSystemMessage(stringId);
+
+	// player->notifyObservers(ObserverEventType::BADGEREVOKED, player, badgeId);
+}
+
 void PlayerManagerImplementation::setExperienceMultiplier(float globalMultiplier) {
 	globalExpMultiplier = globalMultiplier;
 }

@@ -264,35 +264,37 @@ int CombatManager::doCombatAction(CreatureObject* attacker, WeaponObject* weapon
 			PlayerObject* ghost = attackingCreature->getPlayerObject();
 			PlayerObject* ghostAttacker = attacker->getPlayerObject();
 			ManagedReference<CreatureObject*> defenderCreature = cast<CreatureObject*>(defenderObject);
-			Locker olocker(defenderCreature,attacker);
+			//Locker olocker(defenderCreature,attacker);
 			if (defenderObject != nullptr){
-				//info("OUT3shouldRealGcwTefpvp", true);
-				if (defenderCreature->isAiAgent() && defenderCreature->getFaction() != attacker->getFaction() && (defenderCreature->getFaction() == Factions::FACTIONREBEL || defenderCreature->getFaction() == Factions::FACTIONIMPERIAL) && !areInDuel(attacker, defenderCreature))
-					ghostAttacker->updateLastPvpCombatActionTimestamp(false, false, true, false);
-				if (ghost != nullptr) {
-					//info("OUT4shouldRealGcwTefpvp", true);
-					if (ghostAttacker != nullptr){
-						if (!areInDuel(attacker, defenderCreature)) {
-							//info("OUT5shouldRealGcwTefpvp", true);
-							olocker.release();
-							Locker olocker(attackingCreature,attacker);
-							if (defenderCreature->isGrouped()) {
-								//info("OUT6shouldRealGcwTefpvp", true);
-								addGroupTef(attacker, defenderCreature);
-								ghost->updateLastPvpCombatActionTimestamp(false,shouldBhTef,shouldRealGcwTef, true);
-							} else if (!defenderCreature->isGrouped()) {
-								ghost->updateLastPvpCombatActionTimestamp(false,shouldBhTef,shouldRealGcwTef, false);
+				if (defenderCreature != nullptr){
+					//info("OUT3shouldRealGcwTefpvp", true);
+					if (defenderCreature->isAiAgent() && defenderCreature->getFaction() != attacker->getFaction() && (defenderCreature->getFaction() == Factions::FACTIONREBEL || defenderCreature->getFaction() == Factions::FACTIONIMPERIAL) && !areInDuel(attacker, defenderCreature))
+						ghostAttacker->updateLastPvpCombatActionTimestamp(false, false, true, false);
+					if (ghost != nullptr) {
+						//info("OUT4shouldRealGcwTefpvp", true);
+						if (ghostAttacker != nullptr){
+							if (!areInDuel(attacker, defenderCreature)) {
+								//info("OUT5shouldRealGcwTefpvp", true);
+								//olocker.release();
+								//Locker olocker(attackingCreature,attacker);
+								if (defenderCreature->isGrouped()) {
+									//info("OUT6shouldRealGcwTefpvp", true);
+									addGroupTef(attacker, defenderCreature);
+									ghost->updateLastPvpCombatActionTimestamp(false,shouldBhTef,shouldRealGcwTef, true);
+								} else if (!defenderCreature->isGrouped()) {
+									ghost->updateLastPvpCombatActionTimestamp(false,shouldBhTef,shouldRealGcwTef, false);
+								}
+								/*if (defenderCreature->isGrouped() && defenderCreature->isPlayerObject()) {
+									info("doCombatAction isGrouped", true);
+									addGroupTef(attacker, defenderCreature);
+									ghostAttacker->updateLastPvpCombatActionTimestamp(false,shouldBhTef,shouldRealGcwTef, shouldGroupTef);
+								}
+								if (defenderCreature->isPlayerCreature()) {
+									ManagedReference<PlayerObject*> defenderPlayer = defenderCreature->getPlayerObject();
+									if (defenderPlayer != nullptr && shouldRealGcwTef)
+										defenderPlayer->updateLastPvpCombatActionTimestamp(false,false,true);
+								}*/
 							}
-							/*if (defenderCreature->isGrouped() && defenderCreature->isPlayerObject()) {
-								info("doCombatAction isGrouped", true);
-								addGroupTef(attacker, defenderCreature);
-								ghostAttacker->updateLastPvpCombatActionTimestamp(false,shouldBhTef,shouldRealGcwTef, shouldGroupTef);
-							}
-							if (defenderCreature->isPlayerCreature()) {
-								ManagedReference<PlayerObject*> defenderPlayer = defenderCreature->getPlayerObject();
-								if (defenderPlayer != nullptr && shouldRealGcwTef)
-									defenderPlayer->updateLastPvpCombatActionTimestamp(false,false,true);
-							}*/
 						}
 					}
 				}

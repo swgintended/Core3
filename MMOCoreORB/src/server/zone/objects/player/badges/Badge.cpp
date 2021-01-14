@@ -48,6 +48,8 @@ uint8 Badge::getTypeFromString(const String& typeString) {
 		return EVENT;
 	} else if (typeString == "content") {
 		return CONTENT;
+	} else if (typeString == "kill") {
+		return KILL;
 	} else {
 		StringBuffer buffer;
 		buffer << "Unknown badge type ";

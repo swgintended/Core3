@@ -68,6 +68,8 @@ CreatureTemplate::CreatureTemplate() {
 	containerComponentTemplate = "";
 	reactionStf = "";
 	personalityStf = "";
+
+	badge = -1;
 }
 
 CreatureTemplate::~CreatureTemplate() {
@@ -215,4 +217,6 @@ void CreatureTemplate::readObject(LuaObject* templateData) {
 
 	reactionStf = templateData->getStringField("reactionStf");
 	personalityStf = templateData->getStringField("personalityStf");
+
+	badge = templateData->getIntField("badge");
 }
