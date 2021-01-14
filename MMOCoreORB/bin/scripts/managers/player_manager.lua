@@ -57,7 +57,7 @@ medicalDuration = 3600 -- in seconds
 groupExpMultiplier = 1.2
 
 --Sets a global experience multiplier
-globalExpMultiplier = 2.0
+globalExpMultiplier = 5.0
 
 --Sets the experience multiplier for Jedi XP loss on death
 jediExpLossMultiplier = 1.0
