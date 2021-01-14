@@ -45,7 +45,7 @@ axkva_min = Creature:new {
 			groups = {
 				{group = "axkva_min", chance = 10000000},
 			},
-			lootChance = 5000000
+			lootChance = 9500000
 		}
 	},
 	badge = 141,
