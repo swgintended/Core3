@@ -31,12 +31,12 @@ spiderclan_elder = Creature:new {
 	lootGroups = {
 		{
 			groups = {
-				{group = "junk", chance = 1500000},
-				{group = "power_crystals", chance = 500000},
-				{group = "color_crystals", chance = 500000},
-				{group = "armor_attachments", chance = 600000},
-				{group = "clothing_attachments", chance = 600000},
-				{group = "melee_weapons", chance = 2800000},
+				{group = "junk", chance = 0},
+				{group = "power_crystals", chance = 1000000},
+				{group = "color_crystals", chance = 1000000},
+				{group = "armor_attachments", chance = 1000000},
+				{group = "clothing_attachments", chance = 1000000},
+				{group = "melee_weapons", chance = 2500000},
 				{group = "pistols", chance = 1000000},
 				{group = "rifles", chance = 1000000},
 				{group = "carbines", chance = 1000000},

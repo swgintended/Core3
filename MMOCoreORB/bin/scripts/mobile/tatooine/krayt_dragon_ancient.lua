@@ -33,11 +33,11 @@ krayt_dragon_ancient = Creature:new {
 	        groups = {
 				{group = "krayt_tissue_rare", chance = 2000000},
 				{group = "krayt_dragon_common", chance = 2500000},
-				{group = "krayt_pearls", chance = 1500000},
-				{group = "armor_all", chance = 2000000},
-				{group = "weapons_all", chance = 2000000},
+				{group = "krayt_pearls", chance = 3500000},
+				{group = "armor_all", chance = 1000000},
+				{group = "weapons_all", chance = 1000000},
 			},
-			lootChance = 7720000
+			lootChance = 9500000
 		}
 	},
 	badge = 140,

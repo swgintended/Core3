@@ -736,7 +736,7 @@ lok_world = {
 			minDifficulty = 123,
 			maxDifficulty = 152,
 			numberToSpawn = 0,
-			weighting = 3,
+			weighting = 5,
 			size = 30
 		},
 		{

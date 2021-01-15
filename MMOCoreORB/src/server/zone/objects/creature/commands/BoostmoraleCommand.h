@@ -47,6 +47,10 @@ public:
 
 			if (!checkDistance(player, member, 64))
 				return GENERALERROR;
+
+			if (!isValidGroupAbilityTarget(player, member, false, true)) {
+				return GENERALERROR;
+			}
 		}
 
 		int hamCost = (int) (100.0f * calculateGroupModifier(group));
@@ -91,7 +95,7 @@ public:
 			if (!member->isPlayerCreature())
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, false))
+			if (!isValidGroupAbilityTarget(leader, member, false, false))
 				continue;
 
 			Locker clocker(member, leader);
@@ -123,7 +127,7 @@ public:
 			if (!member->isPlayerCreature())
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, false))
+			if (!isValidGroupAbilityTarget(leader, member, false, true))
 				continue;
 
 			Locker clocker(member, leader);
