@@ -13584,6 +13584,12 @@ CREATE TABLE  `swgemu`.`pvp_kill` (
   FOREIGN KEY (`pvp_death_id`) REFERENCES `swgemu`.`pvp_death`(`pvp_death_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+--
+-- SWGIntended
+-- Add character limit to accounts
+--
+ALTER TABLE `swgemu`.`accounts` ADD COLUMN `character_limit` tinyint(1) NOT NULL DEFAULT 2 AFTER `salt`;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;

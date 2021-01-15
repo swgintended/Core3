@@ -16,6 +16,7 @@ void AccountImplementation::initializeTransientMembers() {
 	accountID = 0;
 	stationID = 0;
 	adminLevel = 0;
+	characterLimit = 0;
 	created = 0;
 	banExpires = 0;
 	banAdmin = 0;
@@ -47,7 +48,7 @@ void AccountImplementation::addGalaxyBan(GalaxyBanEntry* ban, uint32 galaxy) {
 
 void AccountImplementation::updateAccount() {
 	StringBuffer query;
-	query << "SELECT a.active, a.admin_level, "
+	query << "SELECT a.active, a.admin_level, a.character_limit, "
 			<< "IFNULL((SELECT b.reason FROM account_bans b WHERE b.account_id = a.account_id AND b.expires > UNIX_TIMESTAMP() ORDER BY b.expires DESC LIMIT 1), ''), "
 			<< "IFNULL((SELECT b.expires FROM account_bans b WHERE b.account_id = a.account_id AND b.expires > UNIX_TIMESTAMP() ORDER BY b.expires DESC LIMIT 1), 0), "
 			<< "IFNULL((SELECT b.issuer_id FROM account_bans b WHERE b.account_id = a.account_id AND b.expires > UNIX_TIMESTAMP() ORDER BY b.expires DESC LIMIT 1), 0) "
@@ -58,10 +59,11 @@ void AccountImplementation::updateAccount() {
 	if (result->next()) {
 		setActive(result->getBoolean(0));
 		setAdminLevel(result->getInt(1));
+		setCharacterLimit(result->getInt(2));
 
-		setBanReason(result->getString(2));
-		setBanExpires(result->getUnsignedInt(3));
-		setBanAdmin(result->getUnsignedInt(4));
+		setBanReason(result->getString(3));
+		setBanExpires(result->getUnsignedInt(4));
+		setBanAdmin(result->getUnsignedInt(5));
 	}
 }
 
