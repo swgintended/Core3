@@ -115,7 +115,8 @@ int HQMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject, CreatureOb
 					task->execute();
 				}
 			} else {
-				creature->sendSystemMessage(("Only a overt Operative with the Rank of Colonel can active the Reactor Overload!")); // Only an experienced squad leader could expect to coordinate a reactor overload!
+				// SWGIntended: slice by rank
+				creature->sendSystemMessage("Only an operative with the rank of Colonel or higher has the authority to initiate a reactor overload!");
 			}
 
 			return 0;
