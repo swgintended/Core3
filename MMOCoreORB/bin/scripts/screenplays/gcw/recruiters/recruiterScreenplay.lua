@@ -144,60 +144,37 @@ function recruiterScreenplay:isInstallation(faction, strItem)
 	return factionRewardData.installations[strItem] ~= nil and factionRewardData.installations[strItem].type == factionRewardType.installation
 end
 
-function recruiterScreenplay:getWeaponsArmorOptions(faction, gcwDiscount, smugglerDiscount)
-	local optionsTable = { }
+function recruiterScreenplay:getWeaponsArmorOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	local factionRewardData = self:getFactionDataTable(faction)
-	for k,v in pairs(factionRewardData.weaponsArmorList) do
-		if ( factionRewardData.weaponsArmor[v] ~= nil and factionRewardData.weaponsArmor[v].display ~= nil and factionRewardData.weaponsArmor[v].cost ~= nil ) then
-			local option = {self:generateSuiString(factionRewardData.weaponsArmor[v].display, math.ceil(factionRewardData.weaponsArmor[v].cost * gcwDiscount * smugglerDiscount)), 0}
-			table.insert(optionsTable, option)
-		end
-	end
-	return optionsTable
+	return self:getFactionRewardOptions(factionRewardData.weaponsArmorList, factionRewardData.weaponsArmor, rank, gcwDiscount, smugglerDiscount);
 end
 
-function recruiterScreenplay:getFurnitureOptions(faction, gcwDiscount, smugglerDiscount)
-	local optionsTable = { }
+function recruiterScreenplay:getFurnitureOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	local factionRewardData = self:getFactionDataTable(faction)
-	for k,v in pairs(factionRewardData.furnitureList) do
-		if ( factionRewardData.furniture[v] ~= nil and factionRewardData.furniture[v].display ~= nil and factionRewardData.furniture[v].cost ~= nil ) then
-			local option = {self:generateSuiString(factionRewardData.furniture[v].display, math.ceil(factionRewardData.furniture[v].cost * gcwDiscount * smugglerDiscount)), 0}
-			table.insert(optionsTable, option)
-		end
-	end
-	return optionsTable
+	return self:getFactionRewardOptions(factionRewardData.furnitureList, factionRewardData.furniture, rank, gcwDiscount, smugglerDiscount);
 end
 
-function recruiterScreenplay:getInstallationsOptions(faction, gcwDiscount, smugglerDiscount)
-	local optionsTable = { }
+function recruiterScreenplay:getInstallationsOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	local factionRewardData = self:getFactionDataTable(faction)
-	for k,v in pairs(factionRewardData.installationsList) do
-		if ( factionRewardData.installations[v] ~= nil and factionRewardData.installations[v].display ~= nil and factionRewardData.installations[v].cost ~= nil ) then
-			local option = {self:generateSuiString(factionRewardData.installations[v].display, math.ceil(factionRewardData.installations[v].cost * gcwDiscount * smugglerDiscount)), 0}
-			table.insert(optionsTable, option)
-		end
-	end
-	return optionsTable
+	return self:getFactionRewardOptions(factionRewardData.installationsList, factionRewardData.installations, rank, gcwDiscount, smugglerDiscount);
 end
 
-function recruiterScreenplay:getHirelingsOptions(faction, gcwDiscount, smugglerDiscount)
-	local optionsTable = { }
+function recruiterScreenplay:getHirelingsOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	local factionRewardData = self:getFactionDataTable(faction)
-	for k,v in pairs(factionRewardData.hirelingList) do
-		if ( factionRewardData.hirelings[v] ~= nil and factionRewardData.hirelings[v].display ~= nil and factionRewardData.hirelings[v].cost ~= nil ) then
-			local option = {self:generateSuiString(factionRewardData.hirelings[v].display, math.ceil(factionRewardData.hirelings[v].cost * gcwDiscount * smugglerDiscount)), 0}
-			table.insert(optionsTable, option)
-		end
-	end
-	return optionsTable
+	return self:getFactionRewardOptions(factionRewardData.hirelingList, factionRewardData.hirelings, rank, gcwDiscount, smugglerDiscount);
 end
 
-function recruiterScreenplay:getUniformsOptions(faction, gcwDiscount, smugglerDiscount)
-	local optionsTable = { }
+function recruiterScreenplay:getUniformsOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	local factionRewardData = self:getFactionDataTable(faction)
-	for k,v in pairs(factionRewardData.uniformList) do
-		if ( factionRewardData.uniforms[v] ~= nil and factionRewardData.uniforms[v].display ~= nil and factionRewardData.uniforms[v].cost ~= nil ) then
-			local option = {self:generateSuiString(factionRewardData.uniforms[v].display, math.ceil(factionRewardData.uniforms[v].cost * gcwDiscount * smugglerDiscount)), 0}
+	return self:getFactionRewardOptions(factionRewardData.uniformList, factionRewardData.uniforms, rank, gcwDiscount, smugglerDiscount);
+end
+
+function recruiterScreenplay:getFactionRewardOptions(list, items, rank, gcwDiscount, smugglerDiscount)
+	local optionsTable = { }
+	for k,v in pairs(list) do
+		local item = items[v]
+		if ( item ~= nil and item.display ~= nil and item.cost ~= nil and ( item.rank == nil or rank >= item.rank ) ) then
+			local option = {self:generateSuiString(item.display, math.ceil(item.cost * gcwDiscount * smugglerDiscount)), 0}
 			table.insert(optionsTable, option)
 		end
 	end
@@ -301,16 +278,17 @@ function recruiterScreenplay:sendPurchaseSui(pNpc, pPlayer, screenID)
 	writeStringData(CreatureObject(pPlayer):getObjectID() .. ":faction_purchase", screenID)
 	local suiManager = LuaSuiManager()
 	local options = { }
+	local rank = CreatureObject(pPlayer):getFactionRank()
 	if screenID == "fp_furniture" then
-		options = self:getFurnitureOptions(faction, gcwDiscount, smugglerDiscount)
+		options = self:getFurnitureOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	elseif screenID == "fp_weapons_armor" then
-		options = self:getWeaponsArmorOptions(faction, gcwDiscount, smugglerDiscount)
+		options = self:getWeaponsArmorOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	elseif screenID == "fp_installations" then
-		options = self:getInstallationsOptions(faction, gcwDiscount, smugglerDiscount)
+		options = self:getInstallationsOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	elseif screenID == "fp_uniforms" then
-		options = self:getUniformsOptions(faction, gcwDiscount, smugglerDiscount)
+		options = self:getUniformsOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	elseif screenID == "fp_hirelings" then
-		options = self:getHirelingsOptions(faction, gcwDiscount, smugglerDiscount)
+		options = self:getHirelingsOptions(faction, rank, gcwDiscount, smugglerDiscount)
 	end
 
 	suiManager:sendListBox(pNpc, pPlayer, "@faction_recruiter:faction_purchase", "@faction_recruiter:select_item_purchase", 2, "@cancel", "", "@ok", "recruiterScreenplay", "handleSuiPurchase", 32, options)
