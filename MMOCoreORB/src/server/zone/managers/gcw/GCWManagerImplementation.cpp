@@ -1403,7 +1403,7 @@ void GCWManagerImplementation::sendDNASampleMenu(CreatureObject* creature, Build
 	if (chain == "") {
 		int length = 3;
 
-		if (creature->getFactionRank() == 15)
+		if (creature->getFactionRank() >= 15)
 			length = 8;
 		else if (creature->getFactionRank() == 14)
 			length = 7;

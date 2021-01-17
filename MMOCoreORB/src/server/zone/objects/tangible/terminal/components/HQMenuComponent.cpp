@@ -107,7 +107,7 @@ int HQMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject, CreatureOb
 		if (selectedID == 230) {
 			if (gcwMan->isFacilityRebooting(building)) {
 				creature->sendSystemMessage("You must wait for the facility to reboot before activating the overload again.");
-			} else if (gcwMan->isPowerOverloaded(building) && creature->getFactionRank() == 15) {
+			} else if (gcwMan->isPowerOverloaded(building) && creature->getFactionRank() >= 15) {
 				if (gcwMan->isShutdownSequenceStarted(building)) {
 					creature->sendSystemMessage(("@faction/faction_hq/faction_hq_response:terminal_response02")); // A countdown is already in progress...
 				} else {
@@ -166,4 +166,3 @@ int HQMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject, CreatureOb
 
 	return 0;
 }
-

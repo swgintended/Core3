@@ -10,6 +10,8 @@
 
 #include "FactionMap.h"
 #include "server/zone/objects/creature/CreatureObject.h"
+#include "server/zone/objects/player/PlayerObject.h"
+#include "system/lang.h"
 #include "templates/faction/FactionRanks.h"
 
 class FactionManager : public Singleton<FactionManager>, public Logger, public Object {
@@ -58,19 +60,39 @@ public:
 	int getRankCost(int rank);
 	int getRankDelegateRatioFrom(int rank);
 	int getRankDelegateRatioTo(int rank);
+	String getRankSkillName(const String& faction, int rank) const;
 	int getFactionPointsCap(int rank);
 
 	bool isHighestRank(int rank) {
-		return rank >= factionRanks.getCount() - 1 || rank >= 15;
+		return rank >= factionRanks.getCount() - 1 || rank >= getHighestRank();
+	}
+
+	int getHighestRank() const {
+		return maxFactionRank;
 	}
 
 	bool isFaction(const String& faction);
 	bool isEnemy(const String& faction1, const String& faction2);
 	bool isAlly(const String& faction1, const String& faction2);
 
+	bool isFactionSkillTreeEnabled() const {
+		return factionSkillTree;
+	}
+
+	void onPlayerLoggedIn(CreatureObject* player) const;
+	void updatePlayerFactionSkills(CreatureObject* player, bool notifyClient = true) const;
+
 protected:
 	void loadFactionRanks();
 	void loadLuaConfig();
+
+private:
+	int maxFactionRank = 15;
+	bool factionSkillTree = false;
+	VectorMap<String, Vector<String>*> factionSkillTreeNames;
+
+	void populateFactionSkillTree(String faction, LuaObject names);
+
 };
 
 #endif /* FACTIONMANAGER_H_ */

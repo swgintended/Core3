@@ -80,3 +80,114 @@ factionList = {
 	{ "tusken_raider", true, "alkhara,jawa", "", 1.0 },
 	{ "valarian", true, "jabba", "", 1.0 },
 }
+
+-- maxFactionRank = 15
+-- When true, displays the player's PvP officer faction ranks as a skill tree.
+-- Requires .tre patch with "faction_rank" skill trees ()
+-- factionSkillTree = false
+-- When enabled, the default skill tree is a oneByFour graph. Override this if
+-- using a different graph type, different skill names, or new/different ranks.
+-- factionSkillTreeNames = {
+-- 	imperial = {
+-- 		"", -- recruit
+-- 		"", -- private
+-- 		"", -- lance_corporal
+-- 		"", -- corporal
+-- 		"", -- staff_corporal
+-- 		"", -- sergeant
+-- 		"", -- staff_sergeant
+-- 		"", -- master_sergeant
+-- 		"", -- warrant_officer_2
+-- 		"", -- warrant_officer_1
+-- 		"faction_rank_imperial_novice", -- second_lieutenant
+-- 		"faction_rank_imperial_rank_01", -- lieutenant
+-- 		"faction_rank_imperial_rank_02", -- captain
+-- 		"faction_rank_imperial_rank_03", -- major
+-- 		"faction_rank_imperial_rank_04", -- lieutenant_colonel
+-- 		"faction_rank_imperial_master", -- colonel
+-- 		"", -- brigadier_general
+-- 		"", -- major_general
+-- 		"", -- lieutenant_general
+-- 		"", -- general
+-- 		"", -- high_general
+-- 		"" -- surface_marshal
+-- 	},
+-- 	rebel = {
+-- 		"", -- recruit
+-- 		"", -- private
+-- 		"", -- lance_corporal
+-- 		"", -- corporal
+-- 		"", -- staff_corporal
+-- 		"", -- sergeant
+-- 		"", -- staff_sergeant
+-- 		"", -- master_sergeant
+-- 		"", -- warrant_officer_2
+-- 		"", -- warrant_officer_1
+-- 		"faction_rank_rebel_novice", -- second_lieutenant
+-- 		"faction_rank_rebel_rank_01", -- lieutenant
+-- 		"faction_rank_rebel_rank_02", -- captain
+-- 		"faction_rank_rebel_rank_03", -- major
+-- 		"faction_rank_rebel_rank_04", -- lieutenant_colonel
+-- 		"faction_rank_rebel_master", -- colonel
+-- 		"", -- brigadier_general
+-- 		"", -- major_general
+-- 		"", -- lieutenant_general
+-- 		"", -- general
+-- 		"", -- high_general
+-- 		"" -- surface_marshal
+-- 	}
+-- }
+
+-- SWGIntended: GCW Revamp
+maxFactionRank = 21
+factionSkillTree = true
+factionSkillTreeNames = {
+	imperial = {
+		"", -- recruit
+		"", -- private
+		"", -- lance_corporal
+		"", -- corporal
+		"", -- staff_corporal
+		"", -- sergeant
+		"", -- staff_sergeant
+		"", -- master_sergeant
+		"", -- warrant_officer_2
+		"", -- warrant_officer_1
+		"faction_rank_imperial_novice", -- second_lieutenant
+		"faction_rank_imperial_rank_01", -- lieutenant
+		"faction_rank_imperial_rank_02", -- captain
+		"faction_rank_imperial_rank_03", -- major
+		"faction_rank_imperial_rank_04", -- lieutenant_colonel
+		"faction_rank_imperial_rank_05", -- colonel
+		"faction_rank_imperial_rank_06", -- brigadier_general
+		"faction_rank_imperial_rank_07", -- major_general
+		"faction_rank_imperial_rank_08", -- lieutenant_general
+		"faction_rank_imperial_rank_09", -- general
+		"faction_rank_imperial_rank_10", -- high_general
+		"faction_rank_imperial_master" -- surface_marshal
+	},
+	rebel = {
+		"", -- recruit
+		"", -- private
+		"", -- lance_corporal
+		"", -- corporal
+		"", -- staff_corporal
+		"", -- sergeant
+		"", -- staff_sergeant
+		"", -- master_sergeant
+		"", -- warrant_officer_2
+		"", -- warrant_officer_1
+		"faction_rank_rebel_novice", -- second_lieutenant
+		"faction_rank_rebel_rank_01", -- lieutenant
+		"faction_rank_rebel_rank_02", -- captain
+		"faction_rank_rebel_rank_03", -- major
+		"faction_rank_rebel_rank_04", -- lieutenant_colonel
+		"faction_rank_rebel_rank_05", -- colonel
+		"faction_rank_rebel_rank_06", -- brigadier_general
+		"faction_rank_rebel_rank_07", -- major_general
+		"faction_rank_rebel_rank_08", -- lieutenant_general
+		"faction_rank_rebel_rank_09", -- general
+		"faction_rank_rebel_rank_10", -- high_general
+		"faction_rank_rebel_master" -- surface_marshal
+	}
+}

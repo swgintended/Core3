@@ -574,12 +574,15 @@ int PlayerObjectImplementation::addExperience(const String& xpType, int xp, bool
 	if (experienceList.contains(xpType)) {
 		xp += experienceList.get(xpType);
 
-		if (xp <= 0 && xpType != "jedi_general") {
+		if (xp <= 0 && xpType != "jedi_general" && !xpType.beginsWith("faction_")) {
 			removeExperience(xpType, notifyClient);
 			return 0;
 		// -10 million experience cap for Jedi experience loss
 		} else if(xp < -10000000 && xpType == "jedi_general") {
 			xp = -10000000;
+		// -5000 experience cap for faction experience loss
+		} else if (xp < -5000 && xpType.beginsWith("faction_")) {
+			xp = -5000;
 		}
 	}
 
@@ -1345,8 +1348,9 @@ void PlayerObjectImplementation::notifyOnline() {
 	//Add player to visibility list
 	VisibilityManager::instance()->addToVisibilityList(playerCreature);
 
-	//Login to jedi manager
+	// Login to managers
 	JediManager::instance()->onPlayerLoggedIn(playerCreature);
+	FactionManager::instance()->onPlayerLoggedIn(playerCreature);
 
 	if (getFrsData()->getRank() >= 0) {
 		FrsManager* frsManager = zoneServer->getFrsManager();
@@ -1666,7 +1670,8 @@ void PlayerObjectImplementation::increaseFactionStanding(const String& factionNa
 	//Ensure that the new amount is not greater than 5000.
 	float newAmount = currentAmount + amount;
 
-	if (!factionStandingList.isPvpFaction(factionName))
+	bool isPvPFaction = factionStandingList.isPvpFaction(factionName);
+	if (!isPvPFaction)
 		newAmount = Math::min(5000.f, newAmount);
 	else if (player->getFaction() == factionName.hashCode())
 		newAmount = Math::min((float) FactionManager::instance()->getFactionPointsCap(player->getFactionRank()), newAmount);
@@ -1688,6 +1693,9 @@ void PlayerObjectImplementation::increaseFactionStanding(const String& factionNa
 
 
 		player->sendSystemMessage(msg);
+		if (isPvPFaction && FactionManager::instance()->isFactionSkillTreeEnabled() && change != 0) {
+			addExperience("faction_" + factionName, change);
+		}
 	}
 }
 
@@ -1729,7 +1737,8 @@ void PlayerObjectImplementation::decreaseFactionStanding(const String& factionNa
 	//Ensure that the new amount is not less than -5000.
 	float newAmount = Math::max(-5000.f, currentAmount - amount);
 
-	if (factionStandingList.isPvpFaction(factionName)) {
+	bool isPvPFaction = factionStandingList.isPvpFaction(factionName);
+	if (isPvPFaction) {
 		if (player->getFaction() == factionName.hashCode())
 			newAmount = Math::min((float) FactionManager::instance()->getFactionPointsCap(player->getFactionRank()), newAmount);
 		else
@@ -1750,6 +1759,9 @@ void PlayerObjectImplementation::decreaseFactionStanding(const String& factionNa
 			msg.setStringId("@base_player:prose_min_faction");
 
 		player->sendSystemMessage(msg);
+		if (isPvPFaction && FactionManager::instance()->isFactionSkillTreeEnabled() && change != 0) {
+			addExperience("faction_" + factionName, -1 * change);
+		}
 	}
 }
 
@@ -1766,6 +1778,10 @@ void PlayerObjectImplementation::setFactionStanding(const String& factionName, f
 			newAmount = Math::min((float) FactionManager::instance()->getFactionPointsCap(player->getFactionRank()), newAmount);
 		else
 			newAmount = Math::min(1000.f, newAmount);
+
+		if (FactionManager::instance()->isFactionSkillTreeEnabled()) {
+			addExperience("faction_" + factionName, floor(newAmount - getExperience("faction_" + factionName)));
+		}
 	}
 
 	factionStandingList.put(factionName, newAmount);

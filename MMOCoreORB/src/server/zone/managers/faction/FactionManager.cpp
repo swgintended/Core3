@@ -7,7 +7,10 @@
 
 #include "FactionManager.h"
 #include "FactionMap.h"
+#include "server/zone/managers/skill/SkillManager.h"
+#include "server/zone/managers/skill/SkillModManager.h"
 #include "server/zone/objects/player/PlayerObject.h"
+#include "templates/faction/Factions.h"
 #include "templates/manager/TemplateManager.h"
 
 FactionManager::FactionManager() {
@@ -17,8 +20,8 @@ FactionManager::FactionManager() {
 }
 
 void FactionManager::loadData() {
-	loadLuaConfig();
 	loadFactionRanks();
+	loadLuaConfig();
 }
 
 void FactionManager::loadFactionRanks() {
@@ -78,8 +81,40 @@ void FactionManager::loadLuaConfig() {
 
 	luaObject.pop();
 
+	maxFactionRank = lua->getGlobalInt("maxFactionRank");
+	factionSkillTree = lua->getGlobalBoolean("factionSkillTree");
+	if (factionSkillTree) {
+		LuaObject skillTreeNames = lua->getGlobalObject("factionSkillTreeNames");
+		LuaObject imperial = skillTreeNames.getObjectField("imperial");
+		populateFactionSkillTree("imperial", imperial);
+		imperial.pop();
+		LuaObject rebel = skillTreeNames.getObjectField("rebel");
+		populateFactionSkillTree("rebel", rebel);
+		rebel.pop();
+		skillTreeNames.pop();
+	}
+
 	delete lua;
 	lua = nullptr;
+}
+
+void FactionManager::populateFactionSkillTree(String faction, LuaObject object) {
+	if (!object.isValidTable()) {
+		warning("factionSkillTreeNames." + faction + " is not a valid lua table");
+		return;
+	}
+
+	Vector<String>* skillTreeNames = new Vector<String>();
+	for (int i = 1; i <= object.getTableSize(); i++) {
+		String skillName = object.getStringAt(i);
+		skillTreeNames->add(skillName);
+	}
+
+	if (skillTreeNames->size() < getHighestRank() + 1) {
+		warning("factionSkillTreeNames." + faction + "does not have at least " + String::valueOf(getHighestRank() + 1) + " rank skill names");
+	}
+
+	factionSkillTreeNames.put(faction, skillTreeNames);
 }
 
 FactionMap* FactionManager::getFactionMap() {
@@ -201,6 +236,19 @@ int FactionManager::getRankDelegateRatioTo(int rank) {
 	return factionRanks.getRank(rank).getDelegateRatioTo();
 }
 
+String FactionManager::getRankSkillName(const String& faction, int rank) const {
+	if (!factionSkillTreeNames.contains(faction)) {
+		return "";
+	}
+
+	const Vector<String>* skillTreeNames = factionSkillTreeNames.get(faction);
+	if (rank >= skillTreeNames->size()) {
+		return "";
+	}
+
+	return skillTreeNames->get(rank);
+}
+
 int FactionManager::getFactionPointsCap(int rank) {
 	if (rank >= factionRanks.getCount())
 		return -1;
@@ -233,4 +281,85 @@ bool FactionManager::isAlly(const String& faction1, const String& faction2) {
 	Faction* faction = factionMap.getFaction(faction1);
 
 	return faction->getAllies()->contains(faction2);
+}
+
+void FactionManager::onPlayerLoggedIn(CreatureObject* player) const {
+	PlayerObject* ghost = player->getPlayerObject();
+	if (ghost == nullptr) {
+		return;
+	}
+
+	if (isFactionSkillTreeEnabled()) {
+		// Synchronize faction and faction XP for upgrade
+		int expectedImperialXp = floor(ghost->getFactionStanding("imperial"));
+		int currentImperialXp = ghost->getExperience("faction_imperial");
+		int expectedRebelXp = floor(ghost->getFactionStanding("rebel"));
+		int currentRebelXp = ghost->getExperience("faction_rebel");
+		if (expectedImperialXp != currentImperialXp) {
+			ghost->addExperience("faction_imperial", expectedImperialXp - currentImperialXp);
+		}
+
+		if (expectedRebelXp != currentRebelXp) {
+			ghost->addExperience("faction_rebel", expectedRebelXp - currentRebelXp);
+		}
+	} else {
+		// If disabling, drop faction XP. This is a no-op if the player does not
+		// have any of these XP types.
+		ghost->removeExperience("faction_imperial");
+		ghost->removeExperience("faction_rebel");
+	}
+
+	updatePlayerFactionSkills(player);
+}
+
+void FactionManager::updatePlayerFactionSkills(CreatureObject* player, bool notifyClient) const {
+	byte playerRank = player->getFactionRank();
+	bool isImperial = false;
+	bool isRebel = false;
+	switch (player->getFaction()) {
+		case Factions::FACTIONIMPERIAL:
+			isImperial = true;
+			break;
+		case Factions::FACTIONREBEL:
+			isRebel = true;
+			break;
+	}
+
+	for (int rank = factionRanks.getCount() - 1; rank >= 0; rank--) {
+		String imperialSkill = getRankSkillName("imperial", rank);
+		String rebelSkill = getRankSkillName("rebel", rank);
+		// Remove faction mismatches
+		if (!imperialSkill.isEmpty() && player->hasSkill(imperialSkill) && !isImperial) {
+			player->removeSkill(imperialSkill, notifyClient);
+		}
+
+		if (!rebelSkill.isEmpty() && player->hasSkill(rebelSkill) && !isRebel) {
+			player->removeSkill(rebelSkill, notifyClient);
+		}
+
+		// Remove ranks above the player's rank, or if the faction skill tree is not
+		// enabled.
+		bool shouldRemove = rank > playerRank || !isFactionSkillTreeEnabled();
+		if (shouldRemove) {
+			if (!imperialSkill.isEmpty()) {
+				player->removeSkill(imperialSkill, notifyClient);
+			}
+			if (!rebelSkill.isEmpty()) {
+				player->removeSkill(rebelSkill, notifyClient);
+			}
+		}
+
+		// Only add if the rank directly equals, since adding will add all required
+		// ranks.
+		bool shouldAdd = rank == playerRank && isFactionSkillTreeEnabled();
+		if (shouldAdd) {
+			if (isImperial && !imperialSkill.isEmpty()) {
+				player->addSkill(imperialSkill, notifyClient);
+			}
+
+			if (isRebel && !rebelSkill.isEmpty()) {
+				player->addSkill(rebelSkill, notifyClient);
+			}
+		}
+	}
 }
