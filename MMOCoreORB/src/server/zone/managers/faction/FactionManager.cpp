@@ -349,9 +349,7 @@ void FactionManager::updatePlayerFactionSkills(CreatureObject* player, bool noti
 			}
 		}
 
-		// Only add if the rank directly equals, since adding will add all required
-		// ranks.
-		bool shouldAdd = rank == playerRank && isFactionSkillTreeEnabled();
+		bool shouldAdd = rank <= playerRank && isFactionSkillTreeEnabled();
 		if (shouldAdd) {
 			if (isImperial && !imperialSkill.isEmpty()) {
 				player->addSkill(imperialSkill, notifyClient);
