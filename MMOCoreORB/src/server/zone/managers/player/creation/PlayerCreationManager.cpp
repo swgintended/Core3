@@ -10,6 +10,7 @@
 #include "server/chat/ChatManager.h"
 #include "server/chat/room/ChatRoom.h"
 #include "server/login/account/Account.h"
+#include "server/login/account/AccountManager.h"
 #include "server/zone/objects/player/sui/messagebox/SuiMessageBox.h"
 #include "server/zone/objects/player/PlayerObject.h"
 #include "server/zone/packets/charcreation/ClientCreateCharacterCallback.h"
@@ -328,8 +329,15 @@ bool PlayerCreationManager::createCharacter(ClientCreateCharacterCallback* callb
 
 	auto client = callback->getClient();
 
-	if (client->getCharacterCount(zoneServer.get()->getGalaxyID()) >= 2) {
-		ErrorMessage* errMsg = new ErrorMessage("Create Error", "You are limited to 2 characters per galaxy.", 0x0);
+	ManagedReference<Account*> playerAccount = AccountManager::getAccount(client->getAccountID());
+	if (playerAccount == nullptr) {
+		return false;
+	}
+
+	int limit = playerAccount->getCharacterLimit();
+	if (limit != -1 && client->getCharacterCount(zoneServer.get()->getGalaxyID()) >= limit) {
+		String characters = limit == 1 ? "1 character" : String::valueOf(limit) + " characters";
+		ErrorMessage* errMsg = new ErrorMessage("Create Error", "You are limited to " + characters + " per galaxy.", 0x0);
 		client->sendMessage(errMsg);
 
 		return false;
@@ -455,13 +463,6 @@ bool PlayerCreationManager::createCharacter(ClientCreateCharacterCallback* callb
 
 		if (!freeGodMode) {
 			try {
-				ManagedReference<Account*> playerAccount = ghost->getAccount();
-
-				if (playerAccount == nullptr) {
-					playerCreature->destroyPlayerCreatureFromDatabase(true);
-					return false;
-				}
-
 				int accountPermissionLevel = playerAccount->getAdminLevel();
 				String accountName = playerAccount->getUsername();
 

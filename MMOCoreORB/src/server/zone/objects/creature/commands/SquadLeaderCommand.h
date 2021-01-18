@@ -59,7 +59,7 @@ public:
 		return true;
 	}
 
-	static bool isValidGroupAbilityTarget(CreatureObject* leader, CreatureObject* target, bool allowPet) {
+	static bool isValidGroupAbilityTarget(CreatureObject* leader, CreatureObject* target, bool allowPet, bool tefAbility) {
 		if (allowPet) {
 			if (!target->isPlayerCreature() && !target->isPet()) {
 				return false;
@@ -79,30 +79,51 @@ public:
 		if (allowPet && target->isPet())
 			targetCreo = target->getLinkedCreature().get();
 
-		PlayerObject* ghost = targetCreo->getPlayerObject();
-		if (ghost == nullptr || ghost->hasBhTef())
-			return false;
-
 		uint32 leaderFaction = leader->getFaction();
 		uint32 targetFaction = target->getFaction();
+		int leaderStatus = leader->getFactionStatus();
 		int targetStatus = targetCreo->getFactionStatus();
+		PlayerObject* leaderGhost = leader->getPlayerObject();
+		PlayerObject* targetGhost = targetCreo->getPlayerObject();
 
-		if (leaderFaction == 0) {
-			if (targetFaction != 0 && targetStatus > FactionStatus::ONLEAVE)
-				return false;
-		} else if (targetFaction != 0) {
-			if (leaderFaction != targetFaction && targetStatus > FactionStatus::ONLEAVE)
-				return false;
-
-			if (leaderFaction == targetFaction && targetStatus > leader->getFactionStatus())
-				return false;
+		if (leaderGhost == nullptr || targetGhost == nullptr) {
+			return false;
 		}
 
-		if (target->getParentRecursively(SceneObjectType::BUILDING) != leader->getParentRecursively(SceneObjectType::BUILDING))
-			return false;
+		if (targetFaction != 0) {
+			if (leaderFaction != targetFaction && targetStatus > FactionStatus::COVERT) {
+				return false;
+			}
 
+			if (leaderFaction != targetFaction && targetGhost->hasRealGcwTef()) {
+				return false;
+			}
+		}
+
+		if (target->getParentRecursively(SceneObjectType::BUILDING)
+				!= leader->getParentRecursively(SceneObjectType::BUILDING)) {
+			return false;
+		}
+
+		//Fix: With TEF Revamp, SL abilities should cause group TEF on leaderGhost and return true if targetGhost hasBhTef
+		if (targetGhost->hasBhTef() && !leaderGhost->hasGroupTef()) {
+			return false;
+		}
+
+		if (tefAbility) {
+			if (targetGhost->hasBhTef() && leaderGhost->hasGroupTef()) {
+				leaderGhost->updateLastPvpCombatActionTimestamp(false, false, false, true);
+			}
+
+			if (leaderFaction == targetFaction) {
+				if (targetGhost->hasRealGcwTef() || (targetStatus > leaderStatus && targetStatus == FactionStatus::OVERT)) {
+					leaderGhost->updateLastPvpCombatActionTimestamp(false, false, true, false);
+				}
+			}
+		}
 		return true;
 	}
+
 
 /*	bool shoutCommand(CreatureObject* player, GroupObject* group) {
 		if (player == nullptr || group == nullptr)
@@ -123,12 +144,13 @@ public:
 */
 
 	float calculateGroupModifier(GroupObject* group) const {
-		if (group == nullptr)
+				if (group == nullptr) {
 			return 0;
+				}
 
 		float modifier = 1.0f + ((float)(group->getGroupSize()) / 20.0f);
 
-			return modifier;
+				return modifier;
 	}
 
 	bool inflictHAM(CreatureObject* player, int health, int action, int mind) const {

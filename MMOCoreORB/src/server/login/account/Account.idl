@@ -21,6 +21,7 @@ class Account extends ManagedObject implements Logger {
 	protected transient unsigned int accountID;
 	protected transient unsigned int stationID;
 	protected transient unsigned int adminLevel;
+	protected transient int characterLimit;
 	protected transient unsigned int created;
 
 	protected transient CharacterList characterList;
@@ -136,6 +137,16 @@ class Account extends ManagedObject implements Logger {
 	@read
 	public unsigned int getTimeCreated() {
 		return created;
+	}
+
+	@preLocked
+	public void setCharacterLimit(int limit) {
+		characterLimit = limit;
+	}
+
+	@read
+	public int getCharacterLimit() {
+		return characterLimit;
 	}
 
 	@preLocked

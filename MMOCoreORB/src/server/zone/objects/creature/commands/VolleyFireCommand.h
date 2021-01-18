@@ -84,10 +84,10 @@ public:
 			if (!member->isPlayerCreature() || !member->isInRange(leader, 128.0))
 				continue;
 
-			if (!isValidGroupAbilityTarget(leader, member, false))
+			if (!checkDistance(leader, member, 64))
 				continue;
 
-			if (!checkDistance(leader, member, 64))
+			if (!isValidGroupAbilityTarget(leader, member, false, true))
 				continue;
 
 			if (!member->isInCombat())

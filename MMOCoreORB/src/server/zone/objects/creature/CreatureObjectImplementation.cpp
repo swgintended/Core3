@@ -3331,6 +3331,11 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 		}
 	}*/
 
+	if (getGroupID() != 0 && getGroupID() == object->getGroupID()) {
+		//info("5", true);
+		return false;
+	}
+
 	if (object->hasBountyMissionFor(asCreatureObject()) || (ghost->hasBhTef() && hasBountyMissionFor(object))) {
 		//info("3", true);
 		return true;
@@ -3338,11 +3343,6 @@ bool CreatureObjectImplementation::isAttackableBy(CreatureObject* object, bool b
 
 	if (object->getFaction() == getFaction() && object->getFaction() != 0 && (object->getFaction() == Factions::FACTIONREBEL || object->getFaction() == Factions::FACTIONIMPERIAL)) {
 		//info("4", true);
-		return false;
-	}
-
-	if (getGroupID() != 0 && getGroupID() == object->getGroupID()) {
-		//info("5", true);
 		return false;
 	}
 

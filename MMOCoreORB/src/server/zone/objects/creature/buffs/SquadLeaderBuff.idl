@@ -74,7 +74,7 @@ class SquadLeaderBuff extends Buff {
 		if (!player|| !leader || leader.isDead() || leader.isIncapacitated())
 			return false;
 
-		return SquadLeaderCommand.isValidGroupAbilityTarget(leader, player, false);
+		return SquadLeaderCommand.isValidGroupAbilityTarget(leader, player, false, false);
 	}
 
 	@read
