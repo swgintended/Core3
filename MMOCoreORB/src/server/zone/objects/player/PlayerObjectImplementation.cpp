@@ -1667,16 +1667,13 @@ void PlayerObjectImplementation::increaseFactionStanding(const String& factionNa
 	//Get the current amount of faction standing
 	float currentAmount = factionStandingList.getFactionStanding(factionName);
 
-	float loyalty = 0;
 	if (applyLoyalty) {
-		loyalty = player->getSkillMod("faction_loyalty");
+		// Each point of loyalty increases gain by 1%
+		amount *= 1 + (float(player->getSkillMod("faction_loyalty")) / 100);
 	}
 
-	// Each point of loyalty increases gain by 1%
-	float modifier = 1 + (loyalty / 100);
-
 	//Ensure that the new amount is not greater than 5000.
-	float newAmount = currentAmount + (amount * modifier);
+	float newAmount = currentAmount + amount;
 
 	bool isPvPFaction = factionStandingList.isPvpFaction(factionName);
 	if (!isPvPFaction)
@@ -1742,16 +1739,13 @@ void PlayerObjectImplementation::decreaseFactionStanding(const String& factionNa
 	if (player == nullptr)
 		return;
 
-	float loyalty = 0;
 	if (applyLoyalty) {
-		loyalty = player->getSkillMod("faction_loyalty");
+		// Each point of loyalty increases loss by 1%
+		amount *= 1 + (float(player->getSkillMod("faction_loyalty")) / 100);
 	}
 
-	// Each point of loyalty increases loss by 1%
-	float modifier = 1 + (loyalty / 100);
-
 	//Ensure that the new amount is not less than -5000.
-	float newAmount = Math::max(-5000.f, currentAmount - (amount * modifier));
+	float newAmount = Math::max(-5000.f, currentAmount - amount);
 
 	bool isPvPFaction = factionStandingList.isPvpFaction(factionName);
 	if (isPvPFaction) {
