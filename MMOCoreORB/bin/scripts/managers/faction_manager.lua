@@ -81,7 +81,7 @@ factionList = {
 	{ "valarian", true, "jabba", "", 1.0 },
 }
 
--- maxFactionRank = 15
+maxFactionRank = 15
 -- When true, displays the player's PvP officer faction ranks as a skill tree.
 -- Requires .tre patch with "faction_rank" skill trees ()
 -- factionSkillTree = false
@@ -139,7 +139,7 @@ factionList = {
 -- }
 
 -- SWGIntended: GCW Revamp
-maxFactionRank = 21
+-- maxFactionRank = 21
 factionSkillTree = true
 factionSkillTreeNames = {
 	imperial = {
