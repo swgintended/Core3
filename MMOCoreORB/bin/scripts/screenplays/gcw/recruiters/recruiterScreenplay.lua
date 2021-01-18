@@ -390,7 +390,7 @@ function recruiterScreenplay:awardItem(pPlayer, faction, itemString)
 		return transferResult
 	end
 
-	PlayerObject(pGhost):decreaseFactionStanding(faction, itemCost)
+	PlayerObject(pGhost):decreaseFactionStanding(faction, itemCost, false)
 
 	local messageString = LuaStringIdChatParameter("@faction_recruiter:item_purchase_complete") -- Your requisition of %TT is complete.
 	messageString:setTT(self:getDisplayName(faction, itemString))
@@ -466,7 +466,7 @@ function recruiterScreenplay:awardData(pPlayer, faction, itemString)
 		return transferResult
 	end
 
-	PlayerObject(pGhost):decreaseFactionStanding(faction, itemCost)
+	PlayerObject(pGhost):decreaseFactionStanding(faction, itemCost, false)
 
 	local messageString = LuaStringIdChatParameter("@faction_recruiter:hireling_purchase_complete") -- The %TT is now under your command.
 	messageString:setTT(self:getDisplayName(faction, itemString))
@@ -605,5 +605,5 @@ function recruiterScreenplay:handleResign(pPlayer)
 	CreatureObject(pPlayer):setFactionRank(0)
 	CreatureObject(pPlayer):setFaction(0)
 	CreatureObject(pPlayer):setFactionStatus(0)
-	PlayerObject(pGhost):decreaseFactionStanding(oldFactionName, 0)
+	PlayerObject(pGhost):decreaseFactionStanding(oldFactionName, 0, false)
 end

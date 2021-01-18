@@ -132,8 +132,8 @@ public:
 		}
 
 		if (targetPlayerObject != nullptr) { // Cap off points to new caps
-			targetPlayerObject->increaseFactionStanding("imperial", 0);
-			targetPlayerObject->increaseFactionStanding("rebel", 0);
+			targetPlayerObject->increaseFactionStanding("imperial", 0, false);
+			targetPlayerObject->increaseFactionStanding("rebel", 0, false);
 		}
 
 		return SUCCESS;

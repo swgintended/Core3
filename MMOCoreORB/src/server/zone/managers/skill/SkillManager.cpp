@@ -426,11 +426,6 @@ bool SkillManager::surrenderSkill(const String& skillName, CreatureObject* creat
 	if (skillName.beginsWith("force_") && !(JediManager::instance()->canSurrenderSkill(creature, skillName)))
 		return false;
 
-	if (skillName.beginsWith("faction_")) {
-		// Faction ranks cannot be dropped without speaking to a recruiter and resigning
-		return false;
-	}
-
 	removeSkillRelatedMissions(creature, skill);
 
 	creature->removeSkill(skill, notifyClient);

@@ -87,9 +87,9 @@ public:
 
 		if ( factionValue >= -5000 && factionValue <= 100000 && factionDif != 0) {
 			if ( factionValue > intCurrentFaction)
-				targetPlayer->increaseFactionStanding(faction,factionValue-intCurrentFaction);
+				targetPlayer->increaseFactionStanding(faction,factionValue-intCurrentFaction, false);
 			else
-				targetPlayer->decreaseFactionStanding(faction, intCurrentFaction - factionValue);
+				targetPlayer->decreaseFactionStanding(faction, intCurrentFaction - factionValue, false);
 
 			creature->sendSystemMessage(faction + " faction standing set to " + String::valueOf(factionValue) + " for " + targetCreature->getFirstName());
 

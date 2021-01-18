@@ -60,8 +60,8 @@ public:
 			return GENERALERROR;
 		}
 
-		targetPlayerObject->increaseFactionStanding(faction, tipAmount);
-		delegator->decreaseFactionStanding(faction, charge);
+		targetPlayerObject->increaseFactionStanding(faction, tipAmount, false);
+		delegator->decreaseFactionStanding(faction, charge, false);
 
 		return SUCCESS;
 	}

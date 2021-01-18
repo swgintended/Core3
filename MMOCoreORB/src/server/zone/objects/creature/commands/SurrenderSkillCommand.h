@@ -23,8 +23,15 @@ public:
 		if (!checkInvalidLocomotions(creature))
 			return INVALIDLOCOMOTION;
 
+		String skillName = arguments.toString();
+		if (skillName.beginsWith("faction_")) {
+			// Faction ranks cannot be dropped without speaking to a recruiter and resigning
+			creature->sendSystemMessage("You must speak with a faction recruiter and resign to remove yourself from this rank.");
+			return INVALIDPARAMETERS;
+		}
+
 		SkillManager* skillManager = SkillManager::instance();
-		skillManager->surrenderSkill(arguments.toString(), creature, true);
+		skillManager->surrenderSkill(skillName, creature, true);
 
 		return SUCCESS;
 	}
@@ -32,4 +39,3 @@ public:
 };
 
 #endif //SURRENDERSKILLCOMMAND_H_
-

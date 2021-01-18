@@ -131,8 +131,9 @@ int LuaPlayerObject::getFactionStanding(lua_State* L) {
 int LuaPlayerObject::increaseFactionStanding(lua_State* L) {
 	float val = lua_tonumber(L, -1);
 	const char* str = lua_tostring(L, -2);
+	bool applyLoyalty = lua_toboolean(L, -3);
 
-	realObject->increaseFactionStanding(str, val);
+	realObject->increaseFactionStanding(str, val, applyLoyalty);
 
 	return 0;
 }
@@ -140,8 +141,9 @@ int LuaPlayerObject::increaseFactionStanding(lua_State* L) {
 int LuaPlayerObject::decreaseFactionStanding(lua_State* L) {
 	float val = lua_tonumber(L, -1);
 	const char* str = lua_tostring(L, -2);
+	bool applyLoyalty = lua_toboolean(L, -3);
 
-	realObject->decreaseFactionStanding(str, val);
+	realObject->decreaseFactionStanding(str, val, applyLoyalty);
 
 	return 0;
 }

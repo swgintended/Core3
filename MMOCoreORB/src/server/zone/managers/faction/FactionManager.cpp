@@ -8,7 +8,6 @@
 #include "FactionManager.h"
 #include "FactionMap.h"
 #include "server/zone/managers/skill/SkillManager.h"
-#include "server/zone/managers/skill/SkillModManager.h"
 #include "server/zone/objects/player/PlayerObject.h"
 #include "templates/faction/Factions.h"
 #include "templates/manager/TemplateManager.h"
@@ -330,11 +329,11 @@ void FactionManager::updatePlayerFactionSkills(CreatureObject* player, bool noti
 		String rebelSkill = getRankSkillName("rebel", rank);
 		// Remove faction mismatches
 		if (!imperialSkill.isEmpty() && player->hasSkill(imperialSkill) && !isImperial) {
-			player->removeSkill(imperialSkill, notifyClient);
+			SkillManager::instance()->surrenderSkill(imperialSkill, player, notifyClient, /* verifyFrs */false);
 		}
 
 		if (!rebelSkill.isEmpty() && player->hasSkill(rebelSkill) && !isRebel) {
-			player->removeSkill(rebelSkill, notifyClient);
+			SkillManager::instance()->surrenderSkill(rebelSkill, player, notifyClient, /* verifyFrs */false);
 		}
 
 		// Remove ranks above the player's rank, or if the faction skill tree is not
@@ -342,21 +341,21 @@ void FactionManager::updatePlayerFactionSkills(CreatureObject* player, bool noti
 		bool shouldRemove = rank > playerRank || !isFactionSkillTreeEnabled();
 		if (shouldRemove) {
 			if (!imperialSkill.isEmpty()) {
-				player->removeSkill(imperialSkill, notifyClient);
+				SkillManager::instance()->surrenderSkill(imperialSkill, player, notifyClient, /* verifyFrs */false);
 			}
 			if (!rebelSkill.isEmpty()) {
-				player->removeSkill(rebelSkill, notifyClient);
+				SkillManager::instance()->surrenderSkill(rebelSkill, player, notifyClient, /* verifyFrs */false);
 			}
 		}
 
 		bool shouldAdd = rank <= playerRank && isFactionSkillTreeEnabled();
 		if (shouldAdd) {
 			if (isImperial && !imperialSkill.isEmpty()) {
-				player->addSkill(imperialSkill, notifyClient);
+				SkillManager::instance()->awardSkill(imperialSkill, player, notifyClient, /* awardRequiredSkills */true, /* noXpRequired */true);
 			}
 
 			if (isRebel && !rebelSkill.isEmpty()) {
-				player->addSkill(rebelSkill, notifyClient);
+				SkillManager::instance()->awardSkill(rebelSkill, player, notifyClient, /* awardRequiredSkills */true, /* noXpRequired */true);
 			}
 		}
 	}
