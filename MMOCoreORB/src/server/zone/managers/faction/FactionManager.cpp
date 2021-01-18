@@ -348,7 +348,8 @@ void FactionManager::updatePlayerFactionSkills(CreatureObject* player, bool noti
 			}
 		}
 
-		bool shouldAdd = rank <= playerRank && isFactionSkillTreeEnabled();
+		// Only check exact rank since SkillManager will award required skills
+		bool shouldAdd = rank == playerRank && isFactionSkillTreeEnabled();
 		if (shouldAdd) {
 			if (isImperial && !imperialSkill.isEmpty()) {
 				SkillManager::instance()->awardSkill(imperialSkill, player, notifyClient, /* awardRequiredSkills */true, /* noXpRequired */true);
