@@ -430,6 +430,9 @@ void DirectorManager::initializeLuaEngine(Lua* luaEngine) {
 	luaEngine->registerFunction("spawnTheaterObject", spawnTheaterObject);
 	luaEngine->registerFunction("getSchematicItemName", getSchematicItemName);
 	luaEngine->registerFunction("getBadgeListByType", getBadgeListByType);
+	luaEngine->registerFunction("hashCode", hashCode);
+	luaEngine->registerFunction("getInRangeSceneObjects", getInRangeSceneObjects);
+	luaEngine->registerFunction("getInRangeCreatureObjects", getInRangeCreatureObjects);
 
 	//Navigation Mesh Management
 	luaEngine->registerFunction("createNavMesh", createNavMesh);
@@ -3701,4 +3704,112 @@ int DirectorManager::getBadgeListByType(lua_State* L) {
 	}
 
 	return 1;
+}
+
+int DirectorManager::hashCode(lua_State* L) {
+	if (checkArgumentCount(L, 1) == 1) {
+		String err = "incorrect number of arguments passed to DirectorManager::hashCode";
+		printTraceError(L, err);
+		ERROR_CODE = INCORRECT_ARGUMENTS;
+		return 0;
+	}
+
+	String value = Lua::getStringParameter(L);
+	lua_pushinteger(L, value.hashCode());
+	return 1;
+}
+
+int DirectorManager::getInRangeSceneObjects(lua_State* L) {
+	Reference<SortedVector<ManagedReference<QuadTreeEntry*>>*> inRangeObjects = getInRangeObjects("getInRangeSceneObjects", L);
+	if (inRangeObjects == nullptr) {
+		return 0;
+	}
+
+	lua_newtable(L);
+
+	for (int i = 0; i < inRangeObjects->size(); i++) {
+		SceneObject* sceneObject = inRangeObjects->get(i).castTo<SceneObject*>();
+		if (sceneObject == nullptr) {
+			continue;
+		}
+
+		TangibleObject* tangibleObject = sceneObject->asTangibleObject();
+		if (tangibleObject == nullptr || tangibleObject->isInvisible()) {
+			continue;
+		}
+
+		lua_pushlightuserdata(L, sceneObject);
+		lua_settable(L, -2);
+	}
+
+	return 1;
+}
+
+int DirectorManager::getInRangeCreatureObjects(lua_State* L) {
+	Reference<SortedVector<ManagedReference<QuadTreeEntry*>>*> inRangeObjects = getInRangeObjects("getInRangeCreatureObjects", L);
+	if (inRangeObjects == nullptr) {
+		return 0;
+	}
+
+	lua_newtable(L);
+
+	for (int i = 0; i < inRangeObjects->size(); i++) {
+		CreatureObject* creatureObject = inRangeObjects->get(i).castTo<CreatureObject*>();
+		if (creatureObject == nullptr || creatureObject->isInvisible()) {
+			continue;
+		}
+
+		lua_pushlightuserdata(L, creatureObject);
+		lua_rawseti(L, -2, i + 1);
+	}
+
+	return 1;
+}
+
+Reference<SortedVector<ManagedReference<QuadTreeEntry*>>*> DirectorManager::getInRangeObjects(String apiName, lua_State* L) {
+	if (checkArgumentCount(L, 2) == 1) {
+		String err = "incorrect number of arguments passed to DirectorManager::" + apiName;
+		printTraceError(L, err);
+		ERROR_CODE = INCORRECT_ARGUMENTS;
+		return nullptr;
+	}
+
+	String zoneName = lua_tostring(L, -2);
+	ZoneServer* zoneServer = ServerCore::getZoneServer();
+	Zone* zone = zoneServer->getZone(zoneName);
+	if (zone == nullptr) {
+		String err = "zone is invalid or unloaded in call to DirectorManager::" + apiName;
+		printTraceError(L, err);
+		ERROR_CODE = INCORRECT_ARGUMENTS;
+		return nullptr;
+	}
+
+	Reference<SortedVector<ManagedReference<QuadTreeEntry*>>*> inRangeObjects = new SortedVector<ManagedReference<QuadTreeEntry*>>();
+	inRangeObjects->setNoDuplicateInsertPlan();
+
+	LuaObject luaAreas(L);
+	if (!luaAreas.isValidTable()) {
+		String err = "invalid area table argument passed to DirectorManager::" + apiName;
+		printTraceError(L, err);
+		ERROR_CODE = INCORRECT_ARGUMENTS;
+		return nullptr;
+	}
+
+	for (int i = 1; i <= luaAreas.getTableSize(); i++) {
+		LuaObject area = luaAreas.getObjectAt(i);
+		if (!area.isValidTable() || area.getTableSize() != 3) {
+			String err = "invalid area sub-table argument passed to DirectorManager::" + apiName;
+			printTraceError(L, err);
+			ERROR_CODE = INCORRECT_ARGUMENTS;
+			return nullptr;
+		}
+
+		float x = area.getFloatAt(1);
+		float y = area.getFloatAt(2);
+		float range = area.getFloatAt(3);
+		zone->getInRangeObjects(x, y, range, inRangeObjects, /* readLockZone */true);
+		area.pop();
+	}
+
+	return inRangeObjects;
 }

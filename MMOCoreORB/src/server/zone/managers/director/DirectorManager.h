@@ -198,6 +198,9 @@ namespace server {
 		static int spawnTheaterObject(lua_State* L);
 		static int getSchematicItemName(lua_State* L);
 		static int getBadgeListByType(lua_State* L);
+		static int hashCode(lua_State* L);
+		static int getInRangeSceneObjects(lua_State* L);
+		static int getInRangeCreatureObjects(lua_State* L);
 
 	private:
 		static void setupLuaPackagePath(Lua* luaEngine);
@@ -209,6 +212,7 @@ namespace server {
 
 		static Reference<PersistentEvent*> getServerEvent(const String& eventName);
 		static void dropServerEventReference(const String& eventName);
+		static Reference<SortedVector<ManagedReference<QuadTreeEntry*>>*> getInRangeObjects(String apiName, lua_State* L);
 	};
 
    }

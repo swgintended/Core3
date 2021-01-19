@@ -2,6 +2,7 @@ StaffTools = {
 	toolsMenu = {
 		{ "Shuttle Dropoff", "openShuttleConfig" },
 		{ "Firework Event", "openFireworkConfig" },
+		{ "Anchorhead Battle Debug", "anchorheadBattleDebug" },
 	}
 }
 
@@ -46,6 +47,10 @@ end
 
 function StaffTools.openFireworkConfig(pPlayer)
 	FireworkEvent:showMainUI(pPlayer)
+end
+
+function StaffTools.anchorheadBattleDebug(pPlayer)
+	AnchorheadBattleground:debug(pPlayer)
 end
 
 function StaffTools:suiShuttleDropoffCallback(pPlayer, pSui, eventIndex, args)
