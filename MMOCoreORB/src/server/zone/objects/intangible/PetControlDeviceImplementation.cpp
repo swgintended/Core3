@@ -178,7 +178,7 @@ void PetControlDeviceImplementation::callObject(CreatureObject* player) {
 			if (object->isCreature() && petType == PetManager::CREATUREPET) {
 				const CreatureTemplate* activePetTemplate = object->getCreatureTemplate();
 
-				if (activePetTemplate == nullptr || activePetTemplate->getTemplateName() == "at_st")
+				if (activePetTemplate == nullptr || isWalkerTemplate(activePetTemplate))
 					continue;
 
 				if (++currentlySpawned >= maxPets) {
@@ -201,10 +201,10 @@ void PetControlDeviceImplementation::callObject(CreatureObject* player) {
 				const CreatureTemplate* activePetTemplate = object->getCreatureTemplate();
 				const CreatureTemplate* callingPetTemplate = pet->getCreatureTemplate();
 
-				if (activePetTemplate == nullptr || callingPetTemplate == nullptr || activePetTemplate->getTemplateName() != "at_st")
+				if (activePetTemplate == nullptr || callingPetTemplate == nullptr || !isWalkerTemplate(activePetTemplate))
 					continue;
 
-				if (++currentlySpawned >= maxPets || (activePetTemplate->getTemplateName() == "at_st" && callingPetTemplate->getTemplateName() == "at_st")) {
+				if (++currentlySpawned >= maxPets || (isWalkerTemplate(activePetTemplate) && isWalkerTemplate(callingPetTemplate))) {
 					player->sendSystemMessage("@pet/pet_menu:at_max"); // You already have the maximum number of pets of this type that you can call.
 					return;
 				}
@@ -1269,4 +1269,8 @@ void PetControlDeviceImplementation::setVitality(int vit) {
 			}
 		}, "PetSetVitalityLambda");
 	}
+}
+
+bool PetControlDeviceImplementation::isWalkerTemplate(const CreatureTemplate* creatureTemplate) const {
+	return creatureTemplate->getTemplateName() == "at_st" || creatureTemplate->getTemplateName() == "at_xt";
 }

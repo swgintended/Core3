@@ -76,8 +76,9 @@ int UplinkTerminalMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject
 	} else if (uplinkTerminal->getDistanceTo(player) > 15) {
 		player->sendSystemMessage("You are too far away from the uplink to continue jamming!");
 		return 1;
-	} else if (player->getFactionRank() < 15) {
-		player->sendSystemMessage("Only a overt Operative with the Rank of Colonel may Jam the Uplink!");
+	} else if (player->getFactionRank() < 12) {
+		// SWGIntended: slice by rank
+		player->sendSystemMessage("Only an operative with the rank of Captain or higher has the training to jam this uplink!");
 		return 1;
 	}
 
@@ -85,5 +86,3 @@ int UplinkTerminalMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject
 
 	return 0;
 }
-
-

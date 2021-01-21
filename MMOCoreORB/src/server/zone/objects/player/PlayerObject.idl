@@ -745,8 +745,8 @@ class PlayerObject extends IntangibleObject {
 	 * @param factionName The string key for the faction the faction points are to be added.
 	 * @param amount The float amount of faction points to add.
 	 */
-	public native void increaseFactionStanding(final string factionName, float amount);
-	public native void decreaseFactionStanding(final string factionName, float amount);
+	public native void increaseFactionStanding(final string factionName, float amount, boolean applyLoyalty = true);
+	public native void decreaseFactionStanding(final string factionName, float amount, boolean applyLoyalty = true);
 	public native void setFactionStanding(final string factionName, float amount);
 
 	@read

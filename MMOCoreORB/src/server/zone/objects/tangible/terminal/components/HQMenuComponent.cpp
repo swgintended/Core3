@@ -107,7 +107,7 @@ int HQMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject, CreatureOb
 		if (selectedID == 230) {
 			if (gcwMan->isFacilityRebooting(building)) {
 				creature->sendSystemMessage("You must wait for the facility to reboot before activating the overload again.");
-			} else if (gcwMan->isPowerOverloaded(building) && creature->getFactionRank() == 15) {
+			} else if (gcwMan->isPowerOverloaded(building) && creature->getFactionRank() >= 15) {
 				if (gcwMan->isShutdownSequenceStarted(building)) {
 					creature->sendSystemMessage(("@faction/faction_hq/faction_hq_response:terminal_response02")); // A countdown is already in progress...
 				} else {
@@ -115,7 +115,8 @@ int HQMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject, CreatureOb
 					task->execute();
 				}
 			} else {
-				creature->sendSystemMessage(("Only a overt Operative with the Rank of Colonel can active the Reactor Overload!")); // Only an experienced squad leader could expect to coordinate a reactor overload!
+				// SWGIntended: slice by rank
+				creature->sendSystemMessage("Only an operative with the rank of Colonel or higher has the authority to initiate a reactor overload!");
 			}
 
 			return 0;
@@ -166,4 +167,3 @@ int HQMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject, CreatureOb
 
 	return 0;
 }
-
