@@ -32,13 +32,13 @@ rebel_commandant = Creature:new {
 		{
 			groups = {
 				{group = "color_crystals", chance = 300000},
-				{group = "junk", chance = 4150000},
+				{group = "junk", chance = 150000},
 				{group = "rifles", chance = 1000000},
 				{group = "pistols", chance = 1000000},
 				{group = "melee_weapons", chance = 1000000},
 				{group = "carbines", chance = 1000000},
-				{group = "clothing_attachments", chance = 300000},
-				{group = "armor_attachments", chance = 300000},
+				{group = "clothing_attachments", chance = 2375000},
+				{group = "armor_attachments", chance = 2375000},
 				{group = "rebel_officer_common", chance = 450000},
 				{group = "wearables_rare", chance = 500000}
 			}
