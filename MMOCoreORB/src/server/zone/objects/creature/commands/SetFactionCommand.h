@@ -5,6 +5,7 @@
 #ifndef SETFACTIONCOMMAND_H_
 #define SETFACTIONCOMMAND_H_
 
+#include "server/zone/managers/faction/FactionManager.h"
 #include "server/zone/objects/scene/SceneObject.h"
 #include "server/zone/objects/tangible/TangibleObject.h"
 #include "server/zone/objects/player/PlayerObject.h"
@@ -115,11 +116,11 @@ public:
 
 		if (tokenizer.hasMoreTokens()) {
 			int rank = tokenizer.getIntToken();
-
+			int highestRank = FactionManager::instance()->getHighestRank();
 			if (rank < 0)
 				rank = 0;
-			else if (rank > 15)
-				rank = 15;
+			else if (rank > highestRank)
+				rank = highestRank;
 
 			if (pobj != nullptr)
 				pobj->setFactionRank(rank);
@@ -131,8 +132,8 @@ public:
 		}
 
 		if (targetPlayerObject != nullptr) { // Cap off points to new caps
-			targetPlayerObject->increaseFactionStanding("imperial", 0);
-			targetPlayerObject->increaseFactionStanding("rebel", 0);
+			targetPlayerObject->increaseFactionStanding("imperial", 0, false);
+			targetPlayerObject->increaseFactionStanding("rebel", 0, false);
 		}
 
 		return SUCCESS;

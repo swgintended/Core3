@@ -11,8 +11,10 @@
 #include "server/zone/objects/player/PlayerObject.h"
 #include "server/zone/objects/player/badges/Badge.h"
 #include "server/zone/objects/group/GroupObject.h"
+#include "server/zone/managers/faction/FactionManager.h"
 #include "server/zone/managers/player/PlayerManager.h"
 #include "server/zone/managers/jedi/JediManager.h"
+#include "templates/faction/Factions.h"
 #include "templates/manager/TemplateManager.h"
 #include "templates/datatables/DataTableIff.h"
 #include "templates/datatables/DataTableRow.h"
@@ -654,6 +656,29 @@ void SkillManager::updateXpLimits(PlayerObject* ghost) {
 
 	if(player == nullptr)
 		return;
+
+	FactionManager* factionManager = FactionManager::instance();
+	if (factionManager->isFactionSkillTreeEnabled()) {
+		int imperialRank = player->getFaction() == Factions::FACTIONIMPERIAL ? player->getFactionRank() : 0;
+		int rebelRank = player->getFaction() == Factions::FACTIONREBEL ? player->getFactionRank() : 0;
+		int imperialCap = factionManager->getFactionPointsCap(imperialRank);
+		int rebelCap = factionManager->getFactionPointsCap(rebelRank);
+
+		if (xpTypeCapList->contains("faction_imperial")) {
+			xpTypeCapList->get("faction_imperial") = imperialCap;
+		} else {
+			xpTypeCapList->put("faction_imperial", imperialCap);
+		}
+
+		if (xpTypeCapList->contains("faction_rebel")) {
+			xpTypeCapList->get("faction_rebel") = rebelCap;
+		} else {
+			xpTypeCapList->put("faction_rebel", rebelCap);
+		}
+	} else {
+		xpTypeCapList->drop("faction_imperial");
+		xpTypeCapList->drop("faction_rebel");
+	}
 
 	const SkillList* playerSkillBoxList = player->getSkillList();
 

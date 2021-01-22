@@ -100,7 +100,7 @@ function RecruiterConvoHandler:runScreenHandlers(pConvTemplate, pPlayer, pNpc, s
 			screenObject:setDialogTextTO("faction_recruiter", getRankName(rank))
 			screenObject:setDialogTextDI(requiredPoints)
 		else
-			PlayerObject(pGhost):decreaseFactionStanding(recruiterScreenplay:getRecruiterFaction(pNpc), requiredPoints)
+			PlayerObject(pGhost):decreaseFactionStanding(recruiterScreenplay:getRecruiterFaction(pNpc), requiredPoints, false)
 			CreatureObject(pPlayer):setFactionRank(rank)
 		end
 

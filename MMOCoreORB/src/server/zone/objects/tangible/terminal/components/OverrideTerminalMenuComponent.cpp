@@ -83,7 +83,8 @@ int OverrideTerminalMenuComponent::handleObjectMenuSelect(SceneObject* sceneObje
 		player->sendSystemMessage("You are too far away from the override terminal to continue sequencing!");
 		return 1;
 	} else if (player->getFactionRank() < 13) {
-		player->sendSystemMessage("Only a overt Operative with the Rank of Major or greater may access the DNA Sequencing!");
+		// SWGIntended: slice by rank
+		player->sendSystemMessage("Only an operative with the rank of Major or higher has the training to forge a suitable DNA sequence.");
 		return 1;
 	}
 

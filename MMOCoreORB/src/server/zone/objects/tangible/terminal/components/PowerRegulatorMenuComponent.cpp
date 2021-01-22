@@ -81,7 +81,8 @@ int PowerRegulatorMenuComponent::handleObjectMenuSelect(SceneObject* sceneObject
 		player->sendSystemMessage("@faction/faction_hq/faction_hq_response:power_too_far"); // You are too far away from the power regulator to continue the setup!
 		return 1;
 	} else if (player->getFactionRank() < 15) {
-		player->sendSystemMessage("Only a over Operative with the Rank of Colonel may overload the Power Regulator!");
+		// SWGIntended: slice by rank
+		player->sendSystemMessage("Only an operative with the rank of Colonel or higher has the training to rig the regulators for overload.");
 		return 1;
 	}
 

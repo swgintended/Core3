@@ -14,12 +14,12 @@ NightSisterLaborCampScreenPlay = ScreenPlay:new {
 	lootGroups = {
 		{
 			groups = {
-				{group = "color_crystals", chance = 3500000},
-				{group = "junk", chance = 3500000},
+				{group = "color_crystals", chance = 4500000},
+				{group = "junk", chance = 0},
 				{group = "rifles", chance = 1000000},
 				{group = "pistols", chance = 1000000},
-				{group = "clothing_attachments", chance = 500000},
-				{group = "armor_attachments", chance = 500000}
+				{group = "clothing_attachments", chance = 2000000},
+				{group = "armor_attachments", chance = 2000000}
 			},
 			lootChance = 8000000
 		}					
