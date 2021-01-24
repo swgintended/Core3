@@ -69,6 +69,8 @@ class MissionManager extends Observer implements Logger {
 	unsigned long destroyMissionRandomReward;
 	unsigned long destroyMissionDifficultyRandomReward;
 
+	protected boolean enableGroupFactionPointRewards;
+
 	public MissionManager(ZoneServer srv, ZoneProcessServer impl) {
 		server = srv;
 		processor = impl;
@@ -196,4 +198,9 @@ class MissionManager extends Observer implements Logger {
 
 	@arg1preLocked
 	public native boolean sendPlayerBountyDebug(CreatureObject player, CreatureObject target);
+
+	@read
+	public boolean isGroupFactionPointRewardsEnabled() {
+		return enableGroupFactionPointRewards;
+	}
 }

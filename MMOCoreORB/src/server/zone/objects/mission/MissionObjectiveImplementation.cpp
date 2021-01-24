@@ -118,31 +118,54 @@ void MissionObjectiveImplementation::awardFactionPoints() {
 	}
 
 	//Award faction points for faction delivery missions.
-	ManagedReference<CreatureObject*> creatureOwner = getPlayerOwner();
+	ManagedReference<CreatureObject*> owner = getPlayerOwner();
 
-	if (creatureOwner != nullptr) {
-		ManagedReference<PlayerObject*> ghost = creatureOwner->getPlayerObject();
-		if (ghost != nullptr) {
-			Locker lockerGroup(creatureOwner, _this.getReferenceUnsafeStaticCast());
+	if (owner != nullptr) {
+		ZoneServer* zoneServer = owner->getZoneServer();
+		MissionManager* missionManager = zoneServer->getMissionManager();
+		Reference<Vector<ManagedReference<CreatureObject*>>*> players;
+		if (missionManager->isGroupFactionPointRewardsEnabled()) {
+			players = getAwardPlayers(/*playMissionComplete*/false);
+		} else {
+			players = new Vector<ManagedReference<CreatureObject*>>();
+			players->add(owner);
+		}
 
-			//Switch to get the correct order.
-			switch (mission->getFaction()) {
-			case Factions::FACTIONIMPERIAL:
-				if (factionPointsImperial > 0) {
-					ghost->increaseFactionStanding("imperial", factionPointsImperial);
+		int divisor = players->size();
+		factionPointsImperial /= Math::max(divisor, 1);
+		factionPointsRebel /= Math::max(divisor, 1);
+
+		for (int i = 0; i < players->size(); i++) {
+			ManagedReference<CreatureObject*> player = players->get(i);
+			if (player->getFaction() == mission->getFaction()) {
+				// Prevent grouped players of opposite factions from losing faction
+				// standing if they are nearby
+				continue;
+			}
+
+			ManagedReference<PlayerObject*> ghost = player->getPlayerObject();
+			if (ghost != nullptr) {
+				Locker lockerPlayer(player, _this.getReferenceUnsafeStaticCast());
+
+				//Switch to get the correct order.
+				switch (mission->getFaction()) {
+					case Factions::FACTIONIMPERIAL:
+						if (factionPointsImperial > 0) {
+							ghost->increaseFactionStanding("imperial", factionPointsImperial);
+						}
+						if (factionPointsRebel < 0) {
+							ghost->decreaseFactionStanding("rebel", -factionPointsRebel);
+						}
+						break;
+					case Factions::FACTIONREBEL:
+						if (factionPointsRebel > 0) {
+							ghost->increaseFactionStanding("rebel", factionPointsRebel);
+						}
+						if (factionPointsImperial < 0) {
+							ghost->decreaseFactionStanding("imperial", -factionPointsImperial);
+						}
+						break;
 				}
-				if (factionPointsRebel < 0) {
-					ghost->decreaseFactionStanding("rebel", -factionPointsRebel);
-				}
-				break;
-			case Factions::FACTIONREBEL:
-				if (factionPointsRebel > 0) {
-					ghost->increaseFactionStanding("rebel", factionPointsRebel);
-				}
-				if (factionPointsImperial < 0) {
-					ghost->decreaseFactionStanding("imperial", -factionPointsImperial);
-				}
-				break;
 			}
 		}
 	}
@@ -171,60 +194,20 @@ void MissionObjectiveImplementation::awardReward() {
 	if(mission == nullptr)
 		return;
 
-	Vector<ManagedReference<CreatureObject*> > players;
-	PlayMusicMessage* pmm = new PlayMusicMessage("sound/music_mission_complete.snd");
-
-	Vector3 missionEndPoint = getEndPosition();
+	Reference<Vector<ManagedReference<CreatureObject*>>*> players = getAwardPlayers(/*playMissionComplete*/true);
 
 	ManagedReference<CreatureObject*> owner = getPlayerOwner();
-
 	ManagedReference<GroupObject*> group = owner->getGroup();
 
 	int playerCount = 1;
-
 	if (group != nullptr) {
-		Locker lockerGroup(group, _this.getReferenceUnsafeStaticCast());
-
 		playerCount = group->getNumberOfPlayerMembers();
-
-#ifdef LOCKFREE_BCLIENT_BUFFERS
-	Reference<BasePacket*> pack = pmm;
-#endif
-
-		for (int i = 0; i < group->getGroupSize(); i++) {
-			Reference<CreatureObject*> groupMember = group->getGroupMember(i);
-
-			if (groupMember != nullptr && groupMember->isPlayerCreature()) {
-				//Play mission complete sound.
-#ifdef LOCKFREE_BCLIENT_BUFFERS
-				groupMember->sendMessage(pack);
-#else
-				groupMember->sendMessage(pmm->clone());
-#endif
-
-				if (groupMember->getWorldPosition().distanceTo(missionEndPoint) < 128) {
-					players.add(groupMember);
-				}
-			}
-		}
-
-#ifndef LOCKFREE_BCLIENT_BUFFERS
-		delete pmm;
-#endif
-	} else {
-		//Play mission complete sound.
-		owner->sendMessage(pmm);
-		players.add(owner);
-	}
-
-	if (players.size() == 0) {
-		players.add(owner);
 	}
 
 	// int divisor = mission->getRewardCreditsDivisor();
-	// Distribute credits to nearby group members only, regardless of original
-	// (or expanded) group size at time of accepting mission.
-	int divisor = players.size();
+	// SWGIntended: Distribute credits to nearby group members only, regardless of
+	// original (or expanded) group size at time of accepting mission.
+	int divisor = players->size();
 	bool expanded = false;
 
 	// if (playerCount > divisor) {
@@ -232,14 +215,14 @@ void MissionObjectiveImplementation::awardReward() {
 	// 	expanded = true;
 	// }
 
-	if (playerCount > players.size()) {
+	if (playerCount > players->size()) {
 		owner->sendSystemMessage("@mission/mission_generic:group_too_far"); // Mission Alert! Some group members are too far away from the group to receive their reward and and are not eligible for reward.
 	}
 
 	int dividedReward = mission->getRewardCredits() / Math::max(divisor, 1);
 
-	for (int i = 0; i < players.size(); i++) {
-		ManagedReference<CreatureObject*> player = players.get(i);
+	for (int i = 0; i < players->size(); i++) {
+		ManagedReference<CreatureObject*> player = players->get(i);
 		StringIdChatParameter stringId("mission/mission_generic", "success_w_amount");
 		stringId.setDI(dividedReward);
 		player->sendSystemMessage(stringId);
@@ -257,7 +240,7 @@ void MissionObjectiveImplementation::awardReward() {
 		}
 	}
 
-	int creditsDistributed = dividedReward * players.size();
+	int creditsDistributed = dividedReward * players->size();
 
 	StatisticsManager::instance()->completeMission(mission->getTypeCRC(), creditsDistributed);
 }
@@ -274,4 +257,59 @@ Vector3 MissionObjectiveImplementation::getEndPosition() {
 	}
 
 	return missionEndPoint;
+}
+
+Reference<Vector<ManagedReference<CreatureObject*>>*> MissionObjectiveImplementation::getAwardPlayers(bool playMissionComplete) {
+	Reference<Vector<ManagedReference<CreatureObject*>>*> players = new Vector<ManagedReference<CreatureObject*>>();
+
+	PlayMusicMessage* pmm = new PlayMusicMessage("sound/music_mission_complete.snd");
+
+	Vector3 missionEndPoint = getEndPosition();
+
+	ManagedReference<CreatureObject*> owner = getPlayerOwner();
+
+	ManagedReference<GroupObject*> group = owner->getGroup();
+
+	if (group != nullptr) {
+		Locker lockerGroup(group, _this.getReferenceUnsafeStaticCast());
+
+#ifdef LOCKFREE_BCLIENT_BUFFERS
+	Reference<BasePacket*> pack = pmm;
+#endif
+
+		for (int i = 0; i < group->getGroupSize(); i++) {
+			ManagedReference<CreatureObject*> groupMember = group->getGroupMember(i);
+
+			if (groupMember != nullptr && groupMember->isPlayerCreature()) {
+				if (playMissionComplete) {
+					//Play mission complete sound.
+#ifdef LOCKFREE_BCLIENT_BUFFERS
+					groupMember->sendMessage(pack);
+#else
+					groupMember->sendMessage(pmm->clone());
+#endif
+				}
+
+				if (groupMember->getWorldPosition().distanceTo(missionEndPoint) < 128) {
+					players->add(groupMember);
+				}
+			}
+		}
+
+#ifndef LOCKFREE_BCLIENT_BUFFERS
+		delete pmm;
+#endif
+	} else {
+		if (playMissionComplete) {
+			//Play mission complete sound.
+			owner->sendMessage(pmm);
+		}
+		players->add(owner);
+	}
+
+	if (players->size() == 0) {
+		players->add(owner);
+	}
+
+	return players;
 }

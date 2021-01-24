@@ -6,6 +6,7 @@ package server.zone.objects.mission;
 
 import engine.util.Observable;
 import system.util.SortedVector;
+import system.util.Vector;
 import server.zone.objects.creature.CreatureObject;
 
 include engine.log.Logger;
@@ -136,4 +137,8 @@ class MissionObjective extends ManagedObject implements Logger {
 	public abstract native Vector3 getEndPosition();
 
 	public native void clearFailTask();
+
+	@reference
+	@local
+	private native Vector<CreatureObject> getAwardPlayers(boolean playMissionComplete);
 }
