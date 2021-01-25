@@ -500,7 +500,7 @@ function Coa2Screenplay:finishMissionFour(pPlayer, faction)
 	
 	self:removeWaypoint(pPlayer)
 
-	PlayerObject(pGhost):increaseFactionStanding(faction, 250, false)
+	PlayerObject(pGhost):increaseFactionStanding(faction, 250, true)
 
 	writeScreenPlayData(pPlayer, faction .. "_coa2", "state", self.M3_4_COMPLETE)
 end
@@ -679,7 +679,7 @@ function Coa2Screenplay:completeMissionFive(pPlayer, faction)
 	local file = "@theme_park/alderaan/act2/shared_" .. faction .. "_missions"
 
 	CreatureObject(pPlayer):sendSystemMessage(file .. ":mission_complete")
-	PlayerObject(pGhost):increaseFactionStanding(faction, 500, false)
+	PlayerObject(pGhost):increaseFactionStanding(faction, 500, true)
 
 	if faction == "imperial" then
 		PlayerObject(pGhost):awardBadge(EVENT_COA2_IMPERIAL)

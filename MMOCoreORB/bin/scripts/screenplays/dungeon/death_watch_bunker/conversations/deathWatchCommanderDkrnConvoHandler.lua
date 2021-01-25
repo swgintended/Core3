@@ -45,7 +45,7 @@ function deathWatchCommanderDkrnConvoHandler:runScreenHandlers(pConvTemplate, pP
 	elseif (screenID == "sorry_to_hear") then
 		CreatureObject(pPlayer):removeScreenPlayState(1, "death_watch_bunker_imperial_sidequest")
 	elseif (screenID == "excellent_reward") then
-		PlayerObject(pGhost):increaseFactionStanding("imperial", 500, false)
+		PlayerObject(pGhost):increaseFactionStanding("imperial", 500, true)
 		CreatureObject(pPlayer):setScreenPlayState(2, "death_watch_bunker_imperial_sidequest")
 	end
 
