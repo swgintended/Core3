@@ -1934,7 +1934,7 @@ function ThemeParkLogic:giveFaction(pConversingPlayer, faction, points)
 		return
 	end
 
-	PlayerObject(pGhost):increaseFactionStanding(faction, points)
+	PlayerObject(pGhost):increaseFactionStanding(faction, points, true)
 end
 
 function ThemeParkLogic:giveItemReward(pConversingPlayer, itemTemplate)
