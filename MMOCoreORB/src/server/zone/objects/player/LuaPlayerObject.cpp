@@ -128,22 +128,42 @@ int LuaPlayerObject::getFactionStanding(lua_State* L) {
 	return 1;
 }
 
+// increaseFactionStanding(factionName, amount, applyLoyalty = true)
 int LuaPlayerObject::increaseFactionStanding(lua_State* L) {
-	bool applyLoyalty = lua_toboolean(L, -1);
-	float val = lua_tonumber(L, -2);
-	const char* str = lua_tostring(L, -3);
-
-	realObject->increaseFactionStanding(str, val, applyLoyalty);
+	int numberOfArguments = lua_gettop(L) - 1;
+	bool applyLoyalty;
+	float val;
+	const char* str;
+	if (numberOfArguments == 3) {
+		applyLoyalty = lua_toboolean(L, -1);
+		val = lua_tonumber(L, -2);
+		str = lua_tostring(L, -3);
+		realObject->increaseFactionStanding(str, val, applyLoyalty);
+	} else {
+		val = lua_tonumber(L, -1);
+		str = lua_tostring(L, -2);
+		realObject->increaseFactionStanding(str, val);
+	}
 
 	return 0;
 }
 
+// decreaseFactionStanding(factionName, amount, applyLoyalty = true)
 int LuaPlayerObject::decreaseFactionStanding(lua_State* L) {
-	bool applyLoyalty = lua_toboolean(L, -1);
-	float val = lua_tonumber(L, -2);
-	const char* str = lua_tostring(L, -3);
-
-	realObject->decreaseFactionStanding(str, val, applyLoyalty);
+	int numberOfArguments = lua_gettop(L) - 1;
+	bool applyLoyalty;
+	float val;
+	const char* str;
+	if (numberOfArguments == 3) {
+		applyLoyalty = lua_toboolean(L, -1);
+		val = lua_tonumber(L, -2);
+		str = lua_tostring(L, -3);
+		realObject->decreaseFactionStanding(str, val, applyLoyalty);
+	} else {
+		val = lua_tonumber(L, -1);
+		str = lua_tostring(L, -2);
+		realObject->decreaseFactionStanding(str, val);
+	}
 
 	return 0;
 }

@@ -1139,7 +1139,7 @@ function CorellianCorvette:increaseGroupFactionStanding(pCorvette, faction, poin
 					local pGhost = CreatureObject(pObject):getPlayerObject()
 
 					if (pGhost ~= nil) then
-						PlayerObject(pGhost):increaseFactionStanding(faction, points, true)
+						PlayerObject(pGhost):increaseFactionStanding(faction, points)
 					end
 				end
 			end
