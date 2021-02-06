@@ -137,7 +137,7 @@ void MissionObjectiveImplementation::awardFactionPoints() {
 
 		for (int i = 0; i < players->size(); i++) {
 			ManagedReference<CreatureObject*> player = players->get(i);
-			if (player->getFaction() == mission->getFaction()) {
+			if (player->getFaction() != mission->getFaction()) {
 				// Prevent grouped players of opposite factions from losing faction
 				// standing if they are nearby
 				continue;
