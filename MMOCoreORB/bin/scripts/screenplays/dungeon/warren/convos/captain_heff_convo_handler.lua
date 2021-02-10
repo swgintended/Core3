@@ -35,7 +35,7 @@ function CaptainHeffConversationHandler:runScreenHandlers(pConvTemplate, pPlayer
 		end
 
 		PlayerObject(pGhost):awardBadge(39)
-		PlayerObject(pGhost):increaseFactionStanding("imperial", 500, true)
+		PlayerObject(pGhost):increaseFactionStanding("imperial", 500)
 	end
 
 	return pConvScreen

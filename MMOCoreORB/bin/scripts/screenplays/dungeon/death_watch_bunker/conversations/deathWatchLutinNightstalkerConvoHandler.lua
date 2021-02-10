@@ -44,7 +44,7 @@ function deathWatchLutinNightstalkerConvoHandler:runScreenHandlers(pConvTemplate
 		CreatureObject(pPlayer):removeScreenPlayState(1, "death_watch_bunker_rebel_sidequest")
 		CreatureObject(pPlayer):removeScreenPlayState(2, "death_watch_bunker_rebel_sidequest")
 	elseif (screenID == "excellent_reward") then
-		PlayerObject(pGhost):increaseFactionStanding("rebel", 30, true)
+		PlayerObject(pGhost):increaseFactionStanding("rebel", 30)
 		CreatureObject(pPlayer):setScreenPlayState(4, "death_watch_bunker_rebel_sidequest")
 	end
 
