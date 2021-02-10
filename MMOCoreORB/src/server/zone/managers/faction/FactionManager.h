@@ -10,6 +10,7 @@
 
 #include "FactionMap.h"
 #include "server/zone/objects/creature/CreatureObject.h"
+#include "server/zone/objects/mission/MissionObject.h"
 #include "server/zone/objects/player/PlayerObject.h"
 #include "system/lang.h"
 #include "templates/faction/FactionRanks.h"
@@ -58,8 +59,8 @@ public:
 
 	String getRankName(int idx);
 	int getRankCost(int rank);
-	int getRankDelegateRatioFrom(int rank);
-	int getRankDelegateRatioTo(int rank);
+	int getRankDelegateRatioFrom(int rank) const;
+	int getRankDelegateRatioTo(int rank) const;
 	String getRankSkillName(const String& faction, int rank) const;
 	int getFactionPointsCap(int rank);
 
@@ -75,6 +76,8 @@ public:
 	bool isEnemy(const String& faction1, const String& faction2);
 	bool isAlly(const String& faction1, const String& faction2);
 
+	int getMissionFactionPointReward(int minLevel, MissionObject* mission, CreatureObject* player) const;
+
 	bool isFactionSkillTreeEnabled() const {
 		return factionSkillTree;
 	}
@@ -88,6 +91,9 @@ protected:
 
 private:
 	int maxFactionRank = 15;
+	int missionRewardCap;
+	String missionRewardType;
+	bool missionRewardRankScaling;
 	bool factionSkillTree = false;
 	VectorMap<String, Vector<String>*> factionSkillTreeNames;
 

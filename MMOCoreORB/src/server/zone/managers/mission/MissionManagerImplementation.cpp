@@ -22,6 +22,7 @@
 #include "server/zone/objects/area/SpawnArea.h"
 #include "server/zone/managers/resource/ResourceManager.h"
 #include "templates/manager/TemplateManager.h"
+#include "server/zone/managers/faction/FactionManager.h"
 #include "server/zone/managers/planet/PlanetManager.h"
 #include "server/zone/managers/planet/MissionTargetMap.h"
 #include "server/zone/managers/player/PlayerManager.h"
@@ -109,6 +110,8 @@ void MissionManagerImplementation::loadLuaSettings() {
 		destroyMissionDifficultyRewardFactor = lua->getGlobalLong("destroyMissionDifficultyRewardFactor");
 		destroyMissionRandomReward = lua->getGlobalLong("destroyMissionRandomReward");
 		destroyMissionDifficultyRandomReward = lua->getGlobalLong("destroyMissionDifficultyRandomReward");
+
+		enableGroupFactionPointRewards = lua->getGlobalBoolean("enableGroupFactionPointRewards");
 
 		delete lua;
 	}
@@ -842,11 +845,7 @@ void MissionManagerImplementation::randomizeGenericDestroyMission(CreatureObject
 	mission->setSize(randomLairSpawn->getSize());
 	mission->setFaction(faction);
 
-	int factionPointsReward = randomLairSpawn->getMinDifficulty();
-	if (factionPointsReward > 32)
-	{
-		factionPointsReward = 32;
-	}
+	int factionPointsReward = FactionManager::instance()->getMissionFactionPointReward(randomLairSpawn->getMinDifficulty(), mission, player);
 
 	String messageDifficulty;
 	String missionType;
@@ -1252,15 +1251,16 @@ bool MissionManagerImplementation::randomGenericDeliverMission(CreatureObject* p
 	int deliverDistanceCredits = (playerPosition.distanceTo(*(startNpc->getPosition())) + startNpc->getPosition()->distanceTo(*(endNpc->getPosition()))) / 10;
 
 	mission->setRewardCredits(baseCredits + deliverDistanceCredits);
+	mission->setMissionDifficulty(5);
 
 	switch (faction) {
 	case Factions::FACTIONIMPERIAL:
-		mission->setRewardFactionPointsImperial(5);
+		mission->setRewardFactionPointsImperial(FactionManager::instance()->getMissionFactionPointReward(5, mission, player));
 		mission->setRewardFactionPointsRebel(0);
 		break;
 	case Factions::FACTIONREBEL:
 		mission->setRewardFactionPointsImperial(0);
-		mission->setRewardFactionPointsRebel(5);
+		mission->setRewardFactionPointsRebel(FactionManager::instance()->getMissionFactionPointReward(5, mission, player));
 		break;
 	default:
 		mission->setRewardFactionPointsImperial(0);
@@ -1268,7 +1268,6 @@ bool MissionManagerImplementation::randomGenericDeliverMission(CreatureObject* p
 		break;
 	}
 
-	mission->setMissionDifficulty(5);
 	mission->setMissionTitle(getDeliveryMissionFileName(faction), "m" + String::valueOf(randomTexts) + "t");
 	mission->setMissionDescription(getDeliveryMissionFileName(faction), "m" + String::valueOf(randomTexts) + "d");
 
@@ -1398,17 +1397,18 @@ void MissionManagerImplementation::randomizeGenericEntertainerMission(CreatureOb
 	mission->setRewardCredits(100 + distanceReward + System::random(100));
 
 	mission->setFaction(faction);
+	mission->setMissionDifficulty(5 * randomRange);
 
 	switch (faction) {
 	case Factions::FACTIONIMPERIAL:
-		mission->setRewardFactionPointsImperial(5);
+		mission->setRewardFactionPointsImperial(FactionManager::instance()->getMissionFactionPointReward(5, mission, player));
 		mission->setRewardFactionPointsRebel(0);
 		mission->setMissionTitle("mission/mission_npc_" + missionString + "_imperial_easy", "m" + String::valueOf(randTexts) + "t");
 		mission->setMissionDescription("mission/mission_npc_" + missionString + "_imperial_easy", "m" + String::valueOf(randTexts) + "o");
 		break;
 	case Factions::FACTIONREBEL:
 		mission->setRewardFactionPointsImperial(0);
-		mission->setRewardFactionPointsRebel(5);
+		mission->setRewardFactionPointsRebel(FactionManager::instance()->getMissionFactionPointReward(5, mission, player));
 		mission->setMissionTitle("mission/mission_npc_" + missionString + "_rebel_easy", "m" + String::valueOf(randTexts) + "t");
 		mission->setMissionDescription("mission/mission_npc_" + missionString + "_rebel_easy", "m" + String::valueOf(randTexts) + "o");
 		break;
@@ -1419,8 +1419,6 @@ void MissionManagerImplementation::randomizeGenericEntertainerMission(CreatureOb
 		mission->setMissionDescription("mission/mission_npc_" + missionString + "_neutral_easy", "m" + String::valueOf(randTexts) + "o");
 		break;
 	}
-
-	mission->setMissionDifficulty(5 * randomRange);
 
 	mission->setTypeCRC(missionType);
 }
@@ -1555,6 +1553,7 @@ void MissionManagerImplementation::randomizeGenericReconMission(CreatureObject* 
 	int reward = position.distanceTo(player->getWorldPosition()) / 5;
 
 	mission->setRewardCredits(50 + reward);
+	mission->setMissionDifficulty(1);
 
 	switch (faction) {
 	case Factions::FACTIONIMPERIAL:
@@ -1565,7 +1564,7 @@ void MissionManagerImplementation::randomizeGenericReconMission(CreatureObject* 
 
 		mission->setMissionNumber(randTexts);
 
-		mission->setRewardFactionPointsImperial(10);
+		mission->setRewardFactionPointsImperial(FactionManager::instance()->getMissionFactionPointReward(10, mission, player));
 		mission->setRewardFactionPointsRebel(0);
 		mission->setMissionTitle("mission/mission_npc_recon_imperial_easy", "m" + String::valueOf(randTexts) + "t");
 		mission->setMissionDescription("mission/mission_npc_recon_imperial_easy", "m" + String::valueOf(randTexts) + "o");
@@ -1577,7 +1576,7 @@ void MissionManagerImplementation::randomizeGenericReconMission(CreatureObject* 
 		mission->setMissionNumber(randTexts);
 
 		mission->setRewardFactionPointsImperial(0);
-		mission->setRewardFactionPointsRebel(10);
+		mission->setRewardFactionPointsRebel(FactionManager::instance()->getMissionFactionPointReward(10, mission, player));
 		mission->setMissionTitle("mission/mission_npc_recon_rebel_easy", "m" + String::valueOf(randTexts) + "t");
 		mission->setMissionDescription("mission/mission_npc_recon_rebel_easy", "m" + String::valueOf(randTexts) + "o");
 		break;
@@ -1594,8 +1593,6 @@ void MissionManagerImplementation::randomizeGenericReconMission(CreatureObject* 
 		break;
 	}
 	}
-
-	mission->setMissionDifficulty(1);
 
 	mission->setFaction(faction);
 

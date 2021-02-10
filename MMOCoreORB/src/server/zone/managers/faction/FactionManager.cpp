@@ -80,6 +80,10 @@ void FactionManager::loadLuaConfig() {
 
 	luaObject.pop();
 
+	missionRewardType = lua->getGlobalString("missionRewardType");
+	missionRewardCap = lua->getGlobalInt("missionRewardCap");
+	missionRewardRankScaling = lua->getGlobalBoolean("missionRewardRankScaling");
+
 	maxFactionRank = lua->getGlobalInt("maxFactionRank");
 	factionSkillTree = lua->getGlobalBoolean("factionSkillTree");
 	if (factionSkillTree) {
@@ -221,14 +225,14 @@ int FactionManager::getRankCost(int rank) {
 	return factionRanks.getRank(rank).getCost();
 }
 
-int FactionManager::getRankDelegateRatioFrom(int rank) {
+int FactionManager::getRankDelegateRatioFrom(int rank) const {
 	if (rank >= factionRanks.getCount())
 		return -1;
 
 	return factionRanks.getRank(rank).getDelegateRatioFrom();
 }
 
-int FactionManager::getRankDelegateRatioTo(int rank) {
+int FactionManager::getRankDelegateRatioTo(int rank) const {
 	if (rank >= factionRanks.getCount())
 		return -1;
 
@@ -280,6 +284,39 @@ bool FactionManager::isAlly(const String& faction1, const String& faction2) {
 	Faction* faction = factionMap.getFaction(faction1);
 
 	return faction->getAllies()->contains(faction2);
+}
+
+int FactionManager::getMissionFactionPointReward(int minLevel, MissionObject* mission, CreatureObject* player) const {
+	int factionPoints;
+	if (missionRewardType == "difficulty_level") {
+		factionPoints = mission->getDifficultyLevel();
+	} else if (missionRewardType == "difficulty_display") {
+		factionPoints = mission->getDifficultyDisplay();
+	} else {
+		if (missionRewardType != "min_level") {
+			warning() << "Invalid missionRewardType \"" << missionRewardType << "\". Defaulting to \"min_level\"";
+		}
+
+		factionPoints = minLevel;
+	}
+
+	if (factionPoints < minLevel) {
+		// Some missions, such as recon missions, have a difficulty display that
+		// is less than the actual reward. In these cases, switch back to minLevel.
+		factionPoints = minLevel;
+	}
+
+	if (missionRewardCap >= 0 && factionPoints > missionRewardCap) {
+		factionPoints = missionRewardCap;
+	}
+
+	int rank = player->getFactionRank();
+	if (missionRewardRankScaling && rank > 0) {
+		float modifier = 1.0f + float(getRankDelegateRatioTo(rank)) / float(getRankDelegateRatioFrom(rank));
+		factionPoints = int(factionPoints * modifier);
+	}
+
+	return factionPoints;
 }
 
 void FactionManager::onPlayerLoggedIn(CreatureObject* player) const {
