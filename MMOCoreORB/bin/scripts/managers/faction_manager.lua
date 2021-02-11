@@ -82,6 +82,16 @@ factionList = {
 }
 
 maxFactionRank = 15
+-- Where to determine the amount of faction points to award for missions. Valid
+-- options are "min_level" (SWG default), "difficulty_level" (the actual level
+-- rolled for the mission), or "difficulty_display" (what the player sees in the
+-- mission details).
+-- missionRewardType = "min_level"
+-- The maximum amount of faction points (before scaling) to award for missions.
+-- missionRewardCap = 32
+-- When set to true, each rank will award slightly more faction points based on
+-- the delegate ratios.
+-- missionRewardRankScaling = false
 -- When true, displays the player's PvP officer faction ranks as a skill tree.
 -- Requires .tre patch with "faction_rank" skill trees ()
 -- factionSkillTree = false
@@ -140,6 +150,9 @@ maxFactionRank = 15
 
 -- SWGIntended: GCW Revamp
 -- maxFactionRank = 21
+missionRewardType = "difficulty_display"
+missionRewardCap = -1
+missionRewardRankScaling = true
 factionSkillTree = true
 factionSkillTreeNames = {
 	imperial = {

@@ -481,7 +481,7 @@ function Coa2Screenplay:startMissionThree(pPlayer, conversingNPC, faction)
 		CreatureObject(pPlayer):sendSystemMessage(file .. ":waypoint_failure")
 		return
 	end
-	
+
 	writeData(SceneObject(pPlayer):getObjectID() .. ":coaWayID", wayID)
 
 	writeScreenPlayData(pPlayer, faction .. "_coa2", "state", self.M3_4_ACTIVE)
@@ -497,10 +497,10 @@ function Coa2Screenplay:finishMissionFour(pPlayer, faction)
 	if pGhost == nil then
 		return
 	end
-	
+
 	self:removeWaypoint(pPlayer)
 
-	PlayerObject(pGhost):increaseFactionStanding(faction, 250, true)
+	PlayerObject(pGhost):increaseFactionStanding(faction, 250)
 
 	writeScreenPlayData(pPlayer, faction .. "_coa2", "state", self.M3_4_COMPLETE)
 end
@@ -679,7 +679,7 @@ function Coa2Screenplay:completeMissionFive(pPlayer, faction)
 	local file = "@theme_park/alderaan/act2/shared_" .. faction .. "_missions"
 
 	CreatureObject(pPlayer):sendSystemMessage(file .. ":mission_complete")
-	PlayerObject(pGhost):increaseFactionStanding(faction, 500, true)
+	PlayerObject(pGhost):increaseFactionStanding(faction, 500)
 
 	if faction == "imperial" then
 		PlayerObject(pGhost):awardBadge(EVENT_COA2_IMPERIAL)
