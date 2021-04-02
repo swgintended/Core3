@@ -512,17 +512,23 @@ void SlicingSessionImplementation::handleWeaponSlice() {
 		return;
 
 	int sliceSkill = getSlicingSkill(player);
+	
 	uint8 min = 0;
 	uint8 max = 0;
 
 	switch (sliceSkill) {
 	case 5:
-		min += 5;
-		max += 5;
+		min += 25;
+		max += 35;
+		break;
 	case 4:
-		min += 5;
-		max += 5;
+		min += 20;
+		max += 35;
+		break;
 	case 3:
+		min += 15;
+		max += 30;
+		break;
 	case 2:
 		min += 10;
 		max += 25;
@@ -620,6 +626,7 @@ void SlicingSessionImplementation::handleArmorSlice() {
 
 	uint8 sliceType = System::random(1);
 	int sliceSkill = getSlicingSkill(player);
+	info(std::to_string(sliceSkill), true);
 	uint8 min = 0;
 	uint8 max = 0;
 
@@ -637,9 +644,10 @@ void SlicingSessionImplementation::handleArmorSlice() {
 	default:
 		return;
 	}
-
+	info(std::to_string(min), true);
+	info(std::to_string(max), true);
 	uint8 percent = System::random(max - min) + min;
-
+	info(std::to_string(percent), true);
 	switch (sliceType) {
 	case 0:
 		handleSliceEffectiveness(percent);
