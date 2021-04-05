@@ -530,8 +530,9 @@ void TangibleObjectImplementation::removeDefender(SceneObject* defender) {
 		}
 	}
 
-	if (defenderList.size() == 0)
+	if (defenderList.size() == 0) {
 		clearCombatState(false);
+	}
 
 	debug("finished removing defender");
 }
@@ -741,12 +742,15 @@ int TangibleObjectImplementation::notifyObjectDestructionObservers(TangibleObjec
 
 	dropFromDefenderLists();
 
+	attacker->removeDefender(asTangibleObject());
+
 	return 1;
 }
 
 void TangibleObjectImplementation::dropFromDefenderLists() {
-	if (defenderList.size() == 0)
+	if (defenderList.size() == 0) {
 		return;
+	}
 
 	Reference<ClearDefenderListsTask*> task = new ClearDefenderListsTask(defenderList, asTangibleObject());
 	Core::getTaskManager()->executeTask(task);
