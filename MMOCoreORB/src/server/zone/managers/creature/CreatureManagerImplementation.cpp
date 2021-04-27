@@ -655,12 +655,6 @@ int CreatureManagerImplementation::notifyDestruction(TangibleObject* destructor,
 		}
 	}
 
-	const DeltaVector<ManagedReference<SceneObject*> >* defenderList = destructor->getDefenderList();
-
-	if (defenderList->size() == 0) {
-		destructor->clearCombatState(false);
-	}
-
 	// now we can safely lock destructor again
 	if (destructedObject != destructor) {
 		destructor->wlock(destructedObject);
@@ -675,6 +669,12 @@ int CreatureManagerImplementation::notifyDestruction(TangibleObject* destructor,
 					destructorThreatMap->remove(i);
 				}
 			}
+		}
+
+		const DeltaVector<ManagedReference<SceneObject*> >* defenderList = destructor->getDefenderList();
+
+		if (defenderList->size() == 0) {
+			destructor->clearCombatState(false);
 		}
 	}
 
