@@ -21,6 +21,7 @@
 #include "server/zone/managers/structure/StructureManager.h"
 #include "server/zone/managers/stringid/StringIdManager.h"
 #include "server/zone/managers/planet/PlanetManager.h"
+#include "server/zone/managers/player/PlayerManager.h"
 #include "server/zone/managers/vendor/VendorManager.h"
 #include "server/zone/managers/collision/CollisionManager.h"
 
@@ -1193,10 +1194,8 @@ void BuildingObjectImplementation::payAccessFee(CreatureObject* player) {
 	if (owner != nullptr && owner->isPlayerCreature()) {
 		Locker clocker(owner, player);
 
-		PlayerObject* ghost = owner->getPlayerObject();
-
-		if (ghost != nullptr)
-			ghost->addExperience("merchant", 50, true);
+		PlayerManager* playerManager = getZoneServer()->getPlayerManager();
+		playerManager->awardExperience(player, "merchant", 50, false);
 	}
 
 	updatePaidAccessList();
