@@ -31,6 +31,7 @@ include system.lang.Time;
 include server.login.account.GalaxyAccountInfo;
 include server.zone.objects.draftschematic.DraftSchematic;
 include server.zone.objects.player.badges.Badges;
+include server.zone.objects.player.pvp.EnemyFlags;
 include server.zone.objects.player.sui.SuiBox;
 include server.zone.objects.player.ValidatedPosition;
 include server.zone.objects.player.variables.Ability;
@@ -207,6 +208,9 @@ class PlayerObject extends IntangibleObject {
 
 	@dereferenced
 	protected Time lastPvpRatingUpdate; // Timestamp of when last time player received a pvp rating change
+
+	@dereferenced
+	protected EnemyFlags enemyFlags;
 
 	@dereferenced
 	protected Vector<byte> hologrindProfessions;
@@ -1999,6 +2003,11 @@ class PlayerObject extends IntangibleObject {
 			rating = PVP_RATING_FLOOR;
 
 		pvpRating = rating;
+	}
+
+	@local
+	public EnemyFlags getEnemyFlags() {
+		return enemyFlags;
 	}
 
 	@read

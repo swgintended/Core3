@@ -10,6 +10,7 @@
 #include "server/zone/managers/planet/PlanetManager.h"
 #include "server/zone/managers/mission/MissionManager.h"
 #include "server/zone/managers/combat/CombatManager.h"
+#include "server/zone/managers/combat/PvPManager.h"
 #include "server/zone/managers/structure/StructureManager.h"
 #include "server/zone/managers/vendor/VendorManager.h"
 #include "server/zone/managers/frs/FrsManager.h"
@@ -103,6 +104,8 @@ void PlayerObjectImplementation::initializeTransientMembers() {
 	sessionStatsTotalMovement = 0;
 	sessionStatsIPAddress = "";
 	miliSecsSession = 0;
+
+	PvPManager::instance()->initializeEnemyFlags(asPlayerObject());
 }
 
 PlayerObject* PlayerObjectImplementation::asPlayerObject() {

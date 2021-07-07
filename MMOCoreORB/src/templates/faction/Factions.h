@@ -4,7 +4,12 @@ namespace Factions {
 	enum {
 		FACTIONNEUTRAL = 0,
 		FACTIONIMPERIAL = 0xDB4ACC54,
-		FACTIONREBEL = 0x16148850
+		FACTIONREBEL = 0x16148850,
+		// SWGIntended: additional factions for EnemyFlag
+		FACTIONBOUNTY = STRING_HASHCODE("bounty"),
+		FACTIONBOSS = STRING_HASHCODE("boss"),
+		FACTIONDUEL = STRING_HASHCODE("duel"),
+		FACTIONSERVER = STRING_HASHCODE("server")
 	};
 }
 #endif
